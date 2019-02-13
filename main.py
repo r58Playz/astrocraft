@@ -3,8 +3,8 @@ import os
 import sys
 import math
 import random
-import time
 
+from time import gmtime, strftime, clock
 from collections import deque
 from pyglet import image
 from pyglet.gl import *
@@ -427,8 +427,8 @@ class Model(object):
         add_block() or remove_block() was called with immediate=False
 
         """
-        start = time.clock()
-        while self.queue and time.clock() - start < 1.0 / TICKS_PER_SEC:
+        start = clock()
+        while self.queue and clock() - start < 1.0 / TICKS_PER_SEC:
             self._dequeue()
 
     def process_entire_queue(self):
