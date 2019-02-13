@@ -1,10 +1,9 @@
 from __future__ import division
-
+import os
 import sys
 import math
 import random
-import time
-
+from time import strftime, gmtime
 from collections import deque
 from pyglet import image
 from pyglet.gl import *
@@ -191,6 +190,14 @@ class Model(object):
                             continue
                         self.add_block((x, y, z), t, immediate=False)
                 s -= d  # decrement side lenth so hills taper off
+                opened_dates_file = "OPENED_DATES.factories"
+                if os.path.exists(opened_dates_file):
+                    filetoWrite = open(opened_dates_file, 'w')
+                    datetime = strftime("%d-%m-%Y %H:%M:%S|", gmtime())
+                    dateString = datetime + "~~opened the game at this time"
+                    filetoWrite.write(dateString)
+                    filetoWrite.close()
+
 
     def hit_test(self, position, vector, max_distance=8):
         """ Line of sight search from current position. If a block is
