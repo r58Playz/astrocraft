@@ -3,7 +3,8 @@ import os
 import sys
 import math
 import random
-from time import strftime, gmtime
+import time
+
 from collections import deque
 from pyglet import image
 from pyglet.gl import *
@@ -190,6 +191,7 @@ class Model(object):
                             continue
                         self.add_block((x, y, z), t, immediate=False)
                 s -= d  # decrement side lenth so hills taper off
+<<<<<<< HEAD
                 opened_dates_file = "OPENED_DATES.factories"
                 if os.path.exists(opened_dates_file):
                     filetoWrite = open(opened_dates_file, 'w')
@@ -198,6 +200,8 @@ class Model(object):
                     filetoWrite.write(dateString)
                     filetoWrite.close()
 
+=======
+>>>>>>> fe604be3a0144f3172885d05986f0d76b4b5a402
 
     def hit_test(self, position, vector, max_distance=8):
         """ Line of sight search from current position. If a block is
