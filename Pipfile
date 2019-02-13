@@ -6,10 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-<<<<<<< HEAD
 pyglet
-=======
->>>>>>> fe604be3a0144f3172885d05986f0d76b4b5a402
-
 [requires]
 python_version = "2.7"
