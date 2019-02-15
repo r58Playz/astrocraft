@@ -13,8 +13,10 @@ class saveModule(object):
         self.saveGameFile = 'SAVE.FACTORIES'
         
     def printStuff(self, txt):
-        print(strftime("%d-%m-%Y %H:%M:%S|", gmtime()) + str(txt) ) 
-    
+        toLog = strftime("%d-%m-%Y %H:%M:%S|", gmtime()) + str(txt) 
+        log = open('LOG.FACTORIES','w')
+        log.write(toLog + "/n")
+        log.close()
     def hasSaveGame(self):
         if os.path.exists(self.saveGameFile):
             return True
@@ -39,9 +41,9 @@ class saveModule(object):
         
         self.printStuff('loading completed')
         
-    def saveWorld(self, model):
+    def saveWorld(self, model, saveFile):
         self.printStuff('start saving...')
-        fh = open(self.saveGameFile, 'w')
+        fh = open(saveFile, 'w')
         
         # build a string to save it in one action
         worldString = ''

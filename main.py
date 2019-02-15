@@ -749,7 +749,7 @@ class Window(pyglet.window.Window):
             if self.dy == 0:
                 self.dy = JUMP_SPEED
         elif symbol == key.SLASH:
-            saveModule.saveWorld(self, "SAVE.FACTORIES")
+            saveModule.saveWorld(self, model,"SAVE.FACTORIES")
         elif symbol == key.NUM_1:
             self.set_exclusive_mouse(False)
         elif symbol == key.NUM_2:
