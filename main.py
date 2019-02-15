@@ -3,6 +3,7 @@ import os
 import sys
 import math
 import random
+import saveModule
 
 from time import gmtime, strftime, clock
 from collections import deque
@@ -159,45 +160,49 @@ class Model(object):
         """ Initialize the world by placing all the blocks.
 
         """
-        n = 80  # 1/2 width and height of world
-        s = 1  # step size
-        y = 0  # initial y height
-        for x in xrange(-n, n + 1, s):
-            for z in xrange(-n, n + 1, s):
-                # create a layer stone an grass everywhere.
-                self.add_block((x, y - 2, z), GRASS, immediate=False)
-                self.add_block((x, y - 3, z), STONE, immediate=False)
-                if x in (-n, n) or z in (-n, n):
-                    # create outer walls.
-                    for dy in xrange(-2, 3):
-                        self.add_block((x, y + dy, z), STONE, immediate=False)
+        save = "SAVE.FACTORIES"
+        if os.path.exists(save):
+            saveModule.load(self, Model)
+        else:
+            n = 80  # 1/2 width and height of world
+            s = 1  # step size
+            y = 0  # initial y height
+            for x in xrange(-n, n + 1, s):
+                for z in xrange(-n, n + 1, s):
+                    # create a layer stone an grass everywhere.
+                    self.add_block((x, y - 2, z), GRASS, immediate=False)
+                    self.add_block((x, y - 3, z), STONE, immediate=False)
+                    if x in (-n, n) or z in (-n, n):
+                        # create outer walls.
+                        for dy in xrange(-2, 3):
+                            self.add_block((x, y + dy, z), STONE, immediate=False)
 
-        # generate the hills randomly
-        o = n - 10
-        for _ in xrange(120):
-            a = random.randint(-o, o)  # x position of the hill
-            b = random.randint(-o, o)  # z position of the hill
-            c = -1  # base of the hill
-            h = random.randint(1, 6)  # height of the hill
-            s = random.randint(4, 8)  # 2 * s is the side length of the hill
-            d = 1  # how quickly to taper off the hills
-            t = random.choice([GRASS, SAND, BRICK])
-            for y in xrange(c, c + h):
-                for x in xrange(a - s, a + s + 1):
-                    for z in xrange(b - s, b + s + 1):
-                        if (x - a) ** 2 + (z - b) ** 2 > (s + 1) ** 2:
-                            continue
-                        if (x - 0) ** 2 + (z - 0) ** 2 < 5 ** 2:
-                            continue
-                        self.add_block((x, y, z), t, immediate=False)
-                s -= d  # decrement side lenth so hills taper off
-                opened_dates_file = "OPENED_DATES.factories"
-                if os.path.exists(opened_dates_file):
-                    filetoWrite = open(opened_dates_file, 'w')
-                    datetime = strftime("%d-%m-%Y %H:%M:%S|", gmtime())
-                    dateString = datetime + "~~opened the game at this time"
-                    filetoWrite.write(dateString)
-                    filetoWrite.close()
+            # generate the hills randomly
+            o = n - 10
+            for _ in xrange(120):
+                a = random.randint(-o, o)  # x position of the hill
+                b = random.randint(-o, o)  # z position of the hill
+                c = -1  # base of the hill
+                h = random.randint(1, 6)  # height of the hill
+                s = random.randint(4, 8)  # 2 * s is the side length of the hill
+                d = 1  # how quickly to taper off the hills
+                t = random.choice([GRASS, SAND, BRICK])
+                for y in xrange(c, c + h):
+                    for x in xrange(a - s, a + s + 1):
+                        for z in xrange(b - s, b + s + 1):
+                            if (x - a) ** 2 + (z - b) ** 2 > (s + 1) ** 2:
+                                continue
+                            if (x - 0) ** 2 + (z - 0) ** 2 < 5 ** 2:
+                                continue
+                            self.add_block((x, y, z), t, immediate=False)
+                    s -= d  # decrement side lenth so hills taper off
+                    opened_dates_file = "OPENED_DATES.factories"
+                    if os.path.exists(opened_dates_file):
+                        filetoWrite = open(opened_dates_file, 'w')
+                        datetime = strftime("%d-%m-%Y %H:%M:%S|", gmtime())
+                        dateString = datetime + "~~opened the game at this time"
+                        filetoWrite.write(dateString)
+                        filetoWrite.close()
 
 
     def hit_test(self, position, vector, max_distance=8):
@@ -743,6 +748,8 @@ class Window(pyglet.window.Window):
         elif symbol == key.NUM_0:
             if self.dy == 0:
                 self.dy = JUMP_SPEED
+        elif symbol == key.SLASH:
+            saveModule.saveWorld(self, "SAVE.FACTORIES")
         elif symbol == key.NUM_1:
             self.set_exclusive_mouse(False)
         elif symbol == key.NUM_2:
