@@ -3,7 +3,7 @@ import os
 import sys
 import math
 import random
-import saveModule
+import saveLoad
 
 from time import gmtime, strftime, clock
 from collections import deque
@@ -13,7 +13,6 @@ from pyglet.graphics import TextureGroup
 from pyglet.window import key, mouse
 
 TICKS_PER_SEC = 60
-
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16
 
@@ -162,7 +161,7 @@ class Model(object):
         """
         save = "SAVE.FACTORIES"
         if os.path.exists(save):
-            saveModule.load(self, Model)
+            saveLoad.load(self, Model,"SAVE.FACTORIES")
         else:
             n = 80  # 1/2 width and height of world
             s = 1  # step size
@@ -737,26 +736,32 @@ class Window(pyglet.window.Window):
             Number representing any modifying keys that were pressed.
 
         """
-        if symbol == key.UP:
-            self.strafe[0] -= 1
-        elif symbol == key.DOWN:
-            self.strafe[0] += 1
-        elif symbol == key.LEFT:
-            self.strafe[1] -= 1
-        elif symbol == key.RIGHT:
-            self.strafe[1] += 1
-        elif symbol == key.NUM_0:
-            if self.dy == 0:
-                self.dy = JUMP_SPEED
-        elif symbol == key.SLASH:
-            saveModule.saveWorld(self, model,"SAVE.FACTORIES")
-        elif symbol == key.NUM_1:
-            self.set_exclusive_mouse(False)
-        elif symbol == key.NUM_2:
-            self.flying = not self.flying
-        elif symbol in self.num_keys:
-            index = (symbol - self.num_keys[0]) % len(self.inventory)
-            self.block = self.inventory[index]
+        try:
+            if symbol == key.UP:
+                self.strafe[0] -= 1
+            elif symbol == key.DOWN:
+                self.strafe[0] += 1
+            elif symbol == key.LEFT:
+                self.strafe[1] -= 1
+            elif symbol == key.RIGHT:
+                self.strafe[1] += 1
+            elif symbol == key.NUM_0:
+                if self.dy == 0:
+                    self.dy = JUMP_SPEED
+            elif symbol == key.SLASH:
+                self.saveLoad.saveWorld(self,self.model,"SAVE.FACTORIES")
+            elif symbol == key.NUM_1:
+                self.set_exclusive_mouse(False)
+            elif symbol == key.NUM_2:
+                self.flying = not self.flying
+            elif symbol in self.num_keys:
+                index = (symbol - self.num_keys[0]) % len(self.inventory)
+                self.block = self.inventory[index]
+        except:
+            toLog = strftime("%d-%m-%Y %H:%M:%S|", gmtime()) + "An error happened, probably a traceback. At line 752-753." 
+            log = open('LOG.FACTORIES','w')
+            log.write(toLog + " /n")
+            log.close()
 
     def on_key_release(self, symbol, modifiers):
         """ Called when the player releases a key. See pyglet docs for key
