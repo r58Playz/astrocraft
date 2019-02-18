@@ -15,7 +15,25 @@ from pyglet.window import key, mouse
 TICKS_PER_SEC = 60
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16
-
+SAVELOAD = saveLoad()
+def log(text, ifNotice = false):
+    if ifNotice == true:
+        toLog = "NOTICE|" + text 
+        log = open('LOG.FACTORIES','w')
+        log.write(toLog)
+        log.close()
+    else:
+        toLog = "ERROR|" + text 
+        log = open('LOG.FACTORIES','w')
+        log.write(toLog)
+        log.close()
+def test_saveload_class():
+    try:
+        savefile = SAVELOAD.saveGameFile
+        logtext = "SAVEFILE: " + savefile
+        log(logtext, true)
+    except:
+        log("ERR:'saveload.saveGameFile' is not accesible.")
 WALKING_SPEED = 5
 FLYING_SPEED = 15
 
@@ -161,7 +179,7 @@ class Model(object):
         """
         save = "SAVE.FACTORIES"
         if os.path.exists(save):
-            saveLoad.load(self, Model,"SAVE.FACTORIES")
+            SAVELOAD.loadWorld(Model,"SAVE.FACTORIES")
         else:
             n = 80  # 1/2 width and height of world
             s = 1  # step size
@@ -736,32 +754,26 @@ class Window(pyglet.window.Window):
             Number representing any modifying keys that were pressed.
 
         """
-        try:
-            if symbol == key.UP:
-                self.strafe[0] -= 1
-            elif symbol == key.DOWN:
-                self.strafe[0] += 1
-            elif symbol == key.LEFT:
-                self.strafe[1] -= 1
-            elif symbol == key.RIGHT:
-                self.strafe[1] += 1
-            elif symbol == key.NUM_0:
-                if self.dy == 0:
-                    self.dy = JUMP_SPEED
-            elif symbol == key.SLASH:
-                self.saveLoad.saveWorld(self,self.model,"SAVE.FACTORIES")
-            elif symbol == key.NUM_1:
-                self.set_exclusive_mouse(False)
-            elif symbol == key.NUM_2:
-                self.flying = not self.flying
-            elif symbol in self.num_keys:
-                index = (symbol - self.num_keys[0]) % len(self.inventory)
-                self.block = self.inventory[index]
-        except:
-            toLog = strftime("%d-%m-%Y %H:%M:%S|", gmtime()) + "An error happened, probably a traceback. At line 752-753." 
-            log = open('LOG.FACTORIES','w')
-            log.write(toLog + " /n")
-            log.close()
+        if symbol == key.UP:
+            self.strafe[0] -= 1
+        elif symbol == key.DOWN:
+            self.strafe[0] += 1
+        elif symbol == key.LEFT:
+            self.strafe[1] -= 1
+        elif symbol == key.RIGHT:
+            self.strafe[1] += 1
+        elif symbol == key.NUM_0:
+            if self.dy == 0:
+                self.dy = JUMP_SPEED
+        elif symbol == key.SLASH:
+            self.SAVELOAD.saveWorld(self,self.model,"SAVE.FACTORIES")
+        elif symbol == key.NUM_1:
+            self.set_exclusive_mouse(False)
+        elif symbol == key.NUM_2:
+            self.flying = not self.flying
+        elif symbol in self.num_keys:
+            index = (symbol - self.num_keys[0]) % len(self.inventory)
+            self.block = self.inventory[index]
 
     def on_key_release(self, symbol, modifiers):
         """ Called when the player releases a key. See pyglet docs for key
@@ -923,4 +935,5 @@ def main():
 
 
 if __name__ == '__main__':
+    test_saveload_class()
     main()
