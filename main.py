@@ -7,7 +7,7 @@ from pyglet import image
 from pyglet.gl import *
 from pyglet.graphics import TextureGroup
 from pyglet.window import key
-
+from log import Log
 import saveModule
 
 # Size of sectors used to ease block loading.
@@ -67,8 +67,8 @@ FACES = [
     ( 0, 0, 1),
     ( 0, 0,-1),
 ]
-
-
+log = Log()
+log.setLogFile("LOG.FACTORIES")
 def normalize(position):
     """ Accepts `position` of arbitrary precision and returns the block
     containing that position.
@@ -143,6 +143,7 @@ class Model(object):
         
         if self.saveModule.hasSaveGame() == True:
             self.saveModule.loadWorld(self)
+            Log.log("Loaded world", True, 'n')
         else:
             n = 80  # 1/2 width and height of world
             s = 1  # step size
@@ -176,7 +177,7 @@ class Model(object):
                                 continue
                             self.add_block((x, y, z), t, immediate=False)
                     s -= d  # decrement side lenth so hills taper off
-
+            log.log("Generated world", True, 'n')
     def hit_test(self, position, vector, max_distance=8):
         """ Line of sight search from current position. If a block is
         intersected it is returned, along with the block previously in the line
