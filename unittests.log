@@ -1,2 +1,16 @@
 Tests finished successfully
 __________________________________________________________
+______________________Test(of log)______________________
+02-25-2019 04:15:04|ERROR| Game Crashed
+02-25-2019 04:15:07|NOTICE| Game started
+02-25-2019 04:15:10|DEBUG| Game loaded
+______________________Test(of log)______________________
+02-25-2019 04:17:39|ERROR| Game Crashed
+02-25-2019 04:17:42|NOTICE| Game started
+02-25-2019 04:17:45|DEBUG| Game loaded
+______________________Test(of log)______________________
+02-25-2019 04:18:09|ERROR| Game Crashed
+02-25-2019 04:18:12|NOTICE| Game started
+02-25-2019 04:18:15|DEBUG| Game loaded
+Tests finished successfully
+__________________________________________________________

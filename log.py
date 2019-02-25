@@ -1,12 +1,12 @@
 import os
 from time import strftime, gmtime
 class Log(object):
-    def __init__(self, logFile):
-        self.logFile = logFile
+    def __init__(self, lf):
+        self.logF = lf
     def setLogFile(self, file):
         self.logFile = file
     def log(self,text, newline = True, tpeoflg = 'o', prefix = ''):
-        logFile = self.logFile
+        logFile = self.logF
         '''
         This function logs the text you give in a file, with a "ERROR|", "NOTICE|", or custom prefix.
         __________
@@ -90,3 +90,50 @@ class Log(object):
                 logtxt = time + prefix + "| " + text
                 log.write(logtxt)
                 log.close()
+
+class Chat(object):
+    def __init__(self, chatFile):
+        self.chatF = chatFile
+
+    def startChat(self):
+        log = Log("log.log")
+        UNDIES = "_" * 10
+        ender = os.linesep
+        chatFile = self.chatF
+        chat = open(chatFile, 'a')
+        time = strftime("%m-%d-%Y %H:%M:%S")
+        chat.write(UNDIES + time + UNDIES + ender)
+        chat.close()
+        log.log("Chat successfully started", True, 'n')
+        print(time + "|" + "Chat successfully started")
+    
+    def endChat(self):
+        """
+        Ends chat.
+        A possible use is when the program is exiting.
+        Parameters - none
+        """
+        log = Log("log.log")
+        ender = os.linesep
+        UNDIES = "_" * 10 #Essentially multiplies "_" 10 times. UNDIES == "__________"
+        chatFile = self.chatF
+        time = strftime("%m-%d-%Y %H:%M:%S")
+        chat = open(chatFile, 'a')
+        chat.write(UNDIES * 2)
+        chat.write(ender)
+        chat.close()
+        log.log("Chat successfully ended", True, 'n')
+        print(time + "|" + "Chat successfully ended")
+    
+    def chat(self, pName, message):
+        log = Log("log.log")
+        ender = os.linesep
+        person = pName + " |"
+        time = strftime("%m-%d-%Y %H:%M:%S|")
+        chat = open(self.chatF, 'a')
+        formattedChat = time + person + message
+        chat.write(formattedChat)
+        chat.write(ender)
+        chat.close()
+        log.log("Chat successfully ended", True, 'n')
+        print(time + "|" + "Wrote message to chat with person name " + pName + " with message '" + message + "'")

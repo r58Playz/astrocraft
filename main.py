@@ -7,7 +7,7 @@ from pyglet import image
 from pyglet.gl import *
 from pyglet.graphics import TextureGroup
 from pyglet.window import key
-from log import Log
+from log import Log, Chat
 import saveModule
 
 # Size of sectors used to ease block loading.
@@ -67,8 +67,8 @@ FACES = [
     ( 0, 0, 1),
     ( 0, 0,-1),
 ]
-log = Log()
-log.setLogFile("LOG.FACTORIES")
+log = Log("LOG.FACTORIES")
+CHAT = Chat("CHAT.FACTORIES")
 def normalize(position):
     """ Accepts `position` of arbitrary precision and returns the block
     containing that position.
@@ -143,7 +143,7 @@ class Model(object):
         
         if self.saveModule.hasSaveGame() == True:
             self.saveModule.loadWorld(self)
-            Log.log("Loaded world", True, 'n')
+            log.log("Loaded world", True, 'n')
         else:
             n = 80  # 1/2 width and height of world
             s = 1  # step size
@@ -695,6 +695,8 @@ class Window(pyglet.window.Window):
         elif symbol in self.num_keys:
             index = (symbol - self.num_keys[0]) % len(self.inventory)
             self.block = self.inventory[index]
+        elif symbol == key.RCTRL:
+            CHAT.endChat()
 
     def on_key_release(self, symbol, modifiers):
         """ Called when the player releases a key. See pyglet docs for key
@@ -832,8 +834,16 @@ def setup():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     setup_fog()
 
-
+def clearLog(logName):
+    log = open(logName, 'w')
+    log.write('')
+    log.close()
 def main():
+    clrLg = str(input("Do you want to clear the log before starting the game?('y', 'n')"))
+    if clrLg == 'y':
+        clearLog("LOG.FACTORIES")
+    else:
+        print("The game is starting...")
     window = Window(width=800, height=600, caption='Pyglet', resizable=True)
     window.set_exclusive_mouse(True)
     setup()

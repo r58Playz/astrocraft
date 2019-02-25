@@ -3,22 +3,20 @@ import json
 import os
 from log import Log
 from time import gmtime, strftime
-logi = Log()
 class saveModule(object):
-    logi = Log()
-    logi.setLogFile("LOG.FACTORIES")
+
     def __init__(self):
         # "tarnslate" the block texture tuples into readable words for saving
         self.coordDictSave = { str(main.GRASS):'GRASS', str(main.SAND):'SAND', str(main.BRICK):'BRICK', str(main.STONE):'STONE' }
         # "tarnslate" the words back into tuples for loading
         self.coordDictLoad = { 'GRASS':main.GRASS, 'SAND':main.SAND, 'BRICK':main.BRICK, 'STONE':main.STONE }
-        
+        self.logi = Log("LOG.FACTORIES")
         self.saveGameFile = 'SAVE.FACTORIES'
         
     def printStuff(self, txt):
         topl = strftime("%m-%d-%Y %H:%M:%S|", gmtime()) + str(txt)
         print(topl) 
-        logi.log(str(txt), True, 'n')
+        self.logi.log(str(txt), True, 'n')
     
     def hasSaveGame(self):
         if os.path.exists(self.saveGameFile):
