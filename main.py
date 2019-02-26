@@ -1,6 +1,7 @@
 import math
 import random
 import time
+import sys
 
 from collections import deque
 from pyglet import image
@@ -695,8 +696,15 @@ class Window(pyglet.window.Window):
         elif symbol in self.num_keys:
             index = (symbol - self.num_keys[0]) % len(self.inventory)
             self.block = self.inventory[index]
+        elif symbol == key.NUM_3:
+            self.set_exclusive_mouse(False)
+            name = str(input("Your name(surround in quotes):"))
+            message = str(input("Your message(surround in qoutes)"))
+            CHAT.chat(name, message)
         elif symbol == key.RCTRL:
             CHAT.endChat()
+        elif symbol == key.NUM_4:
+            sys.exit("Exiting...")
 
     def on_key_release(self, symbol, modifiers):
         """ Called when the player releases a key. See pyglet docs for key
@@ -834,16 +842,9 @@ def setup():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     setup_fog()
 
-def clearLog(logName):
-    log = open(logName, 'w')
-    log.write('')
-    log.close()
 def main():
-    clrLg = str(input("Do you want to clear the log before starting the game?('y', 'n')"))
-    if clrLg == 'y':
-        clearLog("LOG.FACTORIES")
-    else:
-        print("The game is starting...")
+    starter = "NOTICE: If you press the chat button(keypad number 3) the mouse will be freed and there will be a prompt on the command window."
+    print(starter)
     window = Window(width=800, height=600, caption='Pyglet', resizable=True)
     window.set_exclusive_mouse(True)
     setup()

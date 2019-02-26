@@ -119,7 +119,7 @@ class Chat(object):
         chatFile = self.chatF
         time = strftime("%m-%d-%Y %H:%M:%S")
         chat = open(chatFile, 'a')
-        chat.write(UNDIES * 2)
+        chat.write(UNDIES * 4)
         chat.write(ender)
         chat.close()
         log.log("Chat successfully ended", True, 'n')

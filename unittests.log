@@ -1,16 +1,12 @@
+______________________Test(of log)______________________
+02-26-2019 22:52:54|ERROR| Game Crashed
+02-26-2019 22:52:57|NOTICE| Game started
+02-26-2019 22:53:00|DEBUG| Game loaded
 Tests finished successfully
 __________________________________________________________
 ______________________Test(of log)______________________
-02-25-2019 04:15:04|ERROR| Game Crashed
-02-25-2019 04:15:07|NOTICE| Game started
-02-25-2019 04:15:10|DEBUG| Game loaded
-______________________Test(of log)______________________
-02-25-2019 04:17:39|ERROR| Game Crashed
-02-25-2019 04:17:42|NOTICE| Game started
-02-25-2019 04:17:45|DEBUG| Game loaded
-______________________Test(of log)______________________
-02-25-2019 04:18:09|ERROR| Game Crashed
-02-25-2019 04:18:12|NOTICE| Game started
-02-25-2019 04:18:15|DEBUG| Game loaded
+02-26-2019 22:57:33|ERROR| Game Crashed
+02-26-2019 22:57:36|NOTICE| Game started
+02-26-2019 22:57:39|DEBUG| Game loaded
 Tests finished successfully
 __________________________________________________________
