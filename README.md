@@ -18,4 +18,4 @@ npcs(non player charecters),
 generated structures(villages, etc.),
 generated water masses(lakes, oceans, rivers, etc.),
 dimensions(land, sky, underworld, etc.),
-be able to chat
+be able to chat✓

@@ -2,6 +2,8 @@ import math
 import random
 import time
 import sys
+import os
+
 
 from collections import deque
 from pyglet import image
@@ -142,8 +144,8 @@ class Model(object):
 
         """
         
-        if self.saveModule.hasSaveGame() == True:
-            self.saveModule.loadWorld(self)
+        if os.path.exists("test.save") == True:
+            self.saveModule.loadWorld(self, "test.save")
             log.log("Loaded world", True, 'n')
         else:
             n = 80  # 1/2 width and height of world
@@ -158,7 +160,6 @@ class Model(object):
                         # create outer walls.
                         for dy in xrange(-2, 3):
                             self.add_block((x, y + dy, z), STONE, immediate=False)
-
             # generate the hills randomly
             o = n - 10
             for _ in xrange(120):
@@ -458,8 +459,7 @@ class Window(pyglet.window.Window):
         self.block = self.inventory[0]
 
         # Convenience list of num keys.
-        self.num_keys = [
-            key.Z, key.X, key.C, key.N, key.M,key.H,key.J,key.K, key.L]
+        self.num_keys = [key._1, key._2, key._3, key._4, key._5, key._6, key._7, key._8, key._9, key._0]
 
         # Instance of the model that handles the world.
         self.model = Model()

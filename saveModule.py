@@ -24,9 +24,9 @@ class saveModule(object):
         else:
             return False
     
-    def loadWorld(self, model):
+    def loadWorld(self, model, savefile):
         self.printStuff('start loading...') 
-        fh = open(self.saveGameFile, 'r')
+        fh = open(savefile, 'r')
         worldMod = fh.read()
         fh.close()
         
@@ -42,9 +42,9 @@ class saveModule(object):
         
         self.printStuff('loading completed')
         
-    def saveWorld(self, model):
+    def saveWorld(self, model, saveFile):
         self.printStuff('start saving...')
-        fh = open(self.saveGameFile, 'w')
+        fh = open(saveFile, 'w')
         
         # build a string to save it in one action
         worldString = ''
