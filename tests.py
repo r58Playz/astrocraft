@@ -127,13 +127,13 @@ def runTests():
     print("*********************************************")
     time.sleep(1)
     print("All tests finished successfully. Please open unittests.log for more info.")
-    rF = str(input("Would you like to open unittests.log now?(y, n)"))
+    rF = str(raw_input("Would you like to open unittests.log now?(y, n)"))
     if rF == 'y':
         openF = open("unittests.log", 'r')
         testinfo = openF.read()
         print("Here is the text in unittests.log:")
         print(testinfo)
-        clrlg = str(input("Would yu likt to clear unittests.log?(y,n)"))
+        clrlg = str(raw_input("Would you like to clear unittests.log?(y,n)"))
         if clrlg == 'y':
             openF.close()
             del openF
