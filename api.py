@@ -9,7 +9,9 @@ class fs(object):
     model = main.Model()
     def __init__(self):
         print("Initialised api")
-
-if __name__ == "__main__":
-    api = fs()
-    api.makeFlatWorldSave()
+        STONE = main.STONE
+        GRASS = main.GRASS
+        SAND = main.SAND
+        BRICK = main.BRICK
+        self.saveDict = { str(main.GRASS):'GRASS', str(main.SAND):'SAND', str(main.BRICK):'BRICK', str(main.STONE):'STONE' }
+        model = main.Model()
