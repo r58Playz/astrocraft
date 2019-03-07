@@ -12,7 +12,10 @@ class saveModule(object):
         self.coordDictLoad = { 'GRASS':main.GRASS, 'SAND':main.SAND, 'BRICK':main.BRICK, 'STONE':main.STONE }
         self.logi = Log("LOG.FACTORIES")
         self.saveGameFile = 'SAVE.FACTORIES'
-        
+        self.saving = False
+    
+    def getsaving(self):
+        return self.saving
     def printStuff(self, txt):
         topl = strftime("%m-%d-%Y %H:%M:%S|", gmtime()) + str(txt)
         print(topl) 
@@ -45,7 +48,7 @@ class saveModule(object):
     def saveWorld(self, model, saveFile):
         self.printStuff('start saving...')
         fh = open(saveFile, 'w')
-        
+        self.saving = True
         # build a string to save it in one action
         worldString = ''
         
@@ -53,7 +56,6 @@ class saveModule(object):
             # convert the block coords into json
             # convert with the translation dictionary the block type into a readable word
             worldString += json.dumps(block) + '=>' + self.coordDictSave[ str(model.world[block]) ] + '\n'
-
         fh.write(worldString)
         fh.close()
         self.printStuff('saving completed')

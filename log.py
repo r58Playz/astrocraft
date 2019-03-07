@@ -2,31 +2,51 @@ import os
 from time import strftime, gmtime
 class Log(object):
     def __init__(self, lf):
+        """Initializes the log object.
+        
+        Arguments:
+            object {Object} -- Nessesary for code to function.
+            lf {String} -- filename to save log to(optionally path to file)
+        
+        Example:
+            file = "log.log" # Means that log.log is in current folder.
+            file = "logs/log1.log" # Means that log1.log is in folder logs which is in current folder.
+        """
+
         self.logF = lf
     def setLogFile(self, file):
+        """Sets the log file to file.
+        
+        Arguments:
+            file {String} -- filename(optionally pathway to file)
+        
+        Example:
+            file = "log.log" # Means that log.log is in current folder.
+            file = "logs/log1.log" # Means that log1.log is in folder logs which is in current folder.
+        """
+
         self.logFile = file
     def log(self,text, newline = True, tpeoflg = 'o', prefix = ''):
+        """Logs a message(text) with newline(newline) with type(tpeoflg), or a custom prefix(prefix).
+        
+        Arguments:
+            text {String} -- The text to log
+        
+        Keyword Arguments:
+            newline {Boolean} -- Whether or not to put a new line after the message (default: {True})
+            tpeoflg {character} -- The type of the log. (default: {'o'})
+            prefix {String} -- The prefix to use if you choose to use a custom prefix. (default: {''})
+        
+        Choices:
+            tpeoflg:
+                'e' = error
+                'n' = notice
+                'd' = debug
+                'o' = none
+                'p' = prefix
+        """
+
         logFile = self.logF
-        '''
-        This function logs the text you give in a file, with a "ERROR|", "NOTICE|", or custom prefix.
-        __________
-        Arguments
-        __________
-        text : string - the text you want to log    
-        newline: boolean - if you want this log to be seperated with a newline, set this to true. 
-        Example(newline = true):
-        NOTICE| test
-        test| This is great!!
-        Example:(newline = false)
-        NOTICE| testtest| This is great!!
-        tpeoflg : boolean - Type of log you want. Options: 'e' = error, 'n' = notice, 'd' = debug, 'o' = none 'c' = customprefix
-        customPrefix : boolean - if this is true, the prefix you give in the next argument will be added with
-        a "| ". Automatically defaults to false
-        prefix : string - the prefix you want to give. Automatically defaults to ''
-        logFile : string - the filename, with extension, you want to save the message to. Automatically defaults
-        to 'log.log'.
-        factoriesToggle: overrides the filename to "LOG.FACTORIES" Automatically defaults to false.
-        '''
         time = strftime("%m-%d-%Y %H:%M:%S|", gmtime())
         if newline == True:
             packup = os.linesep
@@ -92,10 +112,19 @@ class Log(object):
                 log.close()
 
 class Chat(object):
+    
     def __init__(self, chatFile):
+        """Initializes chatfile
+        
+        Arguments:
+            chatFile {String} -- the chatfile to save to
+        """
         self.chatF = chatFile
 
     def startChat(self):
+        """Starts the chat.
+        """
+
         log = Log("log.log")
         UNDIES = "_" * 10
         ender = os.linesep
@@ -106,13 +135,12 @@ class Chat(object):
         chat.close()
         log.log("Chat successfully started", True, 'n')
         print(time + "|" + "Chat successfully started")
+        return 1
     
     def endChat(self):
+        """Ends the chat.
         """
-        Ends chat.
-        A possible use is when the program is exiting.
-        Parameters - none
-        """
+
         log = Log("log.log")
         ender = os.linesep
         UNDIES = "_" * 10 #Essentially multiplies "_" 10 times. UNDIES == "__________"
@@ -124,16 +152,25 @@ class Chat(object):
         chat.close()
         log.log("Chat successfully ended", True, 'n')
         print(time + "|" + "Chat successfully ended")
+        return 1
     
     def chat(self, pName, message):
+        """Writes to chat file the person name, and message.
+        
+        Arguments:
+            pName {String} -- Name of person who is chatting.
+            message {String} -- Message of person who is chattting.
+        """
+
         log = Log("log.log")
         ender = os.linesep
-        person = pName + " |"
+        fmessage = message + "'"
+        person = pName + " said '"
         time = strftime("%m-%d-%Y %H:%M:%S|")
         chat = open(self.chatF, 'a')
-        formattedChat = time + person + message
+        formattedChat = time + person + fmessage
         chat.write(formattedChat)
         chat.write(ender)
         chat.close()
-        log.log("Chat successfully ended", True, 'n')
+        log.log("Wrote message to chat with person name " + pName + "with message '" + message + "'", True, 'n')
         print(time + "|" + "Wrote message to chat with person name " + pName + " with message '" + message + "'")
