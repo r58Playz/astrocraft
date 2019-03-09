@@ -2,13 +2,15 @@ import math
 import random
 import time
 import sys
+import os
 
 from collections import deque
 from pyglet import image
 from pyglet.gl import *
 from pyglet.graphics import TextureGroup
 from pyglet.window import key
-from log import Log, Chat
+from log import Log
+from log import Chat
 import saveModule
 
 # Size of sectors used to ease block loading.
@@ -479,17 +481,16 @@ class Window(pyglet.window.Window):
         self.model = Model()
 
         # The label that is displayed in the top left of the canvas.
-        self.label = pyglet.text.Label('', font_name='Nunito_Bold', font_size=18,
+        self.label = pyglet.text.Label('', font_name='Nunito', font_size=9,
             x=10, y=self.height - 10, anchor_x='left', anchor_y='top',
             color=(0, 0, 0, 255))
-        
-        #The variable indicating how many times update() was called.
-        self.times = 0
+        # The label to show the incoming chat
+        self.chatlabel = pyglet.text.Label('', font_name='Nunito', font_size=9,x=10,y=self.height - 15, 
+            anchor_x='left', anchor_y='top', color=(0,0,0,255))
         # This call schedules the `update()` method to be called 60 times a
         # second. This is the main game event loop.
         pyglet.clock.schedule_interval(self.update, 1.0 / 60)
 
-        
     def set_exclusive_mouse(self, exclusive):
         """If exclusive is True the game will capture the mouse, and vice versa.
         
@@ -673,36 +674,34 @@ class Window(pyglet.window.Window):
             symbol {int} -- Number representing the key that was pressed.
             modifiers {int} -- Number representing any modyfing keys that were pressed.
         """
-        if symbol == key.UP:
+        if symbol == key.W:
             self.strafe[0] -= 1
-        elif symbol == key.DOWN:
+        elif symbol == key.S:
             self.strafe[0] += 1
-        elif symbol == key.LEFT:
+        elif symbol == key.A:
             self.strafe[1] -= 1
-        elif symbol == key.RIGHT:
+        elif symbol == key.D:
             self.strafe[1] += 1
-        elif symbol == key.PERIOD:
+        elif symbol == key.SPACE:
             if self.dy == 0:
                 self.dy = 0.016  # jump speed
-        elif symbol == key.SLASH:
+        elif symbol == key.R:
+
             self.model.saveModule.saveWorld(self.model, "SAVE.FACTORIES")
-        elif symbol == key.COMMA:
+        elif symbol == key.Z:
             self.set_exclusive_mouse(False)
-        elif symbol == key.ENTER or key.RETURN:
+        elif symbol == key.TAB:
             self.flying = not self.flying
         elif symbol in self.num_keys:
             index = (symbol - self.num_keys[0]) % len(self.inventory)
             self.block = self.inventory[index]
-        elif symbol == key.NUM_3:
+        elif symbol == key.E:
             self.set_exclusive_mouse(False)
-            name = str(input("Your name(surround in quotes):"))
-            message = str(input("Your message(surround in qoutes)"))
+            name = str(raw_input("Your name:"))
+            message = str(raw_input("Your message:"))
             CHAT.chat(name, message)
-        elif symbol == key.RCTRL:
-            CHAT.endChat()
-        elif symbol == key.NUM_4:
+        elif symbol == key.Q:
             sys.exit("Exiting...")
-
     def on_key_release(self, symbol, modifiers):
         """Called when the player releases a key. See pyglet docs for key mappings.
         
@@ -711,13 +710,13 @@ class Window(pyglet.window.Window):
             modifiers {int} -- Number representing any modifying keys that were pressed.
         """
 
-        if symbol == key.UP:
+        if symbol == key.W:
             self.strafe[0] += 1
-        elif symbol == key.DOWN:
+        elif symbol == key.S:
             self.strafe[0] -= 1
-        elif symbol == key.LEFT:
+        elif symbol == key.A:
             self.strafe[1] += 1
-        elif symbol == key.RIGHT:
+        elif symbol == key.D:
             self.strafe[1] -= 1
 
     def on_resize(self, width, height):
@@ -792,7 +791,7 @@ class Window(pyglet.window.Window):
         if block:
             x, y, z = block
             vertex_data = cube_vertices(x, y, z, 0.51)
-            glColor3d(0, 0, 0)
+            glColor3d(0.1, 0.1, 0)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
             pyglet.graphics.draw(24, GL_QUADS, ('v3f/static', vertex_data))
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -801,7 +800,8 @@ class Window(pyglet.window.Window):
         """ Draw the label in the top left of the screen.
         """
         x, y, z = self.position
-        self.label.text = '%02d (%.2f, %.2f, %.2f) %d / %d | {0}'.format(self.times) % (
+        self.label.text = '''
+Extra Insights: FPS: %02d Coordinates: (X: %.2f Y: %.2f Z: %.2f) Blocks shown: %d Blocks hidden: %d''' % (
             pyglet.clock.get_fps(), x, y, z,
             len(self.model._shown), len(self.model.world))
         self.label.draw()
@@ -835,7 +835,7 @@ def setup():
     setup_fog()
 
 def main():
-    """Main function that starts everythong up.
+    """Main function that starts everything up.
     """
 
     starter = "NOTICE: If you press the chat button(keypad number 3) the mouse will be freed and there will be a prompt on the command window."
