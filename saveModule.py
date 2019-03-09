@@ -56,6 +56,7 @@ class saveModule(object):
             # convert the block coords into json
             # convert with the translation dictionary the block type into a readable word
             worldString += json.dumps(block) + '=>' + self.coordDictSave[ str(model.world[block]) ] + '\n'
+        
         fh.write(worldString)
         fh.close()
         self.printStuff('saving completed')
