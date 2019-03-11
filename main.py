@@ -688,7 +688,6 @@ class Window(pyglet.window.Window):
             if self.dy == 0:
                 self.dy = 0.016  # jump speed
         elif symbol == key.R:
-
             self.model.saveModule.saveWorld(self.model, "SAVE.FACTORIES")
         elif symbol == key.Z:
             self.set_exclusive_mouse(False)
@@ -844,7 +843,7 @@ def main():
 
     starter = "NOTICE: If you press the chat button(keypad number 3) the mouse will be freed and there will be a prompt on the command window."
     print(starter)
-    window = Window(width=800, height=600, caption='Factories v0.0.3-alpha1', resizable=True)
+    window = Window(width=800, height=600, caption='Factories v0.0.4', resizable=True)
     window.set_exclusive_mouse(True)
     setup()
     pyglet.app.run()
