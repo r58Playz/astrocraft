@@ -146,19 +146,74 @@ Proin eu lacus in sem lacinia pretium a dapibus dui. Vivamus eget varius nunc. D
             # Sets file
             self.chatF = chatFile
         return True
+    def _process_line(self, line, delim1, delim2):
+        """Processes a line given as line, and returns it. Meant to be a private function.
+        
+        Arguments:
+            line {String} -- The line wished to process. Must be of one line.
+            delim1 {String} -- Delimiter 1. Include any spaces wished to be removed along with the delimiter.
+            delim2 {String} -- Delimiter 2. Include any spaces wished to be removed along with the delimiter.
+        """
+        step1 = line.split(delim1)
+        tmp = step1[1]
+        step1.append(tmp.split(delim2)[1])
+        del step1[1]
+        step1.append(tmp.split(delim2)[0])
+        # delibrately flipped since the person's name is at index 2, not index 1
+        line_processed = [step1[0],step1[2],step1[1].rstrip()]
+        return line_processed
+
     def return_latest_chat(self):
-        #this should process the latest line in the chat and return it as 3 variables, time, person, msg
+        """Gets the last line(the latest line) from the chatfile and returns it as 3 variables
+        
+        Returns:
+            String -- 3 variables which represent time, person, msg
+        """
+
         chatfile = self.chatF
         chat = open(chatfile, 'r')
-        text = chat.read()
-        #TODO Process and change the text
-        #print is for now
-        print(text)
-        #dummy values
-        time = "time"
-        person = "person"
-        msg = "msg"
-        return time, person, msg
+        lines = chat.readlines()
+        last = lines[-1]
+        last = last.rstrip()
+        if last == "No chat...":
+            person = ''
+            msg = ''
+            return last, person,msg
+        else:
+            delim1 = "|"
+            delim2 = " wrote: "
+            processed_line = self._process_line(last,delim1,delim2)
+            # need to put on different lines because otherwise:
+            # ValueError: too many values to unpack
+            time = processed_line[0]
+            person = processed_line[1]
+            msg = processed_line[2]
+            return time, person, msg
+    def format_for_chatlabel(self):
+        """Formats for chatlabel in main.py
+        """
+        time, person, msg = self.return_latest_chat()
+        if msg != '':
+            output = time + ": " + person + " said '" + msg + "'"
+            return output
+        else:
+            return time
+
+
+
+    def clearChat(self):
+        """Clears the chat.
+        """
+
+        chatfile = self.chatF
+        chat = open(chatfile, 'w')
+        # Writes an empty string, essentially clearing the file.
+        chat.write('')
+        chat.close()
+        # NO GARBAGE LEFT!
+        del chat
+        del chatfile
+    
     def chat(self, pName, message):
         """Writes to chat file the person name, and message.
         
@@ -169,11 +224,10 @@ Proin eu lacus in sem lacinia pretium a dapibus dui. Vivamus eget varius nunc. D
 
         log = Log("LOG.FACTORIES")
         ender = os.linesep
-        fmessage = message + "'"
-        person = pName + " said '"
+        person = pName + " wrote: "
         time = strftime("%m-%d-%Y %H:%M:%S|")
         chat = open(self.chatF, 'a')
-        formattedChat = time + person + fmessage
+        formattedChat = time + person + message
         chat.write(formattedChat)
         chat.write(ender)
         chat.close()
@@ -184,8 +238,10 @@ if __name__ == "__main__":
     chatthingy = Chat("tmp.chat")
     chatthingy.chat("dudo","dudo")
     print("LATEST CHAT:")
-    chatthingy.return_latest_chat()
+    time,person,message = chatthingy.return_latest_chat()
+    print("At " + time + ", " + person + " said,'" + message + "'")
     chatthingy.chat("dudo","meep you")
     print("LATEST CHAT:")
-    chatthingy.return_latest_chat()
+    time,person,message = chatthingy.return_latest_chat()
+    print("At " + time + ", " + person + " said,'" + message + "'")
     del chatthingy

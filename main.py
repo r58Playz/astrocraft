@@ -481,11 +481,11 @@ class Window(pyglet.window.Window):
         self.model = Model()
 
         # The label that is displayed in the top left of the canvas.
-        self.label = pyglet.text.Label('', font_name='Nunito', font_size=9,
+        self.label = pyglet.text.Label('', font_name='Nunito', font_size=10,
             x=10, y=self.height - 10, anchor_x='left', anchor_y='top',
             color=(0, 0, 0, 255))
         # The label to show the incoming chat
-        self.chatlabel = pyglet.text.Label('', font_name='Nunito', font_size=9,x=10,y=self.height - 15, 
+        self.chatlabel = pyglet.text.Label('', font_name='Nunito', font_size=10,x=18,y=self.height - 30, 
             anchor_x='left', anchor_y='top', color=(0,0,0,255))
         # This call schedules the `update()` method to be called 60 times a
         # second. This is the main game event loop.
@@ -561,6 +561,8 @@ class Window(pyglet.window.Window):
             self.sector = sector
         m = 8
         dt = min(dt, 0.2)
+        self.chatlabel.text = CHAT.format_for_chatlabel()
+        self.chatlabel.draw()
         for _ in xrange(m):
             self._update(dt / m)
 
@@ -805,6 +807,8 @@ Extra Insights: FPS: %02d Coordinates: (X: %.2f Y: %.2f Z: %.2f) Blocks shown: %
             pyglet.clock.get_fps(), x, y, z,
             len(self.model._shown), len(self.model.world))
         self.label.draw()
+        self.chatlabel.text = CHAT.format_for_chatlabel()
+        self.chatlabel.draw()
 
     def draw_reticle(self):
         """ Draw the crosshairs in the center of the screen.
