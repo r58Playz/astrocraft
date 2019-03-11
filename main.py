@@ -475,7 +475,7 @@ class Window(pyglet.window.Window):
 
         # Convenience list of num keys.
         self.num_keys = [
-            key.Z, key.X, key.C, key.N, key.M,key.H,key.J,key.K, key.L]
+            key._2, key._3, key._4, key._5, key._6,key._7,key._8,key._9]
 
         # Instance of the model that handles the world.
         self.model = Model()
@@ -689,7 +689,7 @@ class Window(pyglet.window.Window):
                 self.dy = 0.016  # jump speed
         elif symbol == key.R:
             self.model.saveModule.saveWorld(self.model, "SAVE.FACTORIES")
-        elif symbol == key.Z:
+        elif symbol == key._1:
             self.set_exclusive_mouse(False)
         elif symbol == key.TAB:
             self.flying = not self.flying
