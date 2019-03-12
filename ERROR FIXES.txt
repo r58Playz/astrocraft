@@ -1,0 +1,13 @@
+Do not delete any of the python files. They are necessary for the game to function.
+Some errors may occur when you first run it, these are explained below.
+
+ERRORS:
+1. Says something about format_for_chatlabel() in log.py:
+    This is an error that occurs if the chat file isn't there, or if the chatfile isn't formatted correctly.
+    This only occurs when the file isn't there.
+    How to fix this:
+        Make a new text file named "CHAT.FACTORIES" in the folder log.py, main.py, saveModule.py, and this file is in.
+        Then open it and write:
+            No chat...
+
+        Please remember to make a newline after "No chat...". Otherwise, the game will not function correctly.
