@@ -1,4 +1,4 @@
-from apires import apiRes as apiRes
+from apiRESOURCES import apiRes as apiRes
 class FactoriesAPI(object):
     def __init__(self):
         print("Initialised api")
