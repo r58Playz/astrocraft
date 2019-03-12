@@ -17,7 +17,7 @@ def finishOff(success = False):
         temp.close()
         del temp
 
-def runTests():
+def runLogTests():
     LOG = log.Log("unittests.log")
     print("*************" + os.linesep + "RUNNING TESTS" + os.linesep + "*************" + os.linesep)
     time.sleep(1)
@@ -98,7 +98,6 @@ def runTests():
     time.sleep(1)
     chat = Chat("testChat.chat")
     time.sleep(1)
-    chat.startChat()
     print(".")
     time.sleep(1)
     print("Test 1: simulate a person Joe Robbs chatting 'Hello, how are you'")
@@ -119,7 +118,6 @@ def runTests():
     time.sleep(1)
     print(".")
     time.sleep(1)
-    chat.endChat()
     print(".")
     time.sleep(1)
     print("Finished testing chat")
@@ -149,5 +147,7 @@ def runTests():
         pass
     time.sleep(1)
     print("***********************************************" + os.linesep + "Finished tests, stopping" + os.linesep + "***********************************************" + os.linesep)
+def runTests():
+    runLogTests()
 if __name__ == "__main__":
     runTests()
