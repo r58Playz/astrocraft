@@ -843,6 +843,21 @@ def main():
 
     starter = "NOTICE: If you press the chat button(keypad number 3) the mouse will be freed and there will be a prompt on the command window."
     print(starter)
+    time.sleep(5)
+    print("Keyboard controls:")
+    print("""W for forward
+S for back
+A for left
+D for right
+Space key to jump
+R key to save
+1 key to release mouse
+Tab key to toggle flying
+E key to chat (it's command-line)
+Q key to exit
+""")
+    time.sleep(5)
+    print("Starting...")
     window = Window(width=800, height=600, caption='Factories v0.0.4', resizable=True)
     window.set_exclusive_mouse(True)
     setup()
