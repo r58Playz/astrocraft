@@ -1,7 +1,21 @@
 # factories-python
 This is based on ~bison--/Minecraft(https://github.com/bison--/Minecraft).
 bison--/Minecraft is based on fogleman/Minecraft(https://github.com/fogleman/Minecraft)
-Only runs on Python 2.7. We are trying to port xrange, that is the only thing that prevents us to run this on Python 3.
+Only runs on Python 2.7.
+There's a branch for Python 3(still in development).
+
+# Keyboard controls
+W for forward
+S for back
+A for left
+D for right
+Space key to jump
+R key to save
+1 key to release mouse
+Tab key to toggle flying
+E key to chat (it's command-line)
+Q key to exit
+
 # Goals
 Our goals are:
 save world,✓
