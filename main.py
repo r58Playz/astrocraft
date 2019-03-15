@@ -5,6 +5,7 @@ import sys
 import time
 from collections import deque
 from chatwindow import ChatWindow
+from start import StartWindow
 
 from pyglet import image
 from pyglet.gl import *
@@ -839,15 +840,16 @@ def setup():
 def main():
     """Main function that starts everything up.
     """
-
-    starter = "NOTICE: If you press the chat button(keypad number 3) the mouse will be freed and there will be a prompt on the command window."
-    print(starter)
-    time.sleep(5)
-    print("Starting...")
     window = Window(width=800, height=600, caption='Factories v0.0.4', resizable=True)
     window.set_exclusive_mouse(True)
     setup()
     pyglet.app.run()
-
-if __name__ == '__main__':
+def run():
+    """This function is for StartWin.
+    """
     main()
+def start():
+    startwin = StartWindow()
+    startwin.run()
+if __name__ == '__main__':
+    start()
