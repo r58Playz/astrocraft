@@ -849,41 +849,5 @@ def main():
     setup()
     pyglet.app.run()
 
-def help():
-    choice = raw_input("Press 'c' for controls, 'n' for release notes, or 'b' to go back.")
-    if choice == 'c':
-        print("""W for forward
-S for back
-A for left
-D for right
-Space key to jump
-R key to save
-1 key to release mouse
-Tab key to toggle flying
-E key to chat (it's command-line)
-Q key to exit
-        """)
-        help()
-    elif choice == 'n':
-        print("Release notes:")
-        # TODO open releasenotes.txt and print out the release notes.
-        help()
-    elif choice == 'b':
-        mainloop()
-    else:
-        print("Sorry, try again.")
-def mainloop():
-    while True:
-        choice = raw_input("Press 'p' to play, 'q' to quit, or 'h' for help.")
-        if choice == 'p':
-            main()
-        elif choice == 'q':
-            sys.exit("Exiting...")
-        elif choice == 'h':
-            print("HELP" + os.linesep + "___________________________________")
-            help()
-        else:
-            print("Sorry, try again.")
-            mainloop()
 if __name__ == '__main__':
     main()
