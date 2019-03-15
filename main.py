@@ -1,17 +1,18 @@
 import math
-import random
-import time
-import sys
 import os
-
+import random
+import sys
+import time
 from collections import deque
+from chatwindow import ChatWindow
+
 from pyglet import image
 from pyglet.gl import *
 from pyglet.graphics import TextureGroup
 from pyglet.window import key
-from log import Log
-from log import Chat
+
 import saveModule
+from log import Chat, Log
 
 # Size of sectors used to ease block loading.
 SECTOR_SIZE = 16
@@ -27,7 +28,7 @@ def cube_vertices(x, y, z, n):
         n {int} -- size
     
     Returns:
-        array -- vertices of the cub eat position x, y, z with size 2*n.
+        array -- vertices of the cube at position x, y, z with size 2*n.
     """
 
     return [
@@ -432,7 +433,6 @@ class Model(object):
         while self.queue:
             self._dequeue()
 
-
 class Window(pyglet.window.Window):
 
     def __init__(self, *args, **kwargs):
@@ -698,9 +698,8 @@ class Window(pyglet.window.Window):
             self.block = self.inventory[index]
         elif symbol == key.E:
             self.set_exclusive_mouse(False)
-            name = str(raw_input("Your name:"))
-            message = str(raw_input("Your message:"))
-            CHAT.chat(name, message)
+            chatwindow = ChatWindow()
+            chatwindow.run()
         elif symbol == key.Q:
             sys.exit("Exiting...")
     def on_key_release(self, symbol, modifiers):
@@ -844,8 +843,16 @@ def main():
     starter = "NOTICE: If you press the chat button(keypad number 3) the mouse will be freed and there will be a prompt on the command window."
     print(starter)
     time.sleep(5)
-    print("Keyboard controls:")
-    print("""W for forward
+    print("Starting...")
+    window = Window(width=800, height=600, caption='Factories v0.0.4', resizable=True)
+    window.set_exclusive_mouse(True)
+    setup()
+    pyglet.app.run()
+
+def help():
+    choice = raw_input("Press 'c' for controls, 'n' for release notes, or 'b' to go back.")
+    if choice == 'c':
+        print("""W for forward
 S for back
 A for left
 D for right
@@ -855,14 +862,28 @@ R key to save
 Tab key to toggle flying
 E key to chat (it's command-line)
 Q key to exit
-""")
-    time.sleep(5)
-    print("Starting...")
-    window = Window(width=800, height=600, caption='Factories v0.0.4', resizable=True)
-    window.set_exclusive_mouse(True)
-    setup()
-    pyglet.app.run()
-
-
+        """)
+        help()
+    elif choice == 'n':
+        print("Release notes:")
+        # TODO open releasenotes.txt and print out the release notes.
+        help()
+    elif choice == 'b':
+        mainloop()
+    else:
+        print("Sorry, try again.")
+def mainloop():
+    while True:
+        choice = raw_input("Press 'p' to play, 'q' to quit, or 'h' for help.")
+        if choice == 'p':
+            main()
+        elif choice == 'q':
+            sys.exit("Exiting...")
+        elif choice == 'h':
+            print("HELP" + os.linesep + "___________________________________")
+            help()
+        else:
+            print("Sorry, try again.")
+            mainloop()
 if __name__ == '__main__':
     main()
