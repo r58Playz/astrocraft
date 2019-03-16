@@ -12,7 +12,8 @@ class ChatWindow(object):
 
     def run(self):
         tk = Tkinter.Tk()
-        frame = Tkinter.Frame(tk, relief=RIDGE, borderwidth=2)
+        tk.geometry("500x500")
+        frame = Tkinter.Frame(tk, relief=FLAT, borderwidth=2)
         frame.pack(fill=BOTH,expand=1)
         person = Tkinter.Label(frame, text="Person")
         person.pack(fill=X, expand=1)
@@ -28,6 +29,7 @@ class ChatWindow(object):
         button.pack(side=BOTTOM)
         chatbtn = Tkinter.Button(frame,text="Chat", command= lambda: self.chat(entry1, entry2))
         chatbtn.pack(side=BOTTOM)
+        tk.title("Chat")
         tk.mainloop()
 
 if __name__ == "__main__":

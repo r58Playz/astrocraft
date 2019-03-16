@@ -840,7 +840,7 @@ def setup():
 def main():
     """Main function that starts everything up.
     """
-    window = Window(width=800, height=600, caption='Factories v0.0.4', resizable=True)
+    window = Window(width=800, height=600, caption='Factories v0.1.0', resizable=True)
     window.set_exclusive_mouse(True)
     setup()
     pyglet.app.run()

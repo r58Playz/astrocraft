@@ -27,9 +27,10 @@ Q key to exit
         label.pack()
     def run(self):
         tk = Tkinter.Tk()
-        frame = Tkinter.Frame(tk, relief=RIDGE, borderwidth=2)
+        tk.geometry("500x500")
+        frame = Tkinter.Frame(tk, relief=FLAT, borderwidth=2)
         frame.pack(fill=BOTH,expand=1)
-        person = Tkinter.Label(frame, text="Factories v0.0.4")
+        person = Tkinter.Label(frame, text="Factories v0.1.0")
         person.pack(fill=X, expand=1)
         notice = Tkinter.StringVar()
         label = Tkinter.Label(frame, textvariable=notice)
@@ -42,6 +43,7 @@ Q key to exit
         startbtn.pack(side=BOTTOM)
         helpbtn = Tkinter.Button(frame, text="Help", command= lambda: self.gethelp(label, notice))
         helpbtn.pack()
+        tk.title("Factories 0.1.0")
         tk.mainloop()
 
 if __name__ == "__main__":
