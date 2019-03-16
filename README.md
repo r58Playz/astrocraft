@@ -6,14 +6,23 @@ There's a branch for Python 3(still in development).
 
 # Keyboard controls
 W for forward
+
 S for back
+
 A for left
+
 D for right
+
 Space key to jump
+
 R key to save
+
 1 key to release mouse
+
 Tab key to toggle flying
-E key to chat (it's command-line)
+
+E key to chat
+
 Q key to exit
 
 # Goals
