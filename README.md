@@ -10,7 +10,11 @@ Here are the dependencies:
 - Tkinter
 
 Tkinter comes installed with Python, and there is no other way to install it.
+Pyglet can be installed using pip.
 
+```batchfile
+pip install pyglet
+```
 
 # Keyboard controls
 W for forward
