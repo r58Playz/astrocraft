@@ -7,6 +7,18 @@ Only runs on Python 2.7.
 
 There's a branch for Python 3(still in development).
 
+# Dependencies
+Here are the dependencies:
+- Pyglet
+- Tkinter
+
+Tkinter comes installed with Python, and there is no other way to install it.
+Pyglet can be installed using pip.
+
+```batchfile
+pip install pyglet
+```
+
 # Keyboard controls
 W for forward
 
