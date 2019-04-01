@@ -3,8 +3,9 @@ import os
 import random
 import sys
 import time
+import psutil
 from collections import deque
-from chatwindow import ChatWindow
+from chatwin import ChatWindow
 from start import StartWindow
 
 from pyglet import image
@@ -15,8 +16,12 @@ from pyglet.window import key
 import saveModule
 from log import Chat, Log
 
+process = psutil.Process(os.getpid())
 # Size of sectors used to ease block loading.
-SECTOR_SIZE = 16
+if process.memory_info()[0] > 2000:
+    SECTOR_SIZE = 20
+else:
+    SECTOR_SIZE = 10
 
 
 def cube_vertices(x, y, z, n):
@@ -84,7 +89,7 @@ GRASS = tex_coords((1, 0), (0, 1), (0, 0))
 SAND = tex_coords((1, 1), (1, 1), (1, 1))
 BRICK = tex_coords((2, 0), (2, 0), (2, 0))
 STONE = tex_coords((2, 1), (2, 1), (2, 1))
-
+CAKE = tex_coords((3,1), (3,1),(3,1))
 FACES = [
     ( 0, 1, 0),
     ( 0,-1, 0),
@@ -161,8 +166,7 @@ class Model(object):
     def _initialize(self):
         """Initialize the world by placing all the blocks.
         """
-
-        
+        hills=False
         if self.saveModule.hasSaveGame() == True:
             self.saveModule.loadWorld(self, "SAVE.FACTORIES")
             log.log("Loaded world", True, 'n')
@@ -172,33 +176,30 @@ class Model(object):
             y = 0  # initial y height
             for x in xrange(-n, n + 1, s):
                 for z in xrange(-n, n + 1, s):
-                    # create a layer stone an grass everywhere.
+                    self.add_block((x,y,z),GRASS,immediate=False)
+                    self.add_block((x, y - 1, z), GRASS, immediate=False)
                     self.add_block((x, y - 2, z), GRASS, immediate=False)
                     self.add_block((x, y - 3, z), STONE, immediate=False)
                     if x in (-n, n) or z in (-n, n):
                         # create outer walls.
                         for dy in xrange(-2, 3):
                             self.add_block((x, y + dy, z), STONE, immediate=False)
-
-            # generate the hills randomly
-            o = n - 10
-            for _ in xrange(120):
-                a = random.randint(-o, o)  # x position of the hill
-                b = random.randint(-o, o)  # z position of the hill
-                c = -1  # base of the hill
-                h = random.randint(1, 6)  # height of the hill
-                s = random.randint(4, 8)  # 2 * s is the side length of the hill
-                d = 1  # how quickly to taper off the hills
-                t = random.choice([GRASS, SAND, BRICK])
-                for y in xrange(c, c + h):
-                    for x in xrange(a - s, a + s + 1):
-                        for z in xrange(b - s, b + s + 1):
-                            if (x - a) ** 2 + (z - b) ** 2 > (s + 1) ** 2:
-                                continue
-                            if (x - 0) ** 2 + (z - 0) ** 2 < 5 ** 2:
-                                continue
-                            self.add_block((x, y, z), t, immediate=False)
-                    s -= d  # decrement side lenth so hills taper off
+            if hills:
+                # generate the hills randomly
+                o = n - 10
+                for _ in xrange(120):
+                    a = random.randint(-o, o)  # x position of the hill
+                    b = random.randint(-o, o)  # z position of the hill
+                    c = -1  # base of the hill
+                    h = random.randint(1, 6)  # height of the hill
+                    s = random.randint(4, 8)  # 2 * s is the side length of the hill
+                    d = 1  # how quickly to taper off the hills
+                    t = random.choice([GRASS, SAND, BRICK])
+                    for y in xrange(c, c + h):
+                        for x in xrange(a - s, a + s + 1):
+                            for z in xrange(b - s, b + s + 1):
+                                self.add_block((x, y, z), t, immediate=False)
+                        s -= d  # decrement side lenth so hills taper off
 
             log.log("Generated world", True, 'n')
     def hit_test(self, position, vector, max_distance=8):
@@ -452,7 +453,7 @@ class Window(pyglet.window.Window):
         self.strafe = [0, 0]
 
         # Current (x, y, z) position in the world, specified with floats.
-        self.position = (0, 0, 0)
+        self.position = (0, 10, 0)
 
         # First element is rotation of the player in the x-z plane (ground
         # plane) measured from the z-axis down. The second is the rotation
@@ -469,7 +470,7 @@ class Window(pyglet.window.Window):
         self.dy = 0
 
         # A list of blocks the player can place. Hit num keys to cycle.
-        self.inventory = [BRICK, GRASS, SAND]
+        self.inventory = [BRICK, GRASS, SAND, CAKE]
 
         # The current block the user can place. Hit num keys to cycle.
         self.block = self.inventory[0]
@@ -488,6 +489,11 @@ class Window(pyglet.window.Window):
         # The label to show the incoming chat
         self.chatlabel = pyglet.text.Label('', font_name='Nunito', font_size=10,x=18,y=self.height - 30, 
             anchor_x='left', anchor_y='top', color=(0,0,0,255))
+        
+        # The label showing the block being holded
+        self.blocklabel = pyglet.text.Label('',font_name='Nunito',font_size=10,x=18,y= self.height-600,anchor_x='left',
+            anchor_y='bottom', color=(0,0,0,255))
+        
         # This call schedules the `update()` method to be called 60 times a
         # second. This is the main game event loop.
         pyglet.clock.schedule_interval(self.update, 1.0 / 60)
@@ -566,6 +572,19 @@ class Window(pyglet.window.Window):
         self.chatlabel.draw()
         for _ in xrange(m):
             self._update(dt / m)
+        if self.block == [0.25, 0.0, 0.5, 0.0, 0.5, 0.25, 0.25, 0.25, 0.0, 0.25, 0.25, 0.25, 0.25, 0.5, 0.0, 0.5, 0.0, 0.0, 0.25, 0.0, 0.25, 0.25, 0.0, 0.25, 0.0, 0.0,0.25, 0.0, 0.25, 0.25, 0.0, 0.25, 0.0, 0.0, 0.25, 0.0, 0.25, 0.25, 0.0, 0.25, 0.0, 0.0, 0.25, 0.0, 0.25, 0.25, 0.0, 0.25]:
+            self.blocklabel.text = "GRASS"
+        elif self.block == [0.25, 0.25, 0.5, 0.25, 0.5, 0.5, 0.25, 0.5, 0.25, 0.25, 0.5, 0.25, 0.5, 0.5, 0.25, 0.5, 0.25, 0.25, 0.5, 0.25, 0.5, 0.5, 0.25, 0.5, 0.25, 0.25, 0.5, 0.25, 0.5, 0.5, 0.25, 0.5, 0.25, 0.25, 0.5, 0.25, 0.5, 0.5, 0.25, 0.5, 0.25, 0.25, 0.5, 0.25, 0.5, 0.5, 0.25, 0.5]:
+            self.blocklabel.text = "SAND"
+        elif self.block == [0.5, 0.0, 0.75, 0.0, 0.75, 0.25, 0.5, 0.25, 0.5, 0.0, 0.75, 0.0, 0.75, 0.25, 0.5, 0.25, 0.5, 0.0, 0.75, 0.0, 0.75, 0.25, 0.5, 0.25, 0.5, 0.0,0.75, 0.0, 0.75, 0.25, 0.5, 0.25, 0.5, 0.0, 0.75, 0.0, 0.75, 0.25, 0.5, 0.25, 0.5, 0.0, 0.75, 0.0, 0.75, 0.25, 0.5, 0.25]:
+            self.blocklabel.text = "BRICK"
+        elif self.block == [0.75, 0.25, 1.0, 0.25, 1.0, 0.5, 0.75, 0.5, 0.75, 0.25, 1.0, 0.25, 1.0, 0.5, 0.75, 0.5, 0.75, 0.25, 1.0, 0.25, 1.0, 0.5, 0.75, 0.5, 0.75, 0.25, 1.0, 0.25, 1.0, 0.5, 0.75, 0.5, 0.75, 0.25, 1.0, 0.25, 1.0, 0.5, 0.75, 0.5, 0.75, 0.25, 1.0, 0.25, 1.0, 0.5, 0.75, 0.5]:
+            self.blocklabel.text = "CAKE"
+        else:
+            self.blocklabel.text = "STONE"
+        
+        self.blocklabel.draw()
+
 
     def _update(self, dt):
         """Private implementation of the update() method. This is where most of the motion logic lives, along with gravity and collision detection.
@@ -701,6 +720,7 @@ class Window(pyglet.window.Window):
             self.set_exclusive_mouse(False)
             chatwindow = ChatWindow()
             chatwindow.run()
+            self.update(1)
         elif symbol == key.Q:
             sys.exit("Exiting...")
     def on_key_release(self, symbol, modifiers):
@@ -808,6 +828,7 @@ Extra Insights: FPS: %02d Coordinates: (X: %.2f Y: %.2f Z: %.2f) Blocks shown: %
         self.label.draw()
         self.chatlabel.text = CHAT.format_for_chatlabel()
         self.chatlabel.draw()
+        self.blocklabel.draw()
 
     def draw_reticle(self):
         """ Draw the crosshairs in the center of the screen.
@@ -844,9 +865,10 @@ def main():
     window.set_exclusive_mouse(True)
     setup()
     pyglet.app.run()
-def run():
+def run(tk):
     """This function is for StartWin.
     """
+    tk.destroy()
     main()
 def start():
     startwin = StartWindow()

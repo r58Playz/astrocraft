@@ -1,14 +1,16 @@
 import Tkinter
 from Tkconstants import *
 from log import Chat
+
 class ChatWindow(object):
     def __init__(self):
         print("")
-    def chat(self,text,text1):
+    def chat(self,text,text1, master):
         person=text.get()
         msg=text1.get()
         CHAT = Chat("CHAT.FACTORIES")
         CHAT.chat(person, msg)
+        master.destroy()
 
     def run(self):
         tk = Tkinter.Tk()
@@ -27,7 +29,7 @@ class ChatWindow(object):
         entry2.pack(fill=X, expand = 1)
         button = Tkinter.Button(frame,text="Exit",command=tk.destroy)
         button.pack(side=BOTTOM)
-        chatbtn = Tkinter.Button(frame,text="Chat", command= lambda: self.chat(entry1, entry2))
+        chatbtn = Tkinter.Button(frame,text="Chat", command= lambda: self.chat(entry1, entry2, tk))
         chatbtn.pack(side=BOTTOM)
         tk.title("Chat")
         tk.mainloop()

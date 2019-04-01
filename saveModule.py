@@ -7,9 +7,9 @@ class saveModule(object):
 
     def __init__(self):
         # "tarnslate" the block texture tuples into readable words for saving
-        self.coordDictSave = { str(main.GRASS):'GRASS', str(main.SAND):'SAND', str(main.BRICK):'BRICK', str(main.STONE):'STONE' }
+        self.coordDictSave = { str(main.GRASS):'GRASS', str(main.SAND):'SAND', str(main.BRICK):'BRICK', str(main.STONE):'STONE', str(main.CAKE):'CAKE'}
         # "tarnslate" the words back into tuples for loading
-        self.coordDictLoad = { 'GRASS':main.GRASS, 'SAND':main.SAND, 'BRICK':main.BRICK, 'STONE':main.STONE }
+        self.coordDictLoad = { 'GRASS':main.GRASS, 'SAND':main.SAND, 'BRICK':main.BRICK, 'STONE':main.STONE, 'CAKE':main.CAKE }
         self.logi = Log("LOG.FACTORIES")
         self.saveGameFile = 'SAVE.FACTORIES'
         self.saving = False

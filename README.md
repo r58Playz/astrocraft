@@ -1,7 +1,10 @@
 # factories-python
 This is based on ~bison--/Minecraft(https://github.com/bison--/Minecraft).
+
 bison--/Minecraft is based on fogleman/Minecraft(https://github.com/fogleman/Minecraft)
+
 Only runs on Python 2.7.
+
 There's a branch for Python 3(still in development).
 
 # Keyboard controls
@@ -59,4 +62,4 @@ generated water masses(lakes, oceans, rivers, etc.),
 
 dimensions(land, sky, underworld, etc.),
 
-be able to chat✓(still commandline)
+be able to chat✓

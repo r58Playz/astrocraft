@@ -8,6 +8,10 @@ pylint = "<2.0.0"
 
 [packages]
 pyglet = "*"
+cryptography = "*"
+psutil = "*"
+pillow = "*"
+cython = "*"
 
 [requires]
 python_version = "2.7"
