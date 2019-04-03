@@ -11,11 +11,13 @@ There's a branch for Python 3(still in development).
 Here are the dependencies:
 - Pyglet
 - Tkinter
+- psutil
+- colorama(https://github.com/tartley/colorama)
 
 Tkinter comes installed with Python, and there is no other way to install it.
 Pyglet can be installed using pip.
 
-```batchfile
+```
 pip install pyglet
 ```
 
