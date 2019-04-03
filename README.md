@@ -36,7 +36,8 @@ pipenv install psutil
 pipenv install colorama
 ```
 
-Then you can run ```start.ps1```
+Then you can run ```start.ps1```.
+
 This does the same thing as above, but does it in a virtualenv instead of on the computer.
 # Keyboard controls
 W for forward
