@@ -7,6 +7,7 @@ import psutil
 from collections import deque
 from chatwin import ChatWindow
 from start import StartWindow
+from colorama import init, Fore
 
 from pyglet import image
 from pyglet.gl import *
@@ -23,6 +24,7 @@ if process.memory_info()[0] > 2000:
 else:
     SECTOR_SIZE = 10
 
+init()
 
 def cube_vertices(x, y, z, n):
     """Return the vertices of the cube at position x, y, z with size 2*n.
@@ -483,15 +485,15 @@ class Window(pyglet.window.Window):
         self.model = Model()
 
         # The label that is displayed in the top left of the canvas.
-        self.label = pyglet.text.Label('', font_name='Nunito', font_size=10,
+        self.label = pyglet.text.Label('', font_name='Ubuntu', font_size=10,
             x=10, y=self.height - 10, anchor_x='left', anchor_y='top',
             color=(0, 0, 0, 255))
         # The label to show the incoming chat
-        self.chatlabel = pyglet.text.Label('', font_name='Nunito', font_size=10,x=18,y=self.height - 30, 
+        self.chatlabel = pyglet.text.Label('', font_name='Ubuntu', font_size=10,x=18,y=self.height - 30, 
             anchor_x='left', anchor_y='top', color=(0,0,0,255))
         
         # The label showing the block being holded
-        self.blocklabel = pyglet.text.Label('',font_name='Nunito',font_size=10,x=18,y= self.height-600,anchor_x='left',
+        self.blocklabel = pyglet.text.Label('',font_name='Ubuntu',font_size=10,x=18,y= self.height-600,anchor_x='left',
             anchor_y='bottom', color=(0,0,0,255))
         
         # This call schedules the `update()` method to be called 60 times a
@@ -856,7 +858,7 @@ def setup():
     glEnable(GL_CULL_FACE)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-    setup_fog()
+
 
 def main():
     """Main function that starts everything up.
@@ -871,6 +873,9 @@ def run(tk):
     tk.destroy()
     main()
 def start():
+    print(Fore.RED + 'Starting factories from main.py is going to be deprecated later.')
+    print(Fore.RED + 'Start.py will be the starter file.')
+    time.sleep(1)
     startwin = StartWindow()
     startwin.run()
 if __name__ == '__main__':
