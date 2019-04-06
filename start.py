@@ -1,6 +1,7 @@
 import Tkinter
 from Tkconstants import *
 from helpwindow import HelpWindow
+from updater import update as updte
 
 class StartWindow(object):
     
@@ -11,6 +12,8 @@ class StartWindow(object):
         hlp=HelpWindow()
         hlp.run()
         del hlp
+    def update(self):
+        updte()
     def run(self):
         """Runs the window
         """
@@ -32,7 +35,7 @@ class StartWindow(object):
         frame.pack(fill=BOTH,expand=1)
 
         # labels and other things
-        factories = Tkinter.Label(frame, text="Factories v0.1.0")
+        factories = Tkinter.Label(frame, text="Factories v0.1.0", font="Ubuntu 20")
         factories.pack()
         button = Tkinter.Button(frame,text="Exit",command=tk.destroy)
         button.pack()
@@ -40,6 +43,8 @@ class StartWindow(object):
         startbtn.pack()
         helpbtn = Tkinter.Button(frame, text="Help", command=self.hlp)
         helpbtn.pack()
+        upbtn = Tkinter.Button(frame, text="Update", command=self.update)
+        upbtn.pack()
         newshead = Tkinter.Label(frame, text="News",font="Ubuntu 20")
         newshead.pack()
         newsvar=Tkinter.StringVar()
