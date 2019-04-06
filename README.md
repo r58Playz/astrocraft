@@ -13,8 +13,10 @@ Here are the dependencies:
 - Tkinter
 - psutil
 - colorama(https://github.com/tartley/colorama)
+- Git
 
-Tkinter comes installed with Python, and there is no other way to install it.
+Tkinter comes installed with Python, and there is no other way to install it. Git is needed for updating the game.
+
 Here are the commands you need to run to install the dependencies:
 
 ```
