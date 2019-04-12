@@ -11,6 +11,7 @@ pyglet = "*"
 psutil = "*"
 cython = "*"
 colorama = "*"
+pillow = "*"
 
 [requires]
 python_version = "2.7"

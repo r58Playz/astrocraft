@@ -5,8 +5,7 @@ import sys
 import time
 import psutil
 from collections import deque
-from chatwin import ChatWindow
-from start import StartWindow
+from resources.chatwin import ChatWindow
 from colorama import init, Fore
 
 from pyglet import image
@@ -85,7 +84,7 @@ def tex_coords(top, bottom, side):
     return result
 
 
-TEXTURE_PATH = 'texture.png'
+TEXTURE_PATH = 'resources/images/texture.png'
 
 GRASS = tex_coords((1, 0), (0, 1), (0, 0))
 SAND = tex_coords((1, 1), (1, 1), (1, 1))
@@ -874,10 +873,7 @@ def run(tk):
     tk.destroy()
     main()
 def start():
-    print(Fore.RED + 'Starting factories from main.py is going to be deprecated later.')
-    print(Fore.RED + 'Start.py will be the starter file.')
-    time.sleep(1)
-    startwin = StartWindow()
-    startwin.run()
+    print(Fore.RED + 'Starting factories from main.py is deprecated.')
+    print(Fore.RED + 'Start.py is the starter file.')
 if __name__ == '__main__':
     start()

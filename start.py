@@ -1,7 +1,7 @@
 import Tkinter
 from Tkconstants import *
-from helpwindow import HelpWindow
-from updater import update as updte
+from resources.helpwindow import HelpWindow
+from resources.updater import update as updte
 
 class StartWindow(object):
     
@@ -24,7 +24,7 @@ class StartWindow(object):
 
         # configuration settings
         tk.geometry("350x400")
-        tk.iconbitmap(default='icon.ico')
+        tk.iconbitmap(default='resources/images/icon.ico')
         tk.option_add("*Font", "Ubuntu 10")
         tk.option_add("*Button.Font","Ubuntu 10")
         tk.title("Factories 0.1.0")
