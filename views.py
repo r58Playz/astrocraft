@@ -257,7 +257,7 @@ class MainMenuView(MenuView):
         button = self.Button(caption=G._("Exit game"),on_click=self.controller.exit_game)
         self.layout.add(button)
         self.buttons.append(button)
-        button = self.Button(captiom=G._("Update game"), on_click=up)
+        button = self.Button(caption=G._("Update game"), on_click=up)
 
         # Splash text
         self.splash_text = 'Hello!'
