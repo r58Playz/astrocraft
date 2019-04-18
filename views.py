@@ -22,6 +22,7 @@ from gui import frame_image, Rectangle, backdrop, Button, button_image, \
     button_disabled, resize_button_image
 from textures import TexturePackList
 from utils import image_sprite, load_image
+from update import update as up
 
 __all__ = (
     'View', 'MainMenuView', 'OptionsView', 'ControlsView', 'TexturesView', 'MultiplayerView'
@@ -256,6 +257,7 @@ class MainMenuView(MenuView):
         button = self.Button(caption=G._("Exit game"),on_click=self.controller.exit_game)
         self.layout.add(button)
         self.buttons.append(button)
+        button = self.Button(captiom=G._("Update game"), on_click=up)
 
         # Splash text
         self.splash_text = 'Hello!'
