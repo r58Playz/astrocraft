@@ -1,0 +1,49 @@
+[General]
+debug = False
+username = tript
+ip_address = 192.168.1.13
+
+[Graphics]
+fullscreen = False
+width = 850
+height = 480
+draw_distance = short
+motion_blur = False
+texture_pack = default
+
+[World]
+size = 64
+
+[Controls]
+toggle_debug_text = F3
+move_backward = S
+escape = ESCAPE
+move_right = D
+jump = SPACE
+move_forward = W
+sound_up = PAGEUP
+move_left = A
+inventory_10 = 0
+inventory_8 = 8
+inventory_9 = 9
+inventory = E
+inventory_2 = 2
+inventory_3 = 3
+inventory_1 = 1
+inventory_6 = 6
+inventory_7 = 7
+inventory_4 = 4
+inventory_5 = 5
+crouch = LSHIFT
+toggle_hud = F1
+validate = ENTER
+fly = TAB
+showmap = F4
+screencap = F2
+sound_down = PAGEDOWN
+inventory_sort = M
+talk = E
+
+[Localization]
+language = default
+
