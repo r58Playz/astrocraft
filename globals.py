@@ -24,7 +24,7 @@ from pyglet.resource import get_settings_path
 
 
 APP_NAME = 'Factories'  # should I stay or should I go?
-APP_VERSION = 3.00
+APP_VERSION = 0.30
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = range(5)
 LOG_LEVEL = LOG_INFO
