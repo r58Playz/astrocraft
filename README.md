@@ -1,9 +1,6 @@
-# factories-python
-![Factories](https://github.com/r58Playz/factories-python/blob/master/factoriea.PNG)
+# astrocraft-python
+This is the Python version of AstroCraft, a game like Minecraft.
 
-Currently, you have to download the video(video.mp4) to view it.
-
-This is the Python version of Factories, a game like Minecraft.
-
-Factories just had a upgrade from bison/Minecraft to boskee/Minecraft.
+AstroCraft just had a upgrade from bison/Minecraft to boskee/Minecraft.
 You can see the old version in the branch old.
+The old branch has the old name of AstroCraft, Factories.
