@@ -1,7 +1,7 @@
 [General]
 debug = False
-username = tript
-ip_address = 192.168.1.13
+username = 
+ip_address = 
 
 [Graphics]
 fullscreen = False
@@ -15,34 +15,34 @@ texture_pack = default
 size = 64
 
 [Controls]
-toggle_debug_text = F3
+move_forward = W
 move_backward = S
-escape = ESCAPE
+move_left = A
 move_right = D
 jump = SPACE
-move_forward = W
-sound_up = PAGEUP
-move_left = A
-inventory_10 = 0
-inventory_8 = 8
-inventory_9 = 9
+crouch = LSHIFT
+fly = TAB
 inventory = E
+inventory_sort = M
+inventory_1 = 1
 inventory_2 = 2
 inventory_3 = 3
-inventory_1 = 1
-inventory_6 = 6
-inventory_7 = 7
 inventory_4 = 4
 inventory_5 = 5
-crouch = LSHIFT
-toggle_hud = F1
+inventory_6 = 6
+inventory_7 = 7
+inventory_8 = 8
+inventory_9 = 9
+inventory_10 = 0
+talk = T
 validate = ENTER
-fly = TAB
-showmap = F4
-screencap = F2
+sound_up = PAGEUP
 sound_down = PAGEDOWN
-inventory_sort = M
-talk = E
+toggle_hud = F1
+screencap = F2
+toggle_debug_text = F3
+showmap = F4
+escape = ESCAPE
 
 [Localization]
 language = default

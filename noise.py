@@ -15,16 +15,16 @@ from utils import FastRandom
 __all__ = ('SimplexNoiseGen', 'PerlinNoise')
 
 # Factory class utilizing perlin.SimplexNoise
-class SimplexNoiseGen(object):
+class SimplexNoiseGen:
     def __init__(self, seed, octaves=6, zoom_level=0.002):  # octaves = 6,
-        perm = range(255)
+        perm = list(range(255))
         random.Random(seed).shuffle(perm)
         self.noise = SimplexNoise(permutation_table=perm).noise2
 
         self.PERSISTENCE = 2.1379201 # AKA lacunarity
         self.H = 0.836281
         self.OCTAVES = octaves       # Higher linearly increases calc time; increases apparent 'randomness'
-        self.weights = [self.PERSISTENCE ** (-self.H * n) for n in xrange(self.OCTAVES)]
+        self.weights = [self.PERSISTENCE ** (-self.H * n) for n in range(self.OCTAVES)]
 
         self.zoom_level = zoom_level # Smaller will create gentler, softer transitions. Larger is more mountainy
 
@@ -41,7 +41,7 @@ class SimplexNoiseGen(object):
 
 
 # Improved Perlin Noise based on Improved Noise reference implementation by Ken Perlin
-class PerlinNoise(object):
+class PerlinNoise:
     def __init__(self, seed):
         rand = FastRandom(seed)
 

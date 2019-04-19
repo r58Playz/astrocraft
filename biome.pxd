@@ -5,7 +5,7 @@ cimport perlin
 #cython: wraparound=False
 #cython: cdivision=True
 
-cdef class BiomeGenerator(object):
+cdef class BiomeGenerator:
     cdef public:
         object temperature_gen, humidity_gen
 

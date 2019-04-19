@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-class Camera3D(object):
+class Camera3D:
     def __init__(self, target=None):
         self.target = target
         self.x = 0.0

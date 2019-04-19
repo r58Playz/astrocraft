@@ -16,7 +16,7 @@ __all__ = (
 
 PHYSICS_TIMER_INTERVAL = PHYSICS_TICK = 0.1
 
-class PhysicsTask(object):
+class PhysicsTask:
 	def __init__(self, position, accel, obj):
 		self.accel = accel
 		self.velocity = [0, 0, 0]
@@ -25,7 +25,7 @@ class PhysicsTask(object):
 		self.obj = obj
 		self.position = list(position)
 
-class PhysicsManager(object):
+class PhysicsManager:
 	def __init__(self):
 		self.timer = Timer(PHYSICS_TIMER_INTERVAL, "physics_timer")
 		self.started = False

@@ -31,7 +31,7 @@ __all__ = (
 )
 
 
-class Rectangle(object):
+class Rectangle:
     def __init__(self, x, y, width, height):
         self.position = x, y
         self.size = width, height
@@ -63,7 +63,7 @@ class Rectangle(object):
 
     @property
     def center(self):
-        return self.x + self.width / 2, self.y + self.height / 2
+        return self.x + self.width // 2, self.y + self.height // 2
 
     @property
     def min(self):
@@ -220,7 +220,7 @@ class Slot(pyglet.event.EventDispatcher, Rectangle):
             self._item.quickslots_x = self.icon.x
             self._item.quickslots_y = self.icon.y
         if self._item.max_durability != -1 and self._item.durability != -1:
-            self.icon.opacity = min(self._item.max_durability, self._item.durability + 1) * 255 / self._item.max_durability
+            self.icon.opacity = min(self._item.max_durability, self._item.durability + 1) * 255 // self._item.max_durability
 
         if self._item.amount > 1:
             self.amount_label = pyglet.text.Label(
@@ -311,15 +311,14 @@ class ItemSelector(AbstractInventory):
                          for i in range(1, 10)]
 
         image = G.texture_pack_list.selected_texture_pack.load_texture(['gui', 'gui.png'])
-        image_scale = image.height / 256
+        image_scale = image.height // 256
         x_size = 182 * image_scale
         y_size = 22 * image_scale
         self.frame = image_sprite(image, self.batch, 0, y=image.height - y_size, height=y_size, x=0, width=x_size)
         self.frame.scale = (1.0 / image_scale) * 2
-        self.frame.x = (self.parent.window.width - self.frame.width) / 2
+        self.frame.x = (self.parent.window.width - self.frame.width) // 2
 
         heart_image = load_image('resources', 'gui', 'heart.png')
-        frame_size = image.height / 2
 
         x_size = 24 * image_scale
         y_size = 22 * image_scale
@@ -367,7 +366,7 @@ class ItemSelector(AbstractInventory):
         hearts_to_show = self.player.health
         showed_hearts = 0
         for i, heart in enumerate(self.hearts):
-            heart.x = self.frame.x + i * (20 + 2) + (self.frame.width - hearts_to_show * (20 + 2)) / 2
+            heart.x = self.frame.x + i * (20 + 2) + (self.frame.width - hearts_to_show * (20 + 2)) // 2
             heart.y = self.icon_size * 1.0 + 12
             heart.visible = True
             if showed_hearts >= hearts_to_show:
@@ -427,7 +426,7 @@ class ItemSelector(AbstractInventory):
                     return pyglet.event.EVENT_HANDLED
 
     def on_resize(self, width, height):
-        self.frame.x = (width - self.frame.width) / 2
+        self.frame.x = (width - self.frame.width) // 2
         self.frame.y = 0
         self.active.y = self.frame.y + 2
         slot_x = self.frame.x + 8
@@ -477,7 +476,7 @@ class InventorySelector(AbstractInventory):
 
         # inventory slots - common
         # 9 items per row
-        rows = floor(self.max_items / 9)
+        rows = floor(self.max_items // 9)
         inventory_y = 0
         inventory_height = (rows * (self.icon_size + 8)) + ((rows+1) * 3)
         slot_x = self.frame.x + 16
@@ -560,12 +559,12 @@ class InventorySelector(AbstractInventory):
 
     def change_image(self):
         image = G.texture_pack_list.selected_texture_pack.load_texture(['gui', 'inventory.png' if self.mode == 0 else 'crafting.png' if self.mode == 1 else 'furnace.png'])
-        image_scale = image.height / 256
+        image_scale = image.height // 256
         x_size = 176 * image_scale
         y_size = 166 * image_scale
         self.frame = image_sprite(image, self.batch[self.mode], 0, y=image.height - y_size, height=y_size, x=0, width=x_size)
         self.frame.scale = (1.0 / image_scale) * 2
-        self.frame.x = (self.parent.window.width - self.frame.width) / 2
+        self.frame.x = (self.parent.window.width - self.frame.width) // 2
         self.frame.y = 74
 
     def update_items(self):
@@ -583,7 +582,7 @@ class InventorySelector(AbstractInventory):
         for j, item in enumerate(items):
             self.slots[i].item = item
             if not item or item.get_object().id > 0:
-                crafting_ingredients[int(floor(j / (2 if self.mode == 0 else 3 if self.mode == 1 else 1)))].append(air_block if not item else item.get_object())
+                crafting_ingredients[int(floor(j // (2 if self.mode == 0 else 3 if self.mode == 1 else 1)))].append(air_block if not item else item.get_object())
             i += 1
 
         if len(crafting_ingredients) > 0:
@@ -617,7 +616,7 @@ class InventorySelector(AbstractInventory):
     def set_furnace(self, furnace):
         self.furnace_panel = furnace
         crafting_rows = 2
-        rows = floor(self.max_items / 9)
+        rows = floor(self.max_items // 9)
         inventory_y = 0
         inventory_height = (rows * (self.icon_size + 8)) + ((rows+1) * 3)
         slot_x = self.frame.x + 63
@@ -657,8 +656,8 @@ class InventorySelector(AbstractInventory):
         self.selected_item_icon = image_sprite(img, self.batch[self.mode], self.group[self.mode])
         image_scale = 0.8 / (img.width / self.icon_size)
         self.selected_item_icon.scale = image_scale
-        self.selected_item_icon.x = x - (self.selected_item_icon.width / 2)
-        self.selected_item_icon.y = y - (self.selected_item_icon.height / 2)
+        self.selected_item_icon.x = x - (self.selected_item_icon.width // 2)
+        self.selected_item_icon.y = y - (self.selected_item_icon.height // 2)
 
     def remove_selected_item(self):
         self.selected_item = None
@@ -763,8 +762,8 @@ class InventorySelector(AbstractInventory):
                 slot.highlighted = slot.hit_test(x, y)
 
             if self.selected_item_icon:
-                self.selected_item_icon.x = x - (self.selected_item_icon.width / 2)
-                self.selected_item_icon.y = y - (self.selected_item_icon.height / 2)
+                self.selected_item_icon.x = x - (self.selected_item_icon.width // 2)
+                self.selected_item_icon.y = y - (self.selected_item_icon.height // 2)
             return pyglet.event.EVENT_HANDLED
 
     def on_mouse_drag(self, x, y, dx, dy, button, modifiers):
@@ -782,7 +781,7 @@ class InventorySelector(AbstractInventory):
                 return pyglet.event.EVENT_HANDLED
 
     def on_resize(self, width, height):
-        self.frame.x = (width - self.frame.width) / 2
+        self.frame.x = (width - self.frame.width) // 2
         self.frame.y = 74
         if self.visible:
             self.update_items()
@@ -805,7 +804,7 @@ class InventorySelector(AbstractInventory):
 def __run_iterator_fix(self, index):
     while index >= self.end and index > self.start:
         # condition has special case for 0-length run (fixes issue 471)
-        self.start, self.end, self.value = self.next()
+        self.start, self.end, self.value = next(self)
     return self.value
 from pyglet.text.runlist import RunIterator
 RunIterator.__getitem__ = __run_iterator_fix
@@ -815,7 +814,13 @@ class TextWidget(Control):
     """
     Variation of this example: http://www.pyglet.org/doc/programming_guide/text_input.py
     """
-    def __init__(self, parent, text, x, y, width, height=None, multi_line=False,
+    batch: pyglet.graphics.Batch
+    x: int
+    y: int
+    width: int
+    height: int
+
+    def __init__(self, parent, text, x: int, y: int, width: int, height: int = None, multi_line=False,
                  font_size=12,
                  font_name=G.DEFAULT_FONT,
                  text_color=(0, 0, 0, 255),
@@ -840,8 +845,10 @@ class TextWidget(Control):
         if blank_text:
             self.clear()
         self.padding = 10
+        self.x = x
+        self.y = y
+        self.width = width
         self.height = height or (font.ascent - font.descent) + self.padding
-        self.x, self.y, self.width = x, y, width
         self.multi_line = multi_line
         self.background_color = background_color
 
@@ -958,7 +965,7 @@ class TextWidget(Control):
                                    self.width + self.padding, self.height + self.padding)
         # And reposition the text layout
         self.layout.x = self.x + self.padding
-        self.layout.y = (self.rectangle.y + (self.rectangle.height/2) - (self.height/2))
+        self.layout.y = (self.rectangle.y + (self.rectangle.height//2) - (self.height//2))
         self.layout.width = self.rectangle.width - self.padding
         self.layout.height = self.rectangle.height - self.padding
         if self.vertex_list:
@@ -1121,7 +1128,7 @@ class ScrollbarWidget(Control):
 
     @property
     def center(self):
-        return self.x + self.width / 2, self.y + self.height / 2
+        return self.x + self.width // 2, self.y + self.height // 2
 
     def _on_draw(self):
         self.background.draw()
@@ -1131,7 +1138,7 @@ class ScrollbarWidget(Control):
 
     def update_pos(self, new_pos):
         sb_space = self.width - self.sb_width if self.style == 1 else self.height - self.sb_height
-        offset = sb_space * new_pos / 100
+        offset = sb_space * new_pos // 100
 
         # vertical
         if self.style == 0:
@@ -1150,7 +1157,7 @@ class ScrollbarWidget(Control):
 
     def coord_to_pos(self, x, y):
         offset = (self.y + self.height - y) if self.style == 0 else (x - self.x)
-        return int(offset * 100 / (self.height if self.style == 0 else self.width))
+        return int(offset * 100 // (self.height if self.style == 0 else self.width))
 
     def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
         if self.visible:
@@ -1171,7 +1178,7 @@ frame_image = load_image('resources', 'textures', 'frame.png')
 
 def init_button_image():
     gui_image = G.texture_pack_list.selected_texture_pack.load_texture(['gui', 'gui.png'])
-    image_scale = gui_image.height / 256
+    image_scale = gui_image.height // 256
     x_size = 200 * image_scale
     y_offset = 66 * image_scale
     y_size = 20 * image_scale
@@ -1198,7 +1205,7 @@ def init_button_image():
 def resize_button_image(image, old_width, new_width):
     if new_width == old_width:
         return image
-    new_width = int(image.width * new_width / old_width)
+    new_width = int(image.width * new_width // old_width)
     atlas = TextureAtlas(new_width, image.height)
     atlas.add(image.get_region(0, 0, new_width // 2, image.height).image_data)
     atlas.add(image.get_region(image.width - new_width // 2, 0, new_width // 2, image.height).image_data)

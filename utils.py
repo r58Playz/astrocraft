@@ -26,7 +26,7 @@ def load_image(*args):
         path) else None
 
 
-def image_sprite(image, batch, group, x=0, y=0, width=None, height=None):
+def image_sprite(image, batch, group, x: int = 0, y: int = 0, width: int = None, height: int = None):
     if image is None or batch is None or group is None:
         return None
     width = width or image.width
@@ -50,11 +50,12 @@ def vec(*args):
 
 
 # fast math algorithms
-class FastRandom(object):
+class FastRandom:
+    seed: int
     def __init__(self, seed):
         self.seed = seed
 
-    def randint(self):
+    def randint(self) -> int:
         self.seed = (214013 * self.seed + 2531011)
         return (self.seed >> 16) & 0x7FFF
 
@@ -70,7 +71,7 @@ def init_font(filename, fontname):
 
 
 def get_block_icon(block, icon_size, world):
-    print block.id.filename()
+    print(block.id.filename())
     block_icon = G.texture_pack_list.selected_texture_pack.load_texture(block.id.filename()) \
         or (block.group or world.group).texture.get_region(
             int(block.texture_data[2 * 8] * G.TILESET_SIZE) * icon_size,
@@ -105,7 +106,7 @@ FACES_WITH_DIAGONALS = FACES + (
 )
 
 
-def normalize_float(f):
+def normalize_float(f: float) -> int:
     """
     This is faster than int(round(f)).  Nearly two times faster.
     Since it is run at least 500,000 times during map generation,
@@ -132,16 +133,16 @@ def normalize_float(f):
     return int_f - 1
 
 
-def normalize(position):
+def normalize(position: (float, float, float)) -> (float, float, float):
     x, y, z = position
     return normalize_float(x), normalize_float(y), normalize_float(z)
 
 
-def sectorize(position):
+def sectorize(position: (int, int, int)) -> (int, int, int):
     x, y, z = normalize(position)
-    x, y, z = (x / G.SECTOR_SIZE,
-               y / G.SECTOR_SIZE,
-               z / G.SECTOR_SIZE)
+    x, y, z = (x // G.SECTOR_SIZE,
+               y // G.SECTOR_SIZE,
+               z // G.SECTOR_SIZE)
     return x, y, z
 
 
@@ -160,29 +161,29 @@ class TextureGroup(pyglet.graphics.Group):
         glDisable(self.texture.target)
 
 # Named Binary Tag
-def make_int_packet(i):
+def make_int_packet(i: int) -> bytes:
     return struct.pack('i', i)
 
 def extract_int_packet(packet):
     return packet[4:], struct.unpack('i', packet[:4])[0]
 
-def make_string_packet(s):
-    return struct.pack('i', len(s)) + s
+def make_string_packet(s: str) -> bytes:
+    return struct.pack('i', len(s)) + s.encode('utf-8')
 
-def extract_string_packet(packet):
+def extract_string_packet(packet: bytes) -> (bytes, str):
     strlen = struct.unpack('i', packet[:4])[0]
     packet = packet[4:]
-    s = packet [:strlen]
+    s = packet[:strlen].decode('utf-8')
     packet = packet[strlen:]
     return packet, s
 
-def make_packet(obj):
+def make_packet(obj) -> bytes:
     if type(obj) == int:
         return make_int_packet(obj)
     elif type(obj) == str:
         return make_string_packet(obj)
     else:
-        print('make_packet: unsupported type: ' + str(type(obj)))
+        print(('make_packet: unsupported type: ' + str(type(obj))))
         return None
 
 def extract_packet(packet):
@@ -192,7 +193,7 @@ def extract_packet(packet):
     elif tag == 1:
         return extract_string_packet(packet)
 
-def type_tag(t):
+def type_tag(t) -> bytes:
     tag = 0
     if t == int:
         tag = 0
@@ -200,9 +201,9 @@ def type_tag(t):
         tag = 1
     return struct.pack('B', tag)
 
-def make_nbt_from_dict(d):
-    packet = ''
-    for key in d.keys():
+def make_nbt_from_dict(d: dict) -> bytes:
+    packet = b''
+    for key in list(d.keys()):
         packet += make_string_packet(key) + type_tag(type(d[key])) + make_packet(d[key])
     return packet
 

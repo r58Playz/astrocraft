@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class Recipe(object):
+class Recipe:
     # ingre is a list that contains the ids of the ingredients
     # e.g. [[2, 2], [1, 1]]
     def __init__(self, ingre, output):
@@ -29,7 +29,7 @@ class Recipe(object):
     def __repr__(self):
         return 'Ingredients: ' + str(self.ingre) + '; Output: ' + str(self.output)
 
-class Recipes(object):
+class Recipes:
     def __init__(self):
         self.nr_recipes = 0
         self.recipes = []
@@ -118,16 +118,16 @@ class Recipes(object):
 
     def dump(self):
         for recipe in self.recipes:
-            print recipe
+            print(recipe)
 
-class SmeltingRecipe(object):
+class SmeltingRecipe:
     def __init__(self, ingre, output):
         # what blocks are needed to craft this block/item
         self.ingre = ingre
         self.output = output
 
 
-class SmeltingRecipes(object):
+class SmeltingRecipes:
     def __init__(self):
         self.nr_recipes = 0
         self.recipes = []

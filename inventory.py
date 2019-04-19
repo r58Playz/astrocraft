@@ -15,7 +15,7 @@ __all__ = (
 )
 
 
-class Inventory(object):
+class Inventory:
     sort_mode = 0
 
     def __init__(self, slot_count = 27):
@@ -93,11 +93,11 @@ class Inventory(object):
 
     def sort(self, reverse=True):
         if self.sort_mode == 0:
-            self.sort_with_key(key=lambda x: x.id if x != None else -sys.maxint - 1, reverse=True)
+            self.sort_with_key(key=lambda x: x.id if x != None else -sys.maxsize - 1, reverse=True)
         if self.sort_mode == 1:
-            self.sort_with_key(key=lambda x: x.amount if x != None else -sys.maxint - 1, reverse=True)
+            self.sort_with_key(key=lambda x: x.amount if x != None else -sys.maxsize - 1, reverse=True)
         elif self.sort_mode == 2:
-            self.sort_with_key(key=lambda x: x.amount if x != None else sys.maxint - 1, reverse=False)
+            self.sort_with_key(key=lambda x: x.amount if x != None else sys.maxsize - 1, reverse=False)
 
     def sort_with_key(self, key, reverse=True):
         self.slots = sorted(self.slots, key=key, reverse=reverse)

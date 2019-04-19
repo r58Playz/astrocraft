@@ -4,7 +4,7 @@ cdef extern from "math.h":
     float cosf(float theta)
     float sinf(float theta)
 
-cdef class Camera3D(object):
+cdef class Camera3D:
     cdef public:
         object target
         double x

@@ -10,7 +10,7 @@ cdef tuple _GRAD3, _GRAD4, _SIMPLEX
 cdef double _F2, _G2, _F3, _G3
 
 
-cdef class BaseNoise(object):
+cdef class BaseNoise:
     cdef public:
         tuple permutation
         int period

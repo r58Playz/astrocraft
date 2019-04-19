@@ -21,7 +21,7 @@ def performance_info(func):
             return func(*args, **kwargs)
         start = time.time()
         out = func(*args, **kwargs)
-        print('%s took %f seconds.' % (func.__name__, time.time() - start))
+        print(('%s took %f seconds.' % (func.__name__, time.time() - start)))
         return out
 
     return inner
@@ -33,7 +33,7 @@ def log(log_level, msg):
         now = time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time()))
         thread = '[' + threading.currentThread().getName() + ']'
         level = '[' + log_levels[log_level] + ']'
-        print now + ' ' + thread + ' ' + level + ' ' + msg
+        print(now + ' ' + thread + ' ' + level + ' ' + msg)
 
 def log_debug(msg):
     log(G.LOG_DEBUG, msg)

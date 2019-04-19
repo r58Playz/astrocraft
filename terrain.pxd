@@ -11,7 +11,7 @@ cdef int CHUNK_X_SIZE, CHUNK_Y_SIZE, CHUNK_Z_SIZE
 @cython.locals(xblks=dict, yblks=dict, zblks=dict, x=int, y=int, z=int)
 cpdef dict init_3d_list(int x_size, int y_size, int z_size)
 
-cdef class Chunk(object):
+cdef class Chunk:
     cdef public:
         int x_pos, y_pos, z_pos
         int x_size, y_size, z_size
@@ -29,7 +29,7 @@ cdef class Chunk(object):
 
 cdef int SAMPLE_RATE_HOR, SAMPLE_RATE_VER
 
-cdef class TerrainGeneratorBase(object):
+cdef class TerrainGeneratorBase:
     cdef public object seed
 
     cpdef object generate_sector(self, sector)

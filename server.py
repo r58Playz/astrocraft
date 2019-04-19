@@ -8,13 +8,13 @@ import timer
 try:  # Python 3
     import socketserver
 except ImportError:  # Python 2
-    import SocketServer as socketserver
+    import socketserver as socketserver
 import threading
 # Third-party packages
 
 # Modules from this project
 import globals as G
-from savingsystem import save_sector_to_string, save_blocks, save_world, load_player, save_player
+from savingsystem import save_sector_to_bytes, save_blocks, save_world, load_player, save_player
 from world_server import WorldServer
 import blocks
 from text_commands import CommandParser, COMMAND_HANDLED, CommandException, COMMAND_ERROR_COLOR
@@ -22,36 +22,37 @@ from utils import sectorize, make_string_packet
 from mod import load_modules
 
 #This class is effectively a serverside "Player" object
-class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
-    inventory = "\0"*(4*40)  # Currently, is serialized to be 4 bytes * (27 inv + 9 quickbar + 4 armor) = 160 bytes
+class ServerPlayer(socketserver.BaseRequestHandler):
+    inventory = b"\0"*(4*40)  # Currently, is serialized to be 4 bytes * (27 inv + 9 quickbar + 4 armor) = 160 bytes
     command_parser = CommandParser()
 
     operator = False
 
-    def sendpacket(self, size, packet):
-        self.request.sendall(struct.pack("i", 5+size)+packet)
-    def sendchat(self, txt, color=(255,255,255,255)):
+    def sendpacket(self, size: int, packet: bytes):
+        self.request.sendall(struct.pack("i", 5 + size) + packet)
+
+    def sendchat(self, txt: str, color=(255,255,255,255)):
         txt = txt.encode('utf-8')
-        self.sendpacket(len(txt) + 4, "\5" + txt + struct.pack("BBBB", *color))
-    def sendinfo(self, info, color=(255,255,255,255)):
+        self.sendpacket(len(txt) + 4, b"\5" + txt + struct.pack("BBBB", *color))
+    def sendinfo(self, info: str, color=(255,255,255,255)):
         info = info.encode('utf-8')
-        self.sendpacket(len(info) + 4, "\5" + info + struct.pack("BBBB", *color))
-    def broadcast(self, txt):
-        for player in self.server.players.itervalues():
+        self.sendpacket(len(info) + 4, b"\5" + info + struct.pack("BBBB", *color))
+    def broadcast(self, txt: str):
+        for player in self.server.players.values():
             player.sendchat(txt)
     def sendpos(self, pos_bytes, mom_bytes):
-        self.sendpacket(38, "\x08" + struct.pack("H", self.id) + mom_bytes + pos_bytes)
+        self.sendpacket(38, b"\x08" + struct.pack("H", self.id) + mom_bytes + pos_bytes)
 
     def lookup_player(self, playername):
         # find player by name
-        for player in self.server.players.values():
+        for player in list(self.server.players.values()):
             if player.username == playername:
                 return player
         return None
 
     def handle(self):
         self.username = str(self.client_address)
-        print "Client connecting...", self.client_address
+        print("Client connecting...", self.client_address)
         self.server.players[self.client_address] = self
         self.server.player_ids.append(self)
         self.id = len(self.server.player_ids) - 1
@@ -61,7 +62,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
             if self.server._stop.isSet():
                 return  # Socket error while shutting down doesn't matter
             if e[0] in (10053, 10054):
-                print "Client %s %s crashed." % (self.username, self.client_address)
+                print("Client %s %s crashed." % (self.username, self.client_address))
             else:
                 raise e
 
@@ -81,10 +82,10 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
                 if not world.sectors[sector]:
                     #Empty sector, send packet 2
-                    self.sendpacket(12, "\2" + struct.pack("iii",*sector))
+                    self.sendpacket(12, b"\2" + struct.pack("iii",*sector))
                 else:
-                    msg = struct.pack("iii",*sector) + save_sector_to_string(world, sector) + world.get_exposed_sector(sector)
-                    self.sendpacket(len(msg), "\1" + msg)
+                    msg = struct.pack("iii",*sector) + save_sector_to_bytes(world, sector) + world.get_exposed_sector(sector)
+                    self.sendpacket(len(msg), b"\1" + msg)
             elif packettype == 3:  # Add block
                 positionbytes = self.request.recv(4*3)
                 blockbytes = self.request.recv(2)
@@ -96,7 +97,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
                 for address in players:
                     if address is self.client_address: continue  # He told us, we don't need to tell him
-                    players[address].sendpacket(14, "\3" + positionbytes + blockbytes)
+                    players[address].sendpacket(14, b"\3" + positionbytes + blockbytes)
             elif packettype == 4:  # Remove block
                 positionbytes = self.request.recv(4*3)
 
@@ -105,7 +106,7 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
 
                 for address in players:
                     if address is self.client_address: continue  # He told us, we don't need to tell him
-                    players[address].sendpacket(12, "\4" + positionbytes)
+                    players[address].sendpacket(12, b"\4" + positionbytes)
             elif packettype == 5:  # Receive chat text
                 txtlen = struct.unpack("i", self.request.recv(4))[0]
                 raw_txt = self.request.recv(txtlen).decode('utf-8')
@@ -119,8 +120,8 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                         # Not a command, send the chat to all players
                         for address in players:
                             players[address].sendchat(txt)
-                        print txt  # May as well let console see it too
-                except CommandException, e:
+                        print(txt)  # May as well let console see it too
+                except CommandException as e:
                     self.sendchat(str(e), COMMAND_ERROR_COLOR)
             elif packettype == 6:  # Player Inventory Update
                 self.inventory = self.request.recv(4*40)
@@ -132,12 +133,12 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                 for address in players:
                     if address is self.client_address: continue  # He told us, we don't need to tell him
                     #TODO: Only send to nearby players
-                    players[address].sendpacket(38, "\x08" + struct.pack("H", self.id) + mom_bytes + pos_bytes)
+                    players[address].sendpacket(38, b"\x08" + struct.pack("H", self.id) + mom_bytes + pos_bytes)
             elif packettype == 9:  # Player Jump
                 for address in players:
                     if address is self.client_address: continue  # He told us, we don't need to tell him
                     #TODO: Only send to nearby players
-                    players[address].sendpacket(2, "\x09" + struct.pack("H", self.id))
+                    players[address].sendpacket(2, b"\x09" + struct.pack("H", self.id))
             elif packettype == 10: # Update Tile Entity
                 block_pos = struct.unpack("iii", self.request.recv(4*3))
                 ent_size = struct.unpack("i", self.request.recv(4))[0]
@@ -148,47 +149,47 @@ class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
                 self.position = None
                 load_player(self, "world")
 
-                for player in self.server.players.itervalues():
+                for player in self.server.players.values():
                     player.sendchat("$$y%s has connected." % self.username)
-                print "%s's username is %s" % (self.client_address, self.username)
+                print("%s's username is %s" % (self.client_address, self.username))
 
                 position = (0,self.server.world.terraingen.get_height(0,0)+2,0)
                 if self.position is None: self.position = position  # New player, set initial position
 
                 # Send list of current players to the newcomer
-                for player in self.server.players.itervalues():
+                for player in self.server.players.values():
                     if player is self: continue
                     name = player.username.encode('utf-8')
-                    self.sendpacket(2 + len(name), '\7' + struct.pack("H", player.id) + name)
+                    self.sendpacket(2 + len(name), b'\7' + struct.pack("H", player.id) + name)
                 # Send the newcomer's name to all current players
                 name = self.username.encode('utf-8')
-                for player in self.server.players.itervalues():
+                for player in self.server.players.values():
                     if player is self: continue
-                    player.sendpacket(2 + len(name), '\7' + struct.pack("H", self.id) + name)
+                    player.sendpacket(2 + len(name), b'\7' + struct.pack("H", self.id) + name)
 
                 #Send them the sector under their feet first so they don't fall
                 sector = sectorize(position)
                 if sector not in world.sectors:
                     with world.server_lock:
                         world.open_sector(sector)
-                msg = struct.pack("iii",*sector) + save_sector_to_string(world, sector) + world.get_exposed_sector(sector)
-                self.sendpacket(len(msg), "\1" + msg)
+                msg = struct.pack("iii",*sector) + save_sector_to_bytes(world, sector) + world.get_exposed_sector(sector)
+                self.sendpacket(len(msg), b"\1" + msg)
 
                 #Send them their spawn position and world seed(for client side biome generator)
                 seed_packet = make_string_packet(G.SEED)
                 self.sendpacket(12 + len(seed_packet), struct.pack("B",255) + struct.pack("iii", *position) + seed_packet)
-                self.sendpacket(4*40, "\6" + self.inventory)
+                self.sendpacket(4*40, b"\6" + self.inventory)
             else:
-                print "Received unknown packettype", packettype
+                print("Received unknown packettype", packettype)
     def finish(self):
-        print "Client disconnected,", self.client_address, self.username
+        print("Client disconnected,", self.client_address, self.username)
         try: del self.server.players[self.client_address]
         except KeyError: pass
-        for player in self.server.players.itervalues():
+        for player in self.server.players.values():
             player.sendchat("%s has disconnected." % self.username)
         # Send user list
-        for player in self.server.players.itervalues():
-            player.sendpacket(2 + 1, '\7' + struct.pack("H", self.id) + '\0')
+        for player in self.server.players.values():
+            player.sendpacket(2 + 1, b'\7' + struct.pack("H", self.id) + b'\0')
         save_player(self, "world")
 
 
@@ -207,26 +208,28 @@ class Server(socketserver.ThreadingTCPServer):
 
     def show_block(self, position, block):
         blockid = block.id
-        for player in self.players.itervalues():
+        for player in self.players.values():
             #TODO: Only if they're in range
-            player.sendpacket(14, "\3" + struct.pack("iiiBB", *(position+(blockid.main, blockid.sub))))
+            player.sendpacket(14, b"\3" + struct.pack("iiiBB", *(position+(blockid.main, blockid.sub))))
 
     def hide_block(self, position):
-        for player in self.players.itervalues():
+        for player in self.players.values():
             #TODO: Only if they're in range
-            player.sendpacket(12, "\4" + struct.pack("iii", *position))
+            player.sendpacket(12, b"\4" + struct.pack("iii", *position))
 
-    def update_tile_entity(self, position, value):
-        for player in self.players.itervalues():
-            player.sendpacket(12 + len(value), "\x0A" + struct.pack("iii", *position) + value)
+    def update_tile_entity(self, position, value: bytes):
+        for player in self.players.values():
+            player.sendpacket(12 + len(value), b"\x0A" + struct.pack("iii", *position) + value)
 
 
 def start_server(internal=False):
     if internal:
-        server = Server(("localhost", 1486), ThreadedTCPRequestHandler)
+        localip = "localhost"
     else:
-        localip = [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][0]
-        server = Server((localip, 1486), ThreadedTCPRequestHandler)
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 1))  # connect() for UDP doesn't send packets
+        localip = s.getsockname()[0]
+    server = Server((localip, 1486), ServerPlayer)
     G.SERVER = server
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.start()
@@ -249,46 +252,46 @@ if __name__ == '__main__':
     load_modules(server=True)
 
     server, server_thread = start_server()
-    print('Server loop running in thread: ' + server_thread.name)
+    print(('Server loop running in thread: ' + server_thread.name))
 
     ip, port = server.server_address
-    print "Listening on",ip,port
+    print("Listening on",ip,port)
 
     helptext = "Available commands: " + ", ".join(["say", "stop", "save"])
     while 1:
-        args = raw_input().replace(chr(13), "").split(" ")  # On some systems CR is appended, gotta remove that
+        args = input().replace(chr(13), "").split(" ")  # On some systems CR is appended, gotta remove that
         cmd = args.pop(0)
         if cmd == "say":
             msg = "Server: %s" % " ".join(args)
-            print msg
-            for player in server.players.itervalues():
+            print(msg)
+            for player in server.players.values():
                 player.sendchat(msg, color=(180,180,180,255))
         elif cmd == "help":
-            print helptext
+            print(helptext)
         elif cmd == "save":
-            print "Saving..."
+            print("Saving...")
             save_world(server, "world")
-            print "Done saving"
+            print("Done saving")
         elif cmd == "stop":
             server._stop.set()
             G.main_timer.stop()
-            print "Disconnecting clients..."
+            print("Disconnecting clients...")
             for address in server.players:
                 try:
                     server.players[address].request.shutdown(SHUT_RDWR)
                     server.players[address].request.close()
                 except socket.error:
                     pass
-            print "Shutting down socket..."
+            print("Shutting down socket...")
             server.shutdown()
-            print "Saving..."
+            print("Saving...")
             save_world(server, "world")
-            print "Goodbye"
+            print("Goodbye")
             break
         else:
-            print "Unknown command '%s'." % cmd, helptext
+            print("Unknown command '%s'." % cmd, helptext)
     while len(threading.enumerate()) > 1:
         threads = threading.enumerate()
         threads.remove(threading.current_thread())
-        print "Waiting on these threads to close:", threads
+        print("Waiting on these threads to close:", threads)
         time.sleep(1)

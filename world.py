@@ -148,7 +148,7 @@ class World(dict):
         dx, dy, dz = vector
         dx, dy, dz = dx / m, dy / m, dz / m
         previous = ()
-        for _ in xrange(max_distance * m):
+        for _ in range(max_distance * m):
             key = normalize((x, y, z))
             if key != previous and key in self and (self[key].density != 0.5 or hitwater):
                 return key, previous
@@ -176,7 +176,6 @@ class World(dict):
 
     def _show_block(self, position, block):
         # only show exposed faces
-        index = 0
         vertex_data = list(block.get_vertices(*position))
         texture_data = list(block.texture_data)
         color_data = None
@@ -184,7 +183,6 @@ class World(dict):
             temp = self.biome_generator.get_temperature(position[0], position[-1])
             humidity = self.biome_generator.get_humidity(position[0], position[-1])
             color_data =  block.get_color(temp, humidity)
-        count = len(texture_data) / 2
         # FIXME: Do something of what follows.
         #for neighbor in self.neighbors_iterator(position):
         #    if neighbor in self:
@@ -198,7 +196,7 @@ class World(dict):
         #    else:
         #       index += 1
 
-        count = len(texture_data) / 2
+        count = len(texture_data) // 2
         # create vertex list
         batch = self.transparency_batch if block.transparent else self.batch
         if color_data is not None:
@@ -237,12 +235,12 @@ class World(dict):
         after_set = set()
         pad = G.VISIBLE_SECTORS_RADIUS
         x, y, z = after
-        for distance in xrange(0, pad + 1):
-            for dx in xrange(-distance, distance + 1):
-                for dz in xrange(-distance, distance + 1):
+        for distance in range(0, pad + 1):
+            for dx in range(-distance, distance + 1):
+                for dz in range(-distance, distance + 1):
                     if abs(dx) != distance and abs(dz) != distance:
                         continue
-                    for dy in xrange(-4, 4):
+                    for dy in range(-4, 4):
                         if dx ** 2 + dy ** 2 + dz ** 2 > (pad + 1) ** 2:
                             continue
                         after_set.add((x + dx, y + dy, z + dz))

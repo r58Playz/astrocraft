@@ -3,7 +3,7 @@
 # Imports, sorted alphabetically.
 
 # Future imports
-from __future__ import unicode_literals
+
 from math import floor
 
 # Python packages
@@ -103,7 +103,7 @@ class TextureGroupIndividual(pyglet.graphics.Group):
             glDisable(self.texture.target)
 
 
-class BlockID(object):
+class BlockID:
     """
     Datatype for Block and Item IDs
 
@@ -121,7 +121,7 @@ class BlockID(object):
     def __init__(self, main, sub=0, icon_name=None):
         if isinstance(main, tuple):
             self.main, self.sub = main
-        elif isinstance(main, basestring):
+        elif isinstance(main, str):
             # Allow "35", "35.0", or "35,0"
             spl = main.split(".") if "." in main else main.split(",") if "," in main else (main, 0)
             if len(spl) == 2:
@@ -148,30 +148,33 @@ class BlockID(object):
     def __hash__(self):
         return hash((self.main, self.sub))
 
-    def __cmp__(self, other):
+    def __eq__(self, other):
         if isinstance(other, tuple):
-            return cmp((self.main, self.sub), other)
+            return (self.main, self.sub) == other
         if isinstance(other, float):
-            return cmp(float(repr(self.main)), other)
+            return float(repr(self.main)) == other
         if isinstance(other, int):
-            return cmp(self.main, other)
+            return self.main == other
         if isinstance(other, BlockID):
-            return cmp(self.main, other.main) or cmp(self.sub, other.sub)
+            return self.main == other.main and self.sub == other.sub
 
-    def __nonzero__(self):
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __bool__(self):
         """Checks whether it is an AirBlock."""
         return self.main != 0
 
     def is_item(self):
-        return self.main > 255
+        return self.main >= G.ITEM_ID_MIN
 
     def filename(self):
-        if self.icon_name != None: return ["textures", "blocks" if self.main < G.ITEM_ID_MIN else "items", str(self.icon_name) + ".png"]
+        if self.icon_name != None: return ["textures", "items" if self.is_item() else "blocks", str(self.icon_name) + ".png"]
         if self.sub == 0: return ["textures", "icons", str(self.main) + ".png"]
         return ["textures", "icons", '%d.%d.png' % (self.main, self.sub)]
 
 
-class Block(object):
+class Block:
     id = None  # Original minecraft id (also called data value).
                # Verify on http://www.minecraftwiki.net/wiki/Data_values
                # when creating a new "official" block.
@@ -361,7 +364,7 @@ class Block(object):
     def can_place_on(self, block_id):
         return False
 
-class BlockColorizer(object):
+class BlockColorizer:
         def __init__(self, filename):
             self.color_data = G.texture_pack_list.selected_texture_pack.load_texture(['misc', filename])
             # if the texture is not available, don't colorize it
@@ -378,7 +381,7 @@ class BlockColorizer(object):
             if self.color_data is None:
                 return 1, 1, 1
             pos = int(floor(humidity * 255) * BYTE_PER_LINE + 3 * floor((temperature) * 255))
-            return float(ord(self.color_data[pos])) / 255, float(ord(self.color_data[pos + 1])) / 255, float(ord(self.color_data[pos + 2])) / 255
+            return float(self.color_data[pos]) / 255, float(self.color_data[pos + 1]) / 255, float(self.color_data[pos + 2]) / 255
 
 class AirBlock(Block):
     max_stack_size = 0
@@ -1393,7 +1396,7 @@ class CropBlock(Block):
     def fertilize(self):
         if self.growth_stage == self.max_growth_stage:
             return False
-        G.CLIENT.update_tile_entity(self.entity.position, make_nbt_from_dict({'action'.encode(): 'fertilize'.encode()}))
+        G.CLIENT.update_tile_entity(self.entity.position, make_nbt_from_dict({'action': 'fertilize'}))
         return True
         
     def update_tile_entity(self, value):
@@ -1717,7 +1720,7 @@ class BedBlock(Block):
         return (block_id != 0)
 
     def set_metadata(self, metadata):
-        print 'metadata: ', metadata
+        print('metadata: ', metadata)
         if self.sub_id_as_metadata:
             self.id.sub = metadata
 
@@ -1725,7 +1728,7 @@ CRACK_LEVELS = 10
 
 
 # not a real block, used to store crack texture data
-class CrackTextureBlock(object):
+class CrackTextureBlock:
     def __init__(self):
         self.crack_level = CRACK_LEVELS
         self.texture_data = []

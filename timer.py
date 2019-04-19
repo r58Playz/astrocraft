@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class TimerTask(object):
+class TimerTask:
     def __init__(self, ticks, callback, speed):
         self.ticks = self.expire = ticks
         self.callback = callback

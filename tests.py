@@ -35,8 +35,8 @@ class InventoryTests(unittest.TestCase):
     def test_add_1(self):
         for size in [0, 9, random.randint(3, 100)]:
             inv = Inventory(slot_count=size)
-            item = random.choice(G.ITEMS_DIR.keys())
-            block = random.choice(G.BLOCKS_DIR.keys())
+            item = random.choice(list(G.ITEMS_DIR.keys()))
+            block = random.choice(list(G.BLOCKS_DIR.keys()))
             result = inv.add_item(item)
             result2 = inv.add_item(block)
             if size == 0:
@@ -59,14 +59,14 @@ class InventoryTests(unittest.TestCase):
 
     def test_add_2(self):
         inv = Inventory(slot_count=20)
-        block = random.choice(G.BLOCKS_DIR.keys())
+        block = random.choice(list(G.BLOCKS_DIR.keys()))
         max_items = G.BLOCKS_DIR[block].max_stack_size * 20
-        for i in xrange(0, max_items):
+        for i in range(0, max_items):
             self.assertTrue(inv.add_item(block))
-        item = random.choice(G.ITEMS_DIR.keys())
+        item = random.choice(list(G.ITEMS_DIR.keys()))
         inv2 = Inventory(slot_count=20)
         max_items2 = G.ITEMS_DIR[item].max_stack_size * 20
-        for i in xrange(0, max_items2):
+        for i in range(0, max_items2):
             self.assertTrue(inv2.add_item(item))
         self.assertNotIn(None, inv.slots)
         self.assertNotIn(None, inv2.slots)
@@ -79,20 +79,20 @@ class InventoryTests(unittest.TestCase):
 
     def test_remove(self):
         inv = Inventory(slot_count=20)
-        block = random.choice(G.BLOCKS_DIR.keys())
+        block = random.choice(list(G.BLOCKS_DIR.keys()))
         max_items = G.BLOCKS_DIR[block].max_stack_size * 20
-        for i in xrange(0, max_items):
+        for i in range(0, max_items):
             self.assertTrue(inv.add_item(block))
         self.assertFalse(inv.remove_item(block, quantity=0))
-        for i in xrange(0, 20):
+        for i in range(0, 20):
             self.assertTrue(inv.remove_item(block, quantity=G.BLOCKS_DIR[block].max_stack_size))
         self.assertEqual(inv.slots, [None] * 20)
-        for i in xrange(0, max_items):
+        for i in range(0, max_items):
             self.assertTrue(inv.add_item(block))
-        for i in xrange(0, 20):
+        for i in range(0, 20):
             self.assertTrue(inv.remove_by_index(i, quantity=G.BLOCKS_DIR[block].max_stack_size))
         self.assertEqual(inv.slots, [None] * 20)
-        for i in xrange(0, 20):
+        for i in range(0, 20):
             inv.slots[i] = ItemStack(block, amount=1)
             inv.slots[i].change_amount(-1)
         inv.remove_unnecessary_stacks()
@@ -108,24 +108,24 @@ class CraftingTests(unittest.TestCase):
         recipe3 = []
         ingre = {}
         for character in characters:
-            ingre[character] = G.BLOCKS_DIR.values()[self.current_block_id]
+            ingre[character] = list(G.BLOCKS_DIR.values())[self.current_block_id]
             self.current_block_id += 1
-            if self.current_block_id >= len(G.BLOCKS_DIR.values()):
+            if self.current_block_id >= len(list(G.BLOCKS_DIR.values())):
                 self.current_block_id = 0
-        for i in xrange(0, 3):
-            recipe.append(''.join(random.choice(characters) for x in xrange(3)))
+        for i in range(0, 3):
+            recipe.append(''.join(random.choice(characters) for x in range(3)))
             recipe2.append([])
             for character in recipe[i]:
                 recipe2[i].append(ingre[character])
                 recipe3.append(ingre[character])
-        return recipe, ingre, ItemStack(random.choice(G.BLOCKS_DIR.values()).id, amount=random.randint(1, 20)), recipe2, recipe3
+        return recipe, ingre, ItemStack(random.choice(list(G.BLOCKS_DIR.values())).id, amount=random.randint(1, 20)), recipe2, recipe3
 
     def test_add_1(self, characters='#@'):
         self.recipes = Recipes()
         recipes = []
         ingres = []
         outputs = []
-        for i in xrange(0, 50):
+        for i in range(0, 50):
             recipe, ingre, output, recipe2, recipe3 = self.generate_random_recipe(characters=characters)
             recipes.append(recipe2)
             ingres.append(ingre)
@@ -140,7 +140,7 @@ class CraftingTests(unittest.TestCase):
         recipes = []
         ingres = []
         outputs = []
-        for i in xrange(0, 25):
+        for i in range(0, 25):
             recipe, ingre, output, recipe2, recipe3 = self.generate_random_recipe(characters=characters)
             recipes.append(recipe2)
             ingres.append(ingre)
@@ -154,7 +154,7 @@ class CraftingTests(unittest.TestCase):
         recipes = []
         ingres = []
         outputs = []
-        for i in xrange(0, 25):
+        for i in range(0, 25):
             shapeless = random.choice([True, False])
             if shapeless:
                 recipe, ingre, output, recipe2, recipe3 = self.generate_random_recipe()

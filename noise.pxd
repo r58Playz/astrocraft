@@ -5,7 +5,7 @@ cimport perlin
 #cython: wraparound=False
 #cython: cdivision=True
 
-cdef class SimplexNoiseGen(object):
+cdef class SimplexNoiseGen:
     cdef public:
         list perm
         object noise
@@ -17,7 +17,7 @@ cdef class SimplexNoiseGen(object):
     @cython.locals(y=double, weight=double)
     cpdef double fBm(self, double x, double z)
 
-cdef class PerlinNoise(object):
+cdef class PerlinNoise:
     cdef public:
         list perm, weights
         double PERSISTENCE, H

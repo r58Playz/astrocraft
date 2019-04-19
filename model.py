@@ -26,7 +26,7 @@ def get_texture_coordinates(x, y, height, width, texture_height, texture_width):
     return x, y, x + width, y, x + width, y + height, x, y + height
 
 # not good at calculating coordinate things...there may be something wrong...
-class BoxModel(object):
+class BoxModel:
     # top bottom left right front back
     textures = [(-1, -1), (-1, -1), (-1, -1), (-1, -1), (-1, -1), (-1, -1)]
     texture_data = None
@@ -103,7 +103,7 @@ LEG_HEIGHT = BODY_HEIGHT
 LEG_LENGTH = BODY_WIDTH
 LEG_WIDTH = BODY_WIDTH
 
-class PlayerModel(object):
+class PlayerModel:
     def __init__(self, position):
         self.position = None
         image = load_image('resources', 'mob', 'char.png')

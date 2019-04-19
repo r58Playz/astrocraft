@@ -8,7 +8,7 @@ import globals as G
 
 __all__ = ("BiomeGenerator")
 
-class BiomeGenerator(object):
+class BiomeGenerator:
     def __init__(self, seed):
          self.temperature_gen = SimplexNoiseGen(seed + "97", zoom_level=0.01)
          self.humidity_gen = SimplexNoiseGen(seed + "147", zoom_level=0.01)

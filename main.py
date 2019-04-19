@@ -3,7 +3,7 @@
 # Imports, sorted alphabetically.
 
 # Python packages
-from ConfigParser import NoSectionError, NoOptionError
+from configparser import NoSectionError, NoOptionError
 import argparse
 import os
 import random
@@ -93,7 +93,7 @@ class Window(pyglet.window.Window):
     def on_resize(self, width, height):
         if self.reticle:
             self.reticle.delete()
-        x, y = width / 2, height / 2
+        x, y = width // 2, height // 2
         n = 10
         self.reticle = pyglet.graphics.vertex_list(
             4,
@@ -113,12 +113,12 @@ def main(options):
         setattr(G.LAUNCH_OPTIONS, name, val)
 
     if options.fast:
-        G.TIME_RATE /= 20
+        G.TIME_RATE //= 20
 
     if G.LANGUAGE != 'default':
         reload(sys)
         sys.setdefaultencoding('utf8')
-        gettext.install(True, localedir=None, unicode=1)
+        gettext.install(True, localedir=None, str=1)
         gettext.find(G.APP_NAME.lower(), 'locale')
         gettext.textdomain(G.APP_NAME.lower())
         gettext.bind_textdomain_codeset(G.APP_NAME.lower(), 'utf8')
@@ -138,17 +138,17 @@ def main(options):
         G.CLIENT.stop()
         
     if G.SERVER:
-        print 'Saving...'
+        print('Saving...')
         save_world(G.SERVER, "world")
-        print 'Shutting down internal server...'
+        print('Shutting down internal server...')
         G.main_timer.stop()
         G.SERVER._stop.set()
         G.SERVER.shutdown()
 
 if __name__ == '__main__':
-    log_info('Starting Factories...')
+    log_info('Starting pyCraft...')
 
-    parser = argparse.ArgumentParser(description='Play Factories.')
+    parser = argparse.ArgumentParser(description='Play a Python made Minecraft clone.')
 
     game_group = parser.add_argument_group('Game options')
     game_group.add_argument("--fast", action="store_true", default=False, help="Makes time progress faster then normal.")

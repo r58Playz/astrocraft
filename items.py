@@ -29,16 +29,17 @@ def get_item(item_or_block_id):
     """
     Get the Block or Item with the specified id, which must either be an instance
     of BlockID, or a string format BlockID knows how to parse.
+    :type item_or_block_id: Union[BlockID, int]
     """
     if not isinstance(item_or_block_id, BlockID):
         item_or_block_id = BlockID(str(item_or_block_id))
-    if item_or_block_id.main >= G.ITEM_ID_MIN:
+    if item_or_block_id.is_item():
         return G.ITEMS_DIR[item_or_block_id]
     else:
         return G.BLOCKS_DIR[item_or_block_id]
 
 
-class Item(object):
+class Item:
     id = None
     max_stack_size = 0
     amount_label_color = 255, 255, 255, 255
@@ -61,7 +62,13 @@ class Item(object):
     def __repr__(self):
         return self.name
 
-class ItemStack(object):
+class ItemStack:
+    type: BlockID
+    amount: int
+    durability: int
+    max_durability: int
+    max_stack_size: int
+
     def __init__(self, type = 0, amount = 1, durability = -1):
         if amount < 1:
             amount = 1

@@ -48,7 +48,7 @@ class UnknownCommandException(CommandException):
         self.message = "$$rUnknown command. Try /help for help."
 
 
-class CommandParser(object):
+class CommandParser:
     """
     Entry point for parsing and executing game commands.
     """
@@ -85,9 +85,9 @@ class CommandParser(object):
             # ...but filter out "None" arguments. If commands
             # want optional arguments, they should use keyword arguments
             # in their execute methods.
-            args = filter(lambda a: a is not None, match.groups())
+            args = [a for a in match.groups() if a is not None]
             kwargs = {}
-            for key, value in match.groupdict().iteritems():
+            for key, value in match.groupdict().items():
                 if value is not None:
                     kwargs[key] = value
             ret = command.execute(*args, **kwargs)
@@ -101,7 +101,7 @@ class CommandParser(object):
             return COMMAND_NOT_HANDLED
 
 
-class Command(object):
+class Command:
     command = None
     help_text = None
 

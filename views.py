@@ -28,7 +28,7 @@ __all__ = (
     'View', 'MainMenuView', 'OptionsView', 'ControlsView', 'TexturesView', 'MultiplayerView'
 )
 
-class Layout(object):
+class Layout:
     def __init__(self, x, y):
         self.components = []
         self._position = x, y
@@ -221,8 +221,9 @@ class MenuView(View):
         self.batch.draw()
 
     def on_resize(self, width, height):
-        self.frame.x, self.frame.y = (width - self.frame.width) / 2, (height - self.frame.height) / 2
-        self.layout.position = (width - self.layout.width) / 2, self.frame.y
+        self.frame.x = (width - self.frame.width) // 2
+        self.frame.y = (height - self.frame.height) // 2
+        self.layout.position = (width - self.layout.width) // 2, self.frame.y
 
 
 class MainMenuView(MenuView):
@@ -239,9 +240,10 @@ class MainMenuView(MenuView):
 
         width, height = self.controller.window.width, self.controller.window.height
 
-        self.label = Label(G.APP_NAME, font_name='ChunkFive Roman', font_size=50, x=width/2, y=self.frame.y + self.frame.height,
+        self.label = Label(G.APP_NAME, font_name='ChunkFive Roman', font_size=50, x=width//2, y=self.frame.y + self.frame.height,
             anchor_x='center', anchor_y='top', color=(255, 255, 255, 255), batch=self.batch,
             group=self.labels_group)
+        self.label.width = self.label.content_width
         self.label.height = self.label.content_height
         self.layout.add(self.label)
 
@@ -257,9 +259,10 @@ class MainMenuView(MenuView):
         button = self.Button(caption=G._("Exit game"),on_click=self.controller.exit_game)
         self.layout.add(button)
         self.buttons.append(button)
-        button = self.Button(caption=G._("Update game"), on_click=up)
+        button = self.Button(caption=G._("Update game(Need to restart)"), on_click=up)
         self.layout.add(button)
         self.buttons.append(button)
+
         # Splash text
         self.splash_text = 'Hello!'
 
@@ -427,7 +430,7 @@ class MainMenuView(MenuView):
     def on_resize(self, width, height):
         MenuView.on_resize(self, width, height)
         self.label.y = self.frame.y + self.frame.height - 15
-        self.label.x = width / 2
+        self.label.x = width // 2
         self.splash_text_label.x = self.label.x
         self.splash_text_label.y = self.label.y
 
@@ -463,7 +466,7 @@ class OptionsView(MenuView):
         hl.add(sb)
 
         def change_sound_volume(pos):
-            print G.EFFECT_VOLUME
+            print(G.EFFECT_VOLUME)
             G.EFFECT_VOLUME = float(float(pos) / 100)
         sb = self.Scrollbar(x=0, y=0, width=300, height=40, sb_width=20, sb_height=40, caption="Sound", pos=int(G.EFFECT_VOLUME * 100), on_pos_change=change_sound_volume)
         hl.add(sb)
@@ -477,12 +480,11 @@ class OptionsView(MenuView):
         hl.add(button)
         self.buttons.append(button)
         self.layout.add(hl)
-
         button = self.Button(width=610, caption=G._("Done"), on_click=self.controller.main_menu)
         self.layout.add(button)
         self.buttons.append(button)
 
-        self.label = Label('Options', font_name='ChunkFive Roman', font_size=25, x=width/2, y=self.frame.y + self.frame.height,
+        self.label = Label('Options', font_name='ChunkFive Roman', font_size=25, x=width//2, y=self.frame.y + self.frame.height,
             anchor_x='center', anchor_y='top', color=(255, 255, 255, 255), batch=self.batch,
             group=self.labels_group)
 
@@ -490,7 +492,7 @@ class OptionsView(MenuView):
 
     def on_resize(self, width, height):
         MenuView.on_resize(self, width, height)
-        self.text_input.resize(x=self.frame.x + (self.frame.width - self.text_input.width) / 2 + 5, y=self.frame.y + (self.frame.height) / 2 + 75, width=150)
+        self.text_input.resize(x=self.frame.x + (self.frame.width - self.text_input.width) // 2 + 5, y=self.frame.y + self.frame.height // 2 + 75, width=150)
 
 
 class ControlsView(MenuView):
@@ -515,9 +517,10 @@ class ControlsView(MenuView):
         self.background.scale = 1.0
         self.background.scale = max(float(width) / self.background.width, float(height) / self.background.height)
         self.background.x, self.background.y = 0, 0
-        self.frame.x, self.frame.y = (width - self.frame.width) / 2, (height - self.frame.height) / 2
+        self.frame.x = (width - self.frame.width) // 2
+        self.frame.y = (height - self.frame.height) // 2
         default_button_x = button_x = self.frame.x + 30
-        button_y = self.frame.y + (self.frame.height) / 2 + 10
+        button_y = self.frame.y + self.frame.height // 2 + 10
         i = 0
         for button in self.key_buttons:
             button.position = button_x, button_y
@@ -527,7 +530,7 @@ class ControlsView(MenuView):
                 button_x = default_button_x
                 button_y -= button.height + 20
             i += 1
-        button_x = self.frame.x + (self.frame.width - self.button_return.width) / 2
+        button_x = self.frame.x + (self.frame.width - self.button_return.width) // 2
         self.button_return.position = button_x, button_y
 
     def on_key_press(self, symbol, modifiers):
@@ -583,7 +586,7 @@ class TexturesView(MenuView):
                 self.current_toggled = button
                 G.config.set("Graphics", "texture_pack", button.id)
                 G.TEXTURE_PACK = button.id
-                for block in G.BLOCKS_DIR.values():
+                for block in list(G.BLOCKS_DIR.values()):
                     block.update_texture() #Reload textures
 
                 G.save_config()
@@ -593,7 +596,8 @@ class TexturesView(MenuView):
         self.background.scale = 1.0
         self.background.scale = max(float(width) / self.background.width, float(height) / self.background.height)
         self.background.x, self.background.y = 0, 0
-        self.frame.x, self.frame.y = (width - self.frame.width) / 2, (height - self.frame.height) / 2
+        self.frame.x = (width - self.frame.width) // 2
+        self.frame.y = (height - self.frame.height) // 2
 
 class MultiplayerView(MenuView):
     def setup(self):
@@ -619,7 +623,7 @@ class MultiplayerView(MenuView):
         self.layout.add(button)
         self.buttons.append(button)
 
-        self.label = Label('Play Multiplayer', font_name='ChunkFive Roman', font_size=25, x=width/2, y=self.frame.y + self.frame.height,
+        self.label = Label('Play Multiplayer', font_name='ChunkFive Roman', font_size=25, x=width//2, y=self.frame.y + self.frame.height,
             anchor_x='center', anchor_y='top', color=(255, 255, 255, 255), batch=self.batch,
             group=self.labels_group)
 
@@ -636,4 +640,4 @@ class MultiplayerView(MenuView):
 
     def on_resize(self, width, height):
         MenuView.on_resize(self, width, height)
-        self.text_input.resize(x=self.frame.x + (self.frame.width - self.text_input.width) / 2 + 5, y=self.frame.y + (self.frame.height) / 2 + 75, width=150)
+        self.text_input.resize(x=self.frame.x + (self.frame.width - self.text_input.width) // 2 + 5, y=self.frame.y + self.frame.height // 2 + 75, width=150)

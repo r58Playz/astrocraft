@@ -13,10 +13,10 @@ cury = 0
 xsize = 79
 ysize = 28
 
-DESERT, PLAINS, MOUNTAINS, SNOW, FOREST = range(5)
+DESERT, PLAINS, MOUNTAINS, SNOW, FOREST = list(range(5))
 letters = ["D","P","M","S","F"]
 
-print "Okay, click on the console window again, then use the arrow keys."
+print("Okay, click on the console window again, then use the arrow keys.")
 
 while True:
     base = getch()
@@ -38,4 +38,4 @@ while True:
             for x in range(curx,curx+xsize):
                 string += letters[b.get_biome_type(x,y)]
             string += "\n"
-        print string + "Current position: (%s-%s %s-%s)" % (curx*8, (curx+xsize)*8, cury*8, (cury+ysize)*8)
+        print(string + "Current position: (%s-%s %s-%s)" % (curx*8, (curx+xsize)*8, cury*8, (cury+ysize)*8))

@@ -15,7 +15,7 @@ from blocks import *
 #
 
 
-class SmallPlant(object):
+class SmallPlant:
     block = None
     grows_on = grass_block, dirt_block
 
@@ -24,7 +24,7 @@ class SmallPlant(object):
         world.add_block(position, cls.block, sync=sync)
 
 
-class Trunk(object):
+class Trunk:
     block = None
     height_range = 4, 8
     grows_on = ()
@@ -45,11 +45,11 @@ class Trunk(object):
     @classmethod
     def add_to_world(cls, world, position, sync=False):
         trunk = cls(position)
-        for item in trunk.blocks.items():
+        for item in list(trunk.blocks.items()):
             world.add_block(*item, sync=sync)
 
 
-class Tree(object):
+class Tree:
     trunk_block = None
     leaf_block = None
     trunk_height_range = 4, 8
@@ -60,7 +60,7 @@ class Tree(object):
         trunk = Trunk(position, block=cls.trunk_block,
                       height_range=cls.trunk_height_range)
 
-        for item in trunk.blocks.items():
+        for item in list(trunk.blocks.items()):
             world.add_block(*item, force=False, sync=sync)
 
         x, y, z = position
@@ -68,7 +68,7 @@ class Tree(object):
         treetop = y + height
 
         # Leaves generation
-        d = height / 3 + 1
+        d = height // 3 + 1
         for xl in range(x - d, x + d):
             dx = abs(xl - x)
             for yl in range(treetop - d, treetop + d):

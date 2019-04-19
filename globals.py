@@ -9,7 +9,7 @@ would lead to unpredictable consequences.
 # Imports, sorted alphabetically.
 
 # Python packages
-from ConfigParser import ConfigParser, NoSectionError, NoOptionError
+from configparser import ConfigParser, NoSectionError, NoOptionError
 import argparse
 import getpass
 from math import pi
@@ -23,13 +23,13 @@ from pyglet.resource import get_settings_path
 # Nothing for now...
 
 
-APP_NAME = 'Factories'  # should I stay or should I go?
-APP_VERSION = 0.30
+APP_NAME = 'AstroCraft'  # should I stay or should I go?
+APP_VERSION = 3.00
 DEBUG = False
-LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = range(5)
+LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
-IP_ADDRESS = "neb.nebtown.info"  # The IP Address to connect to
-USERNAME = getpass.getuser()  # Default to system username
+IP_ADDRESS = ""  # The IP Address to connect to
+USERNAME = ""
 
 CLIENT = None  # Becomes the instance of PacketReceiver if running the client
 SERVER = None  # Becomes the instance of Server if running the server
@@ -80,12 +80,12 @@ SHOWMAP_KEY = 'F4'
 ESCAPE_KEY = 'ESCAPE'
 
 KEY_BINDINGS = dict(
-    (k.lower()[:-4], v) for k, v in locals().items() if k[-4:] == '_KEY'
+    (k.lower()[:-4], v) for k, v in list(locals().items()) if k[-4:] == '_KEY'
 )
 
 # Saves
 DISABLE_SAVE = False
-SAVE_FILENAME = "SAVE.FACTORIES"
+SAVE_FILENAME = "SEVE.FACTORIES"
 DB_NAME = 'world.db'
 
 # Game engine
@@ -144,14 +144,14 @@ TERRAIN_CHOICES = {  # hill_height & max_trees mandatory for the moment.
 
 SEED = None
 TREE_CHANCE = 0.006
-WILDFOOD_CHANCE = 0.0005
+WILDFOOD_CHANCE = 0.0125
 GRASS_CHANCE = 0.05
 
 # Biome
-DESERT, PLAINS, MOUNTAINS, SNOW, FOREST, ISLAND, NETHER = range(7)
+DESERT, PLAINS, MOUNTAINS, SNOW, FOREST, ISLAND, NETHER = list(range(7))
 
 # Direction
-EAST, SOUTH, WEST, NORTH = range(4)
+EAST, SOUTH, WEST, NORTH = list(range(4))
 
 # Graphical rendering
 FULLSCREEN = False
@@ -161,7 +161,7 @@ WINDOW_HEIGHT = 480  # Screen height (in pixels)
 MAX_FPS = 60  # Maximum frames per second.
 
 #Maximum time to process the queue
-QUEUE_PROCESS_SPEED = 0.01 / MAX_FPS #Try shrinking this if chunk loading is laggy, higher loads chunks faster
+QUEUE_PROCESS_SPEED = 0.1 / MAX_FPS #Try shrinking this if chunk loading is laggy, higher loads chunks faster
 
 VISIBLE_SECTORS_RADIUS = 8
 DELOAD_SECTORS_RADIUS = 12
@@ -175,7 +175,7 @@ DEFAULT_DRAW_DISTANCE_CHOICE = 'short'
 DRAW_DISTANCE_CHOICE = DEFAULT_DRAW_DISTANCE_CHOICE
 DRAW_DISTANCE = DRAW_DISTANCE_CHOICES[DRAW_DISTANCE_CHOICE]
 
-FOV = 65.0  # TODO: add menu option to change FOV
+FOV = 105.0  # TODO: add menu option to change FOV
 NEAR_CLIP_DISTANCE = 0.1  # TODO: make min and max clip distance dynamic
 FAR_CLIP_DISTANCE = 200.0  # Maximum render distance,
                            # ignoring effects of sector_size
@@ -193,9 +193,9 @@ DEBUG_TEXT_ENABLED = True
 EFFECT_VOLUME = 1
 
 # Tool types
-WOODEN_TOOL, STONE_TOOL, IRON_TOOL, DIAMOND_TOOL, GOLDEN_TOOL = range(5)
-PICKAXE, AXE, SHOVEL, HOE, SWORD = range(5)
-HELMET, CHESTPLATE, LEGGINGS, BOOTS = range(4)
+WOODEN_TOOL, STONE_TOOL, IRON_TOOL, DIAMOND_TOOL, GOLDEN_TOOL = list(range(5))
+PICKAXE, AXE, SHOVEL, HOE, SWORD = list(range(5))
+HELMET, CHESTPLATE, LEGGINGS, BOOTS = list(range(4))
 
 # Static aliases
 DEG_RAD = pi / 180.0
@@ -209,20 +209,20 @@ smelting_recipes = None
 TIMER_INTERVAL = 1
 main_timer = None
 
-CHAT_FADE_TIME = 10
+CHAT_FADE_TIME = 8
 
 # Localization
 LANGUAGE = 'default'
 _ = lambda x:x
 
 # Global files & directories
-game_dir = "FACTORIES"
+game_dir = "ASTROCRAFT"
 if not os.path.exists(game_dir):
     os.makedirs(game_dir)
 worlds_dir = os.path.join(game_dir, 'worlds')
 
 config = ConfigParser()
-config_file = os.path.join(game_dir, 'gamecfg.FACTORIES')
+config_file = os.path.join(game_dir, 'gamecfg.ASTROCRAFT')
 config.read(config_file)
 LAUNCH_OPTIONS = argparse.Namespace()
 
@@ -278,9 +278,9 @@ def get_or_update_config(section, option, default_value, conv=str, choices=()):
     return user_value
 
 def save_config():
-    config.set("General","username", USERNAME.encode('utf-8'))
+    config.set("General","username", USERNAME)
     config.set("General","ip_address", IP_ADDRESS)
-    with open(config_file, 'wb') as handle:
+    with open(config_file, 'w') as handle:
         config.write(handle)
 
 def initialize_config():
@@ -295,7 +295,6 @@ def initialize_config():
         general, 'debug', DEBUG, conv=bool)
     USERNAME = get_or_update_config(
         general, 'username', USERNAME, conv=str)
-    USERNAME = USERNAME.decode('utf-8')
     IP_ADDRESS = get_or_update_config(
         general, 'ip_address', IP_ADDRESS, conv=str)
 
@@ -339,7 +338,7 @@ def initialize_config():
     controls = 'Controls'
 
     # Adds missing keys to configuration file and converts to pyglet keys.
-    for control, default_key_name in KEY_BINDINGS.items():
+    for control, default_key_name in list(KEY_BINDINGS.items()):
         key_name = get_or_update_config(controls, control, default_key_name)
         try:
             pyglet_key = get_key(key_name)
