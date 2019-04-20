@@ -15,5 +15,5 @@ def update():
             if file != "update.py":
                 current_dir=os.path.basename(os.getcwd())
                 shutil.copy(full_filename, current_dir)
-     shutil.rmtree("pycraft_update")
-     main.start()# Should work...
+    shutil.rmtree("astrocraft_update")
+    main.start()# Should work...
