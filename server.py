@@ -1,18 +1,13 @@
-# Python packages
+#!/usr/bin/env python3
+
 from _socket import SHUT_RDWR
 import socket
 import struct
 import time
 import timer
-
-try:  # Python 3
-    import socketserver
-except ImportError:  # Python 2
-    import socketserver as socketserver
+import socketserver
 import threading
-# Third-party packages
 
-# Modules from this project
 import globals as G
 from savingsystem import save_sector_to_bytes, save_blocks, save_world, load_player, save_player
 from world_server import WorldServer
@@ -32,11 +27,11 @@ class ServerPlayer(socketserver.BaseRequestHandler):
         self.request.sendall(struct.pack("i", 5 + size) + packet)
 
     def sendchat(self, txt: str, color=(255,255,255,255)):
-        txt = txt.encode('utf-8')
-        self.sendpacket(len(txt) + 4, b"\5" + txt + struct.pack("BBBB", *color))
+        txt_bytes = txt.encode('utf-8')
+        self.sendpacket(len(txt_bytes) + 4, b"\5" + txt_bytes + struct.pack("BBBB", *color))
     def sendinfo(self, info: str, color=(255,255,255,255)):
-        info = info.encode('utf-8')
-        self.sendpacket(len(info) + 4, b"\5" + info + struct.pack("BBBB", *color))
+        info_bytes = info.encode('utf-8')
+        self.sendpacket(len(info_bytes) + 4, b"\5" + info_bytes + struct.pack("BBBB", *color))
     def broadcast(self, txt: str):
         for player in self.server.players.values():
             player.sendchat(txt)
@@ -217,7 +212,7 @@ class Server(socketserver.ThreadingTCPServer):
             #TODO: Only if they're in range
             player.sendpacket(12, b"\4" + struct.pack("iii", *position))
 
-    def update_tile_entity(self, position, value: bytes):
+    def update_tile_entity(self, position, value):
         for player in self.players.values():
             player.sendpacket(12 + len(value), b"\x0A" + struct.pack("iii", *position) + value)
 
