@@ -23,8 +23,8 @@ from pyglet.resource import get_settings_path
 # Nothing for now...
 
 
-APP_NAME = 'AstroCraft'  # should I stay or should I go?
-APP_VERSION = 0.40
+APP_NAME = 'AstroCraft'
+APP_VERSION = "0.4.2"
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
