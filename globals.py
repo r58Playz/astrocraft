@@ -24,7 +24,7 @@ from pyglet.resource import get_settings_path
 
 
 APP_NAME = 'AstroCraft'
-APP_VERSION = "0.4.2"
+APP_VERSION = "v0.4.4"
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
