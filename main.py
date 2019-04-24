@@ -145,9 +145,8 @@ def main(options):
         G.SERVER._stop.set()
         G.SERVER.shutdown()
 def start():
-    log_info('Starting pyCraft...')
 
-    parser = argparse.ArgumentParser(description='Play a Python made Minecraft clone.')
+    parser = argparse.ArgumentParser(description='Play Astrocraft')
 
     game_group = parser.add_argument_group('Game options')
     game_group.add_argument("--fast", action="store_true", default=False, help="Makes time progress faster then normal.")

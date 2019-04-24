@@ -18,13 +18,12 @@ import random
 
 # Third-party packages
 import pyglet
-from pyglet.resource import get_settings_path
 
 # Modules from this project
 # Nothing for now...
 
 
-APP_NAME = 'AstroCraft'  # should I stay or should I go?
+APP_NAME = 'AstroCraft'
 APP_VERSION = "0.4.2"
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
@@ -223,7 +222,7 @@ if not os.path.exists(game_dir):
 worlds_dir = os.path.join(game_dir, 'worlds')
 
 config = ConfigParser()
-config_file = os.path.join(game_dir, 'config.ASTROCRAFTa')
+config_file = os.path.join(game_dir, 'config.ASTROCRAFT')
 config.read(config_file)
 LAUNCH_OPTIONS = argparse.Namespace()
 
