@@ -237,6 +237,9 @@ TEXTURES_PATH = os.path.join('resources', 'textures')
 DEFAULT_FONT = 'ChunkFive Roman'
 CHAT_FONT = 'Silkscreen'
 
+# Update mechanism settings
+UPDATE_URL = "https://github.com/r58Playz/astrocraft-python/archive/master.zip"
+UPDATE_THEMPDIR = "astrocraft_update"
 
 class InvalidChoice(Exception):
     pass
