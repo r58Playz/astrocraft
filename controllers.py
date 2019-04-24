@@ -51,7 +51,7 @@ class Controller:
     def update(self, dt):
         if self.current_view:
             self.current_view.update(dt)
-        
+
     def switch_view(self, new_view):
         if self.current_view:
             self.current_view.pop_handlers()
@@ -208,7 +208,7 @@ class GameController(Controller):
         glAlphaFunc(GL_GREATER, 0.1)
         glEnable(GL_COLOR_MATERIAL)
         glEnable(GL_BLEND)
-        
+
         glEnable(GL_LINE_SMOOTH)
         glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
         glEnable(GL_POLYGON_SMOOTH)
@@ -217,7 +217,7 @@ class GameController(Controller):
         #glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE)
         #glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE)
         #glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE)
-            
+
         #glClearColor(0, 0, 0, 0)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
@@ -323,7 +323,7 @@ class GameController(Controller):
             self.label = pyglet.text.Label(
                 '', font_name='Arial', font_size=8, x=10, y=self.window.height - 10,
                 anchor_x='left', anchor_y='top', color=(255, 255, 255, 255))
-        
+
         #if G.DEBUG_TEXT_ENABLED:
         #    self.debug_text = TextWidget(self.window, '',
         #                           0, self.window.height - 300,
@@ -454,7 +454,7 @@ class GameController(Controller):
             self.set_highlighted_block(None)
             self.mouse_pressed = False
 
-    def on_mouse_motion(self, x, y, dx, dy): 
+    def on_mouse_motion(self, x, y, dx, dy):
         if self.window.exclusive:
             m = 0.15
             x, y = self.player.rotation
@@ -547,7 +547,7 @@ class GameController(Controller):
         self.world.batch.draw()
         self.world.transparency_batch.draw()
         glEnable(GL_BLEND)
-        glBlendFunc(GL_ZERO, GL_DST_ALPHA)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         self.crack_batch.draw()
         glDisable(GL_BLEND)
         self.draw_focused_block()
@@ -691,7 +691,7 @@ class GameController(Controller):
     def show_map(self):
         print("map called...")
          # taken from Nebual's biome_explorer, this is ment to be a full screen map that uses mini tiles to make a full 2d map.
-        with open(os.path.join(G.game_dir, "world", "seed"), "rb") as f:
+        with open(os.path.join(G.game_dir, "world", "seed"), "r") as f:
             SEED = f.read()
         b = BiomeGenerator(SEED)
         x, y, z = self.player.position
@@ -719,7 +719,7 @@ class GameController(Controller):
             tmap = letters[b.get_biome_type(x,y)]
             tile_map = load_image('resources', 'textures', tmap +'.png')
             tile_map.anchor_x = x * 8
-            tile_map.anchor_Y = y * 8
+            tile_map.anchor_y = y * 8
             sprite = pyglet.sprite.Sprite(tile_map, x=x * 8, y=y * 8, batch=pbatch)
             game_map = image_sprite(tile_map, pbatch, pgroup, x * 8, y * 8, 8, 8)
             game_map = pyglet.sprite.Sprite(image,x=G.WINDOW_WIDTH, y=G.WINDOW_HEIGHT,batch=pbatch, group=pgroup)

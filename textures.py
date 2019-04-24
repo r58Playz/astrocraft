@@ -3,7 +3,6 @@
 # Python packages
 import os
 from zipfile import ZipFile
-from PIL import Image
 
 # Third-party packages
 import pyglet

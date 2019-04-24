@@ -5,10 +5,12 @@ from collections import deque, defaultdict, OrderedDict
 import os
 from time import time
 import warnings
+from typing import Tuple, Set, Optional, Any, Dict, Deque, DefaultDict
 
 # Third-party packages
 import pyglet
 from pyglet.gl import *
+from pyglet.graphics import Batch
 
 # Modules from this project
 from blocks import *
@@ -16,6 +18,7 @@ from utils import FACES, FACES_WITH_DIAGONALS, normalize_float, normalize, secto
 import globals as G
 from client import PacketReceiver
 from entity import TileEntity
+from custom_types import iVector, fVector
 
 
 __all__ = (
@@ -25,6 +28,19 @@ __all__ = (
 
 #The Client's world
 class World(dict):
+    batch: Batch
+    transparency_batch: Batch
+    group: TextureGroup
+    shown: Dict[iVector, Any]
+    _shown: Dict[iVector, Any]
+    sectors: DefaultDict[iVector, list]
+    sectors_shown: Dict[iVector, bool]
+    urgent_queue: Deque[Any]
+    lazy_queue: Deque[Any]
+    sector_queue: Dict[iVector, bool]
+    packetreceiver: None
+    sector_packets: Deque[Any]
+    biome_generator: None
     spreading_mutations = {
         dirt_block: grass_block,
     }
@@ -38,7 +54,7 @@ class World(dict):
         self.shown = {}
         self._shown = {}
         self.sectors = defaultdict(list)
-        self.before_set = set()
+        self.sectors_shown = dict()
         self.urgent_queue = deque()
         self.lazy_queue = deque()
         self.sector_queue = OrderedDict()
@@ -48,14 +64,23 @@ class World(dict):
         # biome generator for colorizer, set by packet receiver
         self.biome_generator = None
 
+    def get_block(self, position: iVector) -> Optional[Block]:
+        return self.get(position)
+
+    def get_block_above(self, position: iVector) -> Optional[Block]:
+        return self.get_block((position[0], position[1] + 1, position[2]))
+
+    def get_block_below(self, position: iVector) -> Optional[Block]:
+        return self.get_block((position[0], position[1] - 1, position[2]))
+
     # Add the block clientside, then tell the server about the new block
-    def add_block(self, position, block, sync=True, force=True):
+    def add_block(self, position: iVector, block, sync: bool = True, force: bool = True):
         self._add_block(position, block)  # For Prediction
         if sync:
             self.packetreceiver.add_block(position, block)
 
     # Clientside, add the block
-    def _add_block(self, position, block):
+    def _add_block(self, position: iVector, block):
         if position in self:
             self._remove_block(position, sync=True)
         if hasattr(block, 'entity_type'):
@@ -76,7 +101,7 @@ class World(dict):
             self.show_block(position)
         self.inform_neighbors_of_block_change(position)
 
-    def remove_block(self, player, position, sync=True, sound=True):
+    def remove_block(self, player, position: iVector, sync: bool = True, sound: bool = True):
         if sound and player is not None:
             self[position].play_break_sound(player, position)
         self._remove_block(position, sync=sync)
@@ -84,7 +109,7 @@ class World(dict):
             self.packetreceiver.remove_block(position)
 
     # Clientside, delete the block
-    def _remove_block(self, position, sync=True):
+    def _remove_block(self, position: iVector, sync: bool = True):
         del self[position]
         sector_position = sectorize(position)
         try:
@@ -99,7 +124,7 @@ class World(dict):
             self.check_neighbors(position)
             self.inform_neighbors_of_block_change(position)
 
-    def is_exposed(self, position):
+    def is_exposed(self, position: iVector) -> bool:
         x, y, z = position
         for fx,fy,fz in FACES:
             other_position = (fx+x, fy+y, fz+z)
@@ -107,12 +132,12 @@ class World(dict):
                 return True
         return False
 
-    def neighbors_iterator(self, position, relative_neighbors_positions=FACES):
+    def neighbors_iterator(self, position: iVector, relative_neighbors_positions: Tuple[iVector, ...] = FACES):
         x, y, z = position
         for dx, dy, dz in relative_neighbors_positions:
             yield x + dx, y + dy, z + dz
 
-    def check_neighbors(self, position):
+    def check_neighbors(self, position: iVector):
         for other_position in self.neighbors_iterator(position):
             if other_position not in self:
                 continue
@@ -123,31 +148,31 @@ class World(dict):
                 if other_position in self.shown:
                     self.hide_block(other_position)
 
-    def has_neighbors(self, position, is_in=None, diagonals=False,
-                      faces=None):
+    def has_neighbors(self, position: iVector,
+                      is_in: Optional[Set[iVector]] = None,
+                      diagonals: bool = False,
+                      faces: Optional[Tuple[iVector, ...]] = None) -> bool:
         if faces is None:
             faces = FACES_WITH_DIAGONALS if diagonals else FACES
         for other_position in self.neighbors_iterator(
-            position, relative_neighbors_positions=faces):
+                position, relative_neighbors_positions=faces):
             if other_position in self:
                 if is_in is None or self[other_position] in is_in:
                     return True
         return False
 
-    def inform_neighbors_of_block_change(self, position):
+    def inform_neighbors_of_block_change(self, position: iVector):
         for neighbor in self.neighbors_iterator(position):
             if neighbor not in self:
                 continue
             self[neighbor].on_neighbor_change(self, position, neighbor)
-            #self.hide_block(neighbor)
-            #self.show_block(neighbor)
 
-    def hit_test(self, position, vector, max_distance=8, hitwater=False):
+    def hit_test(self, position: fVector, vector: fVector, max_distance: int = 8, hitwater: bool = False):
         m = 8
         x, y, z = position
         dx, dy, dz = vector
         dx, dy, dz = dx / m, dy / m, dz / m
-        previous = ()
+        previous: fVector = (0.0, 0.0, 0.0)
         for _ in range(max_distance * m):
             key = normalize((x, y, z))
             if key != previous and key in self and (self[key].density != 0.5 or hitwater):
@@ -156,17 +181,17 @@ class World(dict):
             x, y, z = x + dx, y + dy, z + dz
         return None, None
 
-    def hide_block(self, position, immediate=True):
+    def hide_block(self, position: iVector, immediate: bool = True):
         del self.shown[position]
         if immediate:
             self._hide_block(position)
         else:
             self.enqueue(self._hide_block, position)
 
-    def _hide_block(self, position):
+    def _hide_block(self, position: iVector):
         self._shown.pop(position).delete()
 
-    def show_block(self, position, immediate=True):
+    def show_block(self, position: iVector, immediate: bool = True):
         block = self[position]
         self.shown[position] = block
         if immediate:
@@ -174,7 +199,7 @@ class World(dict):
         else:
             self.enqueue(self._show_block, position, block)
 
-    def _show_block(self, position, block):
+    def _show_block(self, position: iVector, block):
         # only show exposed faces
         vertex_data = list(block.get_vertices(*position))
         texture_data = list(block.texture_data)
@@ -209,7 +234,7 @@ class World(dict):
                                           ('v3f/static', vertex_data),
                                           ('t2f/static', texture_data))
 
-    def show_sector(self, sector):
+    def show_sector(self, sector: iVector):
         if sector in self.sectors:
             self._show_sector(sector)
         else:
@@ -217,12 +242,12 @@ class World(dict):
             self.packetreceiver.request_sector(sector)
 
     #Clientside, show a sector we've downloaded
-    def _show_sector(self, sector):
+    def _show_sector(self, sector: iVector):
         for position in self.sectors[sector]:
             if position not in self.shown and self.is_exposed(position):
                 self.show_block(position)
 
-    def _hide_sector(self, sector):
+    def _hide_sector(self, sector: iVector):
         if sector in self.sectors:
             for position in self.sectors[sector]:
                 if position in self: del self[position]
@@ -230,9 +255,8 @@ class World(dict):
                     self.hide_block(position)
             del self.sectors[sector]
 
-    def change_sectors(self, after):
-        before_set = self.before_set
-        after_set = set()
+    def change_sectors(self, after: iVector):
+        new_sectors_shown = dict()
         pad = G.VISIBLE_SECTORS_RADIUS
         x, y, z = after
         for distance in range(0, pad + 1):
@@ -243,15 +267,14 @@ class World(dict):
                     for dy in range(-4, 4):
                         if dx ** 2 + dy ** 2 + dz ** 2 > (pad + 1) ** 2:
                             continue
-                        after_set.add((x + dx, y + dy, z + dz))
-        #for sector in (after_set - before_set):
-           # self.show_sector(sector)
+                        new_sectors_shown[(x + dx, y + dy, z + dz)] = True
         #Queue the sectors to be shown, instead of rendering them in real time
-        for sector in (after_set - before_set):
-            self.enqueue_sector(True, sector)
-        self.before_set = after_set
+        for sector in new_sectors_shown.keys():
+            if sector not in self.sectors_shown:
+                self.enqueue_sector(True, sector)
+        self.sectors_shown = new_sectors_shown
 
-    def enqueue_sector(self, state, sector): #State=True to show, False to hide
+    def enqueue_sector(self, state: bool, sector: iVector): #State=True to show, False to hide
         self.sector_queue[sector] = state
 
     def dequeue_sector(self):
@@ -276,16 +299,14 @@ class World(dict):
 
     def process_queue(self, dt):
         stoptime = time() + G.QUEUE_PROCESS_SPEED
-        while time() < stoptime:
+        while (self.sector_queue or self.sector_packets or self.urgent_queue or self.lazy_queue) and time() < stoptime:
             #Process as much of the queues as we can
             if self.sector_queue:
                 self.dequeue_sector()
-            elif self.sector_packets:
+            if self.sector_packets:
                 self.packetreceiver.dequeue_packet()
-            elif self.urgent_queue or self.lazy_queue:
+            if self.urgent_queue or self.lazy_queue:
                 self.dequeue()
-            else:
-                break
 
     def process_entire_queue(self):
         while self.urgent_queue or self.lazy_queue:

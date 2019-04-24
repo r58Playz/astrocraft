@@ -8,6 +8,7 @@ import pyglet.media
 
 # Modules from this project
 import globals as G
+import custom_types
 
 
 __all__ = (
@@ -15,7 +16,7 @@ __all__ = (
     'gravel_break', 'stone_break', 'melon_break', 'sand_break', 'play_sound',
 )
 
-pyglet.options['audio'] = ('openal', 'directsound', 'alsa', 'silent')
+pyglet.options['audio'] = ('openal', 'directsound', 'pulse', 'silent')
 
 # Note: Pyglet uses /'s regardless of OS
 pyglet.resource.path = [".", "resources/sounds"]
@@ -31,23 +32,22 @@ stone_break = pyglet.resource.media("stone_break.wav", streaming=False)
 melon_break = pyglet.resource.media("melon_break.wav", streaming=False)
 sand_break = pyglet.resource.media("sand_break.wav", streaming=False)
 
+def play_sound(sound, player: custom_types.Player, position=None):
+    if G.EFFECT_VOLUME <= 0:
+        return
+    sound_player = pyglet.media.Player()
 
-def play_sound(sound, player=None, position=None): 
-    sound_player = pyglet.media.ManagedSoundPlayer()
-
-    #Makes sure we don't set properties for objects that aren't instantiated
     try:
-        #Try and load the silent driver
         driver = pyglet.media.drivers.silent.SilentAudioDriver
     except:
+        #If the silent driver cannot be loaded, then sound is available
         try:
-            #If the silent driver cannot be loaded, then sound is available
-            pyglet.media.listener.volume = G.EFFECT_VOLUME
-            pyglet.media.listener.forward_orientation = player.get_sight_vector()
+            listener = pyglet.media.get_audio_driver().get_listener()
+            listener.volume = G.EFFECT_VOLUME
+            listener.forward_orientation = player.get_sight_vector()
             if position:
+                listener.position = player.position
                 sound_player.position = position
-            if sound_player:
-                pyglet.media.listener.position = player.position
             sound_player.queue(sound)
             sound_player.play()
         except:

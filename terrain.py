@@ -10,6 +10,7 @@ from math import sqrt, floor
 import random
 
 # Third-party packages
+import savingsystem
 from perlin import SimplexNoise
 from noise import *
 
@@ -402,7 +403,7 @@ class TerrainGeneratorSimple(TerrainGeneratorBase):
             self.zoom_level = 0.01
 
         world.sectors[sector] = []  # Precache it incase it ends up being solid air, so it doesn't get regenerated indefinitely
-        bx, by, bz = world.savingsystem.sector_to_blockpos(sector)
+        bx, by, bz = savingsystem.sector_to_blockpos(sector)
 
         if 0 <= by < (self.height_base + self.height_range):
             self.rand.seed(self.seed + "(%d,%d,%d)" % (bx, by, bz))

@@ -1,7 +1,16 @@
+
+# Python packages
 import shutil
 import os
 import zipfile
-import main
+import urllib.request
+from io import BytesIO
+
+# Third-party packages
+# Nothing for now...
+
+# Modules from this project
+# Nothing for now...
 
 def update():
     updatezip = urllib.request.urlopen('https://github.com/r58Playz/astrocraft-python/archive/master.zip')
@@ -16,4 +25,5 @@ def update():
                 current_dir=os.path.basename(os.getcwd())
                 shutil.copy(full_filename, current_dir)
     shutil.rmtree("astrocraft_update")
-    main.start()# Should work...
+    import main # Wonder what happens if you put this at the top? A TRACEBACK!
+    main.start()

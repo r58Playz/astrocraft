@@ -14,6 +14,9 @@ import struct   # for update_tile_entity
 import pyglet
 from pyglet.gl import *
 from pyglet.image.atlas import TextureAtlas
+
+import custom_types
+from custom_types import iVector
 from utils import load_image, make_nbt_from_dict, extract_nbt
 
 # Modules from this project
@@ -38,7 +41,7 @@ def get_texture_coordinates(x, y, tileset_size=G.TILESET_SIZE):
 #To enable, extract a texture pack's blocks folder to resources/texturepacks/textures/blocks/
 #For MC 1.5 Texture Packs
 class TextureGroupIndividual(pyglet.graphics.Group):
-    def __init__(self, names, height=1.0, width=1.0):
+    def __init__(self, names, height=1.0, width=1.0, background_color=None):
         super(TextureGroupIndividual, self).__init__()
         atlas = None
         # self.texture = atlas.texture
@@ -46,7 +49,6 @@ class TextureGroupIndividual(pyglet.graphics.Group):
         i=0
         texture_pack = G.texture_pack_list.selected_texture_pack
         for name in names:
-            
             if not name in BLOCK_TEXTURE_DIR:
                 BLOCK_TEXTURE_DIR[name] = texture_pack.load_texture(['textures', 'blocks', name + '.png'])
 
@@ -54,6 +56,14 @@ class TextureGroupIndividual(pyglet.graphics.Group):
                 continue
 
             texture_size = BLOCK_TEXTURE_DIR[name].width
+
+            # remove background color for crack textures
+            if background_color is not None:
+                data = bytearray(BLOCK_TEXTURE_DIR[name].get_image_data().get_data('RGBA', texture_size * 4))
+                for i in range(len(data)):
+                    if data [i] == background_color:
+                        data[i] = 0
+                BLOCK_TEXTURE_DIR[name].get_image_data().set_data('RGBA', texture_size * 4, bytes(data))
 
             if atlas == None:
                 atlas = TextureAtlas(texture_size * len(names), texture_size)
@@ -331,7 +341,7 @@ class Block:
         if self.sub_id_as_metadata:
             self.id.sub = metadata
 
-    def play_break_sound(self, player=None, position=None):
+    def play_break_sound(self, player: custom_types.Player, position=None):
         if self.break_sound is not None:
             sounds.play_sound(self.break_sound, player=player, position=position)
 
@@ -344,10 +354,10 @@ class Block:
 
             if self.group:
                 self.texture_data = self.group.texture_data
-        
+
         if self.top_texture == ():
             return
-            
+
         if self.front_texture is None:
             self.front_texture = self.side_texture
         if not self.texture_data:
@@ -409,7 +419,7 @@ class StoneBlock(HardBlock):
     def __init__(self):
         super(StoneBlock, self).__init__()
         self.drop_id = BlockID(CobbleBlock.id)
-    
+
     colorizer = BlockColorizer('stonecolor.png')
 
     def get_color(self, temperature, humidity):
@@ -1398,7 +1408,7 @@ class CropBlock(Block):
             return False
         G.CLIENT.update_tile_entity(self.entity.position, make_nbt_from_dict({'action': 'fertilize'}))
         return True
-        
+
     def update_tile_entity(self, value):
         nbt = extract_nbt(value)
         # client side
@@ -1735,7 +1745,7 @@ class CrackTextureBlock:
         texture_name = []
         for i in range(self.crack_level):
             texture_name.append('destroy_' + str(i))
-        self.group = TextureGroupIndividual(texture_name)
+        self.group = TextureGroupIndividual(texture_name, background_color=0x7f)
 
         for i in range(self.crack_level):
             self.texture_data.append(self.group.texture_data[i * 8:(i + 1) * 8] * 6)

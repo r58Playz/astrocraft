@@ -3,6 +3,8 @@
 # Python packages
 import os
 import struct
+from typing import Tuple, List
+from ctypes import byref
 
 # Third-party packages
 import pyglet
@@ -10,6 +12,7 @@ from pyglet.gl import *
 
 # Modules from this project
 import globals as G
+from custom_types import iVector, fVector
 
 
 __all__ = (
@@ -70,7 +73,12 @@ def init_font(filename, fontname):
     pyglet.font.load(fontname)
 
 
+
+_block_icon_fbo = None
+
 def get_block_icon(block, icon_size, world):
+    global _block_icon_fbo
+
     print(block.id.filename())
     block_icon = G.texture_pack_list.selected_texture_pack.load_texture(block.id.filename()) \
         or (block.group or world.group).texture.get_region(
@@ -78,10 +86,68 @@ def get_block_icon(block, icon_size, world):
             int(block.texture_data[2 * 8 + 1] * G.TILESET_SIZE) * icon_size,
             icon_size,
             icon_size)
-    return block_icon
+
+    if block.id.is_item():
+        return block_icon
+
+    # create 3d icon for blocks
+    if _block_icon_fbo is None:
+        _block_icon_fbo = GLuint(0)
+        glGenFramebuffers(1, byref(_block_icon_fbo))
+
+    glBindFramebuffer(GL_FRAMEBUFFER, _block_icon_fbo)
+
+    icon_texture = pyglet.image.Texture.create(icon_size, icon_size, GL_RGBA)
+    glBindTexture(GL_TEXTURE_2D, icon_texture.id)
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, icon_size, icon_size, 0, GL_RGBA, GL_FLOAT, None)
+
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, icon_texture.id, 0)
+
+    viewport = (GLint * 4)()
+    glGetIntegerv(GL_VIEWPORT, viewport)
+    glViewport(0, 0, icon_size, icon_size)
+
+    glClearColor(1.0, 1.0, 1.0, 0.0)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity()
+    glOrtho(-1.5, 1.5, -1.5, 1.5, -10, 10)
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+    glColor4f(1.0, 1.0, 1.0, 1.0)
+    glRotatef(-45.0, 0.0, 1.0, 0.0)
+    glRotatef(-30.0, -1.0, 0.0, 1.0)
+    glScalef(1.5, 1.5, 1.5)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    vertex_data = block.get_vertices(0, 0, 0)
+    texture_data = block.texture_data
+    count = len(texture_data) // 2
+    batch = pyglet.graphics.Batch()
+    batch.add(count, GL_QUADS, (block.group or world.group),
+              ('v3f/static', vertex_data),
+              ('t2f/static', texture_data))
+    batch.draw()
+
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
+    glPopMatrix()
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0)
+
+    glViewport(*viewport)
+    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    return icon_texture.get_image_data()
 
 
-FACES = (
+FACES: Tuple[iVector, ...] = (
     ( 0,  1,  0),
     ( 0, -1,  0),
     (-1,  0,  0),
@@ -90,7 +156,7 @@ FACES = (
     ( 0,  0, -1),
 )
 
-FACES_WITH_DIAGONALS = FACES + (
+FACES_WITH_DIAGONALS: Tuple[iVector, ...] = FACES + (
     (-1, -1,  0),
     (-1,  0, -1),
     ( 0, -1, -1),
@@ -133,12 +199,12 @@ def normalize_float(f: float) -> int:
     return int_f - 1
 
 
-def normalize(position: (float, float, float)) -> (float, float, float):
+def normalize(position: fVector) -> fVector:
     x, y, z = position
     return normalize_float(x), normalize_float(y), normalize_float(z)
 
 
-def sectorize(position: (int, int, int)) -> (int, int, int):
+def sectorize(position: iVector) -> iVector:
     x, y, z = normalize(position)
     x, y, z = (x // G.SECTOR_SIZE,
                y // G.SECTOR_SIZE,
@@ -164,13 +230,19 @@ class TextureGroup(pyglet.graphics.Group):
 def make_int_packet(i: int) -> bytes:
     return struct.pack('i', i)
 
-def extract_int_packet(packet):
+def extract_int_packet(packet: bytes):
+    """
+    :rtype: (bytes, int)
+    """
     return packet[4:], struct.unpack('i', packet[:4])[0]
 
 def make_string_packet(s: str) -> bytes:
     return struct.pack('i', len(s)) + s.encode('utf-8')
 
-def extract_string_packet(packet: bytes) -> (bytes, str):
+def extract_string_packet(packet: bytes):
+    """
+    :rtype: (bytes, str)
+    """
     strlen = struct.unpack('i', packet[:4])[0]
     packet = packet[4:]
     s = packet[:strlen].decode('utf-8')

@@ -14,6 +14,7 @@ import argparse
 import getpass
 from math import pi
 import os
+import random
 
 # Third-party packages
 import pyglet
@@ -23,13 +24,13 @@ from pyglet.resource import get_settings_path
 # Nothing for now...
 
 
-APP_NAME = 'AstroCraft'
-APP_VERSION = "v0.4.4"
+APP_NAME = 'AstroCraft'  # should I stay or should I go?
+APP_VERSION = "0.4.2"
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
 IP_ADDRESS = ""  # The IP Address to connect to
-USERNAME = ""
+USERNAME = "User " + str(random.randint(1,1000))
 
 CLIENT = None  # Becomes the instance of PacketReceiver if running the client
 SERVER = None  # Becomes the instance of Server if running the server
@@ -84,9 +85,9 @@ KEY_BINDINGS = dict(
 )
 
 # Saves
-DISABLE_SAVE = False
-SAVE_FILENAME = "SEVE.FACTORIES"
-DB_NAME = 'world.db'
+DISABLE_SAVE = True
+SAVE_FILENAME = "save " + str(random.randint(0, 99999))
+DB_NAME = 'world.FACTORIES'
 
 # Game engine
 SECTOR_SIZE = 8
@@ -144,7 +145,7 @@ TERRAIN_CHOICES = {  # hill_height & max_trees mandatory for the moment.
 
 SEED = None
 TREE_CHANCE = 0.006
-WILDFOOD_CHANCE = 0.0125
+WILDFOOD_CHANCE = 0.0005
 GRASS_CHANCE = 0.05
 
 # Biome
@@ -161,7 +162,7 @@ WINDOW_HEIGHT = 480  # Screen height (in pixels)
 MAX_FPS = 60  # Maximum frames per second.
 
 #Maximum time to process the queue
-QUEUE_PROCESS_SPEED = 0.1 / MAX_FPS #Try shrinking this if chunk loading is laggy, higher loads chunks faster
+QUEUE_PROCESS_SPEED = 0.5 / MAX_FPS #Try shrinking this if chunk loading is laggy, higher loads chunks faster
 
 VISIBLE_SECTORS_RADIUS = 8
 DELOAD_SECTORS_RADIUS = 12
@@ -175,7 +176,7 @@ DEFAULT_DRAW_DISTANCE_CHOICE = 'short'
 DRAW_DISTANCE_CHOICE = DEFAULT_DRAW_DISTANCE_CHOICE
 DRAW_DISTANCE = DRAW_DISTANCE_CHOICES[DRAW_DISTANCE_CHOICE]
 
-FOV = 105.0  # TODO: add menu option to change FOV
+FOV = 65.0  # TODO: add menu option to change FOV
 NEAR_CLIP_DISTANCE = 0.1  # TODO: make min and max clip distance dynamic
 FAR_CLIP_DISTANCE = 200.0  # Maximum render distance,
                            # ignoring effects of sector_size
@@ -190,7 +191,7 @@ HUD_ENABLED = True
 DEBUG_TEXT_ENABLED = True
 
 # Sound
-EFFECT_VOLUME = 1
+EFFECT_VOLUME = 0.0 #disabled due to segfaults
 
 # Tool types
 WOODEN_TOOL, STONE_TOOL, IRON_TOOL, DIAMOND_TOOL, GOLDEN_TOOL = list(range(5))
@@ -222,7 +223,7 @@ if not os.path.exists(game_dir):
 worlds_dir = os.path.join(game_dir, 'worlds')
 
 config = ConfigParser()
-config_file = os.path.join(game_dir, 'gamecfg.ASTROCRAFT')
+config_file = os.path.join(game_dir, 'config.ASTROCRAFTa')
 config.read(config_file)
 LAUNCH_OPTIONS = argparse.Namespace()
 

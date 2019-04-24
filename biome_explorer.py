@@ -3,7 +3,7 @@ import os
 from terrain import BiomeGenerator
 import globals as G
 
-with open(os.path.join(G.game_dir, "world", "seed"), "rb") as f:
+with open(os.path.join(G.game_dir, "world", "seed"), "r") as f:
     SEED = f.read()
 
 b = BiomeGenerator(SEED)

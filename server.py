@@ -212,7 +212,7 @@ class Server(socketserver.ThreadingTCPServer):
             #TODO: Only if they're in range
             player.sendpacket(12, b"\4" + struct.pack("iii", *position))
 
-    def update_tile_entity(self, position, value):
+    def update_tile_entity(self, position, value: bytes):
         for player in self.players.values():
             player.sendpacket(12 + len(value), b"\x0A" + struct.pack("iii", *position) + value)
 

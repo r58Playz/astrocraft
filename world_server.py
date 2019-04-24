@@ -1,17 +1,17 @@
-# Python packages
 from binascii import hexlify
 from collections import deque, defaultdict, OrderedDict
 import os
 import threading
 import time
 import warnings
-
-# Third-party packages
-
-# Modules from this project
 import datetime
+from sqlite3.dbapi2 import Connection
+from threading import Lock
+from typing import Any, Dict, DefaultDict, Deque, Tuple, Optional, Set
+
 from blocks import *
-from savingsystem import sector_to_blockpos
+from custom_types import iVector
+import savingsystem
 from utils import FACES, FACES_WITH_DIAGONALS, normalize_float, normalize, sectorize, TextureGroup
 import globals as G
 from nature import TREES, TREE_BLOCKS
@@ -19,23 +19,24 @@ import terrain
 
 
 class WorldServer(dict):
+    sectors: DefaultDict[iVector, list]
+    exposed_cache: Dict[iVector, bytes]
+    spreading_mutable_blocks: Deque[iVector]
+    server_lock: Lock
+    server: Any
+    db: Connection
+    terraingen: terrain.TerrainGeneratorSimple
     spreading_mutations = {
         dirt_block: grass_block,
     }
     def __init__(self, server):
         super(WorldServer, self).__init__()
-        import savingsystem #This module doesn't like being imported at modulescope
-        self.savingsystem = savingsystem
         if not os.path.lexists(os.path.join(G.game_dir, "world", "players")):
             os.makedirs(os.path.join(G.game_dir, "world", "players"))
 
         self.sectors = defaultdict(list)
         self.exposed_cache = dict()
 
-        self.urgent_queue = deque()
-        self.lazy_queue = deque()
-        self.sector_queue = OrderedDict()
-        self.generation_queue = deque()
         self.spreading_mutable_blocks = deque()
 
         self.server_lock = threading.Lock()
@@ -67,7 +68,7 @@ class WorldServer(dict):
                               'spreading mutations; your save is probably '
                               'corrupted' % repr(position))
 
-    def add_block(self, position, block, sync=True, force=True, check_spread=True):
+    def add_block(self, position: iVector, block, sync: bool = True, force: bool = True, check_spread: bool = True):
         if position in self:
             if not force:
                 return
@@ -88,10 +89,10 @@ class WorldServer(dict):
                 self.check_spreading_mutable(position, block)
             self.check_neighbors(position)
 
-    def init_block(self, position, block):
+    def init_block(self, position: iVector, block):
         self.add_block(position, block, sync=False, force=False, check_spread=False)
 
-    def remove_block(self, position, sync=True, check_spread=True):
+    def remove_block(self, position: iVector, sync: bool = True, check_spread: bool = True):
         del self[position]
         sector_position = sectorize(position)
         try:
@@ -105,7 +106,7 @@ class WorldServer(dict):
         if check_spread:
             self.check_neighbors(position)
 
-    def is_exposed(self, position):
+    def is_exposed(self, position: iVector) -> bool:
         x, y, z = position
         for fx,fy,fz in FACES:
             other_position = (fx+x, fy+y, fz+z)
@@ -113,7 +114,7 @@ class WorldServer(dict):
                 return True
         return False
 
-    def get_exposed_sector_cached(self, sector: (int, int, int)) -> bytes:
+    def get_exposed_sector_cached(self, sector: iVector) -> bytes:
         """
         Cached. Returns a 512 length string of 0's and 1's if blocks are exposed
         """
@@ -121,19 +122,19 @@ class WorldServer(dict):
             self.exposed_cache[sector] = self.get_exposed_sector(sector)
         return self.exposed_cache[sector]
 
-    def get_exposed_sector(self, sector: (int, int, int)) -> bytes:
+    def get_exposed_sector(self, sector: iVector) -> bytes:
         """ Returns a 512 length string of 0's and 1's if blocks are exposed """
-        cx,cy,cz = sector_to_blockpos(sector)
+        cx,cy,cz = savingsystem.sector_to_blockpos(sector)
         #Most ridiculous list comprehension ever, but this is 25% faster than using appends
         return b"".join([(x,y,z) in self and self.is_exposed((x,y,z)) and b"1" or b"0"
                         for x in range(cx, cx+8) for y in range(cy, cy+8) for z in range(cz, cz+8)])
 
-    def neighbors_iterator(self, position, relative_neighbors_positions=FACES):
+    def neighbors_iterator(self, position: iVector, relative_neighbors_positions: Tuple[iVector, ...] = FACES):
         x, y, z = position
         for dx, dy, dz in relative_neighbors_positions:
             yield x + dx, y + dy, z + dz
 
-    def check_neighbors(self, position):
+    def check_neighbors(self, position: iVector):
         for other_position in self.neighbors_iterator(position):
             if other_position not in self:
                 continue
@@ -141,9 +142,9 @@ class WorldServer(dict):
                 self.check_spreading_mutable(other_position,
                     self[other_position])
 
-    def check_spreading_mutable(self, position, block):
+    def check_spreading_mutable(self, position: iVector, block):
         x, y, z = position
-        above_position = x, y + 1, z
+        above_position: iVector = (x, y + 1, z)
         if above_position in self\
            or position in self.spreading_mutable_blocks\
         or not self.is_exposed(position):
@@ -154,8 +155,10 @@ class WorldServer(dict):
             diagonals=True):
             self.spreading_mutable_blocks.appendleft(position)
 
-    def has_neighbors(self, position, is_in=None, diagonals=False,
-                      faces=None):
+    def has_neighbors(self, position: iVector,
+                      is_in: Optional[Set[iVector]] = None,
+                      diagonals: bool = False,
+                      faces: Optional[Tuple[iVector, ...]] = None) -> bool:
         if faces is None:
             faces = FACES_WITH_DIAGONALS if diagonals else FACES
         for other_position in self.neighbors_iterator(
@@ -184,14 +187,14 @@ class WorldServer(dict):
             seeds.write('%s\n\n' % seed)
         return seed
 
-    def open_sector(self, sector):
+    def open_sector(self, sector: iVector):
         #The sector is not in memory, load or create it
-        if self.savingsystem.sector_exists(sector):
+        if savingsystem.sector_exists(sector):
             #If its on disk, load it
-            self.savingsystem.load_region(self, sector=sector)
+            savingsystem.load_region(self, sector=sector)
         else:
             #The sector doesn't exist yet, generate it!
-            bx, by, bz = self.savingsystem.sector_to_blockpos(sector)
+            bx, by, bz = savingsystem.sector_to_blockpos(sector)
             rx, ry, rz = bx//32*32, by//32*32, bz//32*32
 
             #For ease of saving/loading, queue up generation of a whole region (4x4x4 sectors) at once
@@ -203,7 +206,7 @@ class WorldServer(dict):
             #Generate the requested sector immediately, so the following show_block's work
             #self.terraingen.generate_sector(sector)
 
-    def hide_sector(self, sector):
+    def hide_sector(self, sector: iVector):
         #TODO: remove from memory; save
         #for position in self.sectors.get(sector, ()):
         #    if position in self.shown:
@@ -224,7 +227,7 @@ class WorldServer(dict):
                     self.add_block(position,
                         self.spreading_mutations[self[position]], check_spread=False)
 
-    def generate_vegetation(self, position, vegetation_class):
+    def generate_vegetation(self, position: iVector, vegetation_class):
         if position in self:
             return
 

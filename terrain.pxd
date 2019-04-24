@@ -1,5 +1,4 @@
 import cython
-cimport world
 cimport perlin
 
 #cython: boundscheck=False

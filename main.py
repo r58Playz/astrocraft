@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # Imports, sorted alphabetically.
 
@@ -144,8 +144,7 @@ def main(options):
         G.main_timer.stop()
         G.SERVER._stop.set()
         G.SERVER.shutdown()
-
-if __name__ == '__main__':
+def start():
     log_info('Starting pyCraft...')
 
     parser = argparse.ArgumentParser(description='Play a Python made Minecraft clone.')
@@ -163,3 +162,7 @@ if __name__ == '__main__':
 
     options = parser.parse_args()
     main(options)
+
+
+if __name__ == '__main__':
+    start()
