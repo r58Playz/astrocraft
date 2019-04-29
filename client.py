@@ -5,6 +5,7 @@ from threading import Thread, Event, Lock
 import struct
 from warnings import warn
 # Third-party packages
+# Nothing for now...
 
 # Modules from this project
 import pyglet
@@ -111,7 +112,10 @@ class PacketReceiver(Thread):
             self.world._add_block(struct.unpack("iii", packet[:12]),
                 BLOCKS_DIR[struct.unpack("BB", packet[12:])])
         elif packetid == 4:  # Remove Block
-            self.world._remove_block(struct.unpack("iii", packet))
+            try:
+                self.world._remove_block(struct.unpack("iii", packet))
+            except:
+                warn("Cannot remove block!")
         elif packetid == 5:  # Chat Print
             self.controller.write_line(packet[:-4].decode('utf-8'), color=struct.unpack("BBBB", packet[-4:]))
             if not self.controller.text_input.visible:

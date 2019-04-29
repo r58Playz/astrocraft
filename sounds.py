@@ -14,6 +14,7 @@ import custom_types
 __all__ = (
     'wood_break', 'water_break', 'leaves_break', 'glass_break', 'dirt_break',
     'gravel_break', 'stone_break', 'melon_break', 'sand_break', 'play_sound',
+    'loop_1', 'loop_2', 'loop_3', 'loop_4', 'loop_options', 'play_looping_sound',
 )
 
 pyglet.options['audio'] = ('openal', 'directsound', 'pulse', 'silent')
@@ -31,6 +32,11 @@ gravel_break = pyglet.resource.media("gravel_break.wav", streaming=False)
 stone_break = pyglet.resource.media("stone_break.wav", streaming=False)
 melon_break = pyglet.resource.media("melon_break.wav", streaming=False)
 sand_break = pyglet.resource.media("sand_break.wav", streaming=False)
+loop_1 = pyglet.resource.media("background/1.wav", streaming=False)
+loop_2 = pyglet.resource.media("background/2.wav", streaming=False)
+loop_3 = pyglet.resource.media("background/3.wav", streaming=False)
+loop_4 = pyglet.resource.media("background/4.wav", streaming=False)
+loop_options = (loop_1, loop_2, loop_3, loop_4)
 
 def play_sound(sound, player: custom_types.Player, position=None):
     if G.EFFECT_VOLUME <= 0:
@@ -54,3 +60,15 @@ def play_sound(sound, player: custom_types.Player, position=None):
             return sound_player
 
     return sound_player
+
+def play_looping_sound(sound):
+    try:
+        driver = pyglet.media.drivers.silent.SilentAudioDriver
+    except:
+        looper = pyglet.media.SourceGroup(sound.audio_format, None)
+        looper.loop = True
+        looper.queue(sound)
+        p = pyglet.media.Player()
+        p.queue(looper)
+        p.play()
+

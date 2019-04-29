@@ -1,0 +1,49 @@
+[General]
+debug = False
+username = User 39
+ip_address = 192.168.1.13
+
+[Graphics]
+fullscreen = False
+width = 850
+height = 480
+draw_distance = short
+motion_blur = False
+texture_pack = default
+
+[World]
+size = 64
+
+[Controls]
+move_forward = W
+move_backward = S
+move_left = A
+move_right = D
+jump = SPACE
+crouch = LSHIFT
+fly = TAB
+inventory = E
+inventory_sort = M
+inventory_1 = 1
+inventory_2 = 2
+inventory_3 = 3
+inventory_4 = 4
+inventory_5 = 5
+inventory_6 = 6
+inventory_7 = 7
+inventory_8 = 8
+inventory_9 = 9
+inventory_10 = 0
+talk = T
+validate = ENTER
+sound_up = PAGEUP
+sound_down = PAGEDOWN
+toggle_hud = F1
+screencap = F2
+toggle_debug_text = F3
+showmap = F4
+escape = ESCAPE
+
+[Localization]
+language = default
+

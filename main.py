@@ -10,6 +10,7 @@ import random
 import time
 import gettext
 import sys
+from random import choice
 
 # Third-party packages
 import pyglet
@@ -25,6 +26,7 @@ from timer import Timer
 from debug import log_info
 from mod import load_modules
 from savingsystem import save_world
+from sounds import loop_options, play_looping_sound
 
 
 class Window(pyglet.window.Window):
@@ -132,6 +134,7 @@ def main(options):
         # window = Window(resizable=True, config=window_config)
     # except pyglet.window.NoSuchConfigException:
     window = Window(resizable=True, vsync=False)
+    play_looping_sound(random.choice(loop_options))
     pyglet.app.run()
 
     if G.CLIENT:
@@ -144,9 +147,9 @@ def main(options):
         G.main_timer.stop()
         G.SERVER._stop.set()
         G.SERVER.shutdown()
-def start():
 
-    parser = argparse.ArgumentParser(description='Play Astrocraft')
+def start():
+    parser = argparse.ArgumentParser(description='Play a Python made Minecraft clone.')
 
     game_group = parser.add_argument_group('Game options')
     game_group.add_argument("--fast", action="store_true", default=False, help="Makes time progress faster then normal.")

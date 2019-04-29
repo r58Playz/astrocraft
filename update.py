@@ -21,7 +21,7 @@ def update():
     for fle in files:
         full_filename = os.path.join("astrocraft_update", fle)
         if os.path.isfile(full_filename):
-            if file != "update.py":
+            if fle != "update.py":
                 current_dir=os.path.basename(os.getcwd())
                 shutil.copy(full_filename, current_dir)
     shutil.rmtree("astrocraft_update")
