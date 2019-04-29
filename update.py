@@ -20,7 +20,7 @@ def update():
     for fle in files:
         full_filename = os.path.join(G.UPDATE_DIR, fle)
         if os.path.isfile(full_filename):
-            if file != "update.py":
+            if fle != "update.py":
                 current_dir=os.path.basename(os.getcwd())
                 shutil.copy(full_filename, current_dir)
      shutil.rmtree(G.UPDATE_DIR)
