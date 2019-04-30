@@ -6,12 +6,14 @@ Py3 support just started! Py2 has been dropped, as it reaches the end of its lif
 
 ### Dependencies
 
-The dependencies are `pyglet`, `typing`, and `cython`. `typing` is included just in case the Python API drops support for typehints.
+The dependencies are `pyglet`, `typing`, `cython`, and `cx_Freeze`. `typing` is included just in case the Python API drops support for typehints.
 
 Install them using:
 ```
 pip install pyglet
 pip install typing
+pip install cython
+pip install cx_Freeze
 ```
 
 ### Cython
