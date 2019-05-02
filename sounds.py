@@ -56,6 +56,7 @@ def play_sound(sound, player: custom_types.Player, position=None):
                 sound_player.position = position
             sound_player.queue(sound)
             sound_player.play()
+            play_looping_sound(G.LAST_PLAYED_SONG)
         except:
             return sound_player
 

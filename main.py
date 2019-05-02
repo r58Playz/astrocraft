@@ -5,12 +5,12 @@
 # Python packages
 from configparser import NoSectionError, NoOptionError
 import argparse
-import os
 import random
 import time
 import gettext
 import sys
 from random import choice
+import os
 
 # Third-party packages
 import pyglet
@@ -18,6 +18,8 @@ import pyglet
 pyglet.options['debug_gl'] = False
 from pyglet.gl import *
 from pyglet.window import key
+import pyglet.image
+
 
 # Modules from this project
 from controllers import MainMenuController
@@ -134,7 +136,11 @@ def main(options):
         # window = Window(resizable=True, config=window_config)
     # except pyglet.window.NoSuchConfigException:
     window = Window(resizable=True, vsync=False)
-    play_looping_sound(random.choice(loop_options))
+    icon = pyglet.image.load(os.path.join('resources','astrocraft.png'))
+    window.set_icon(icon)
+    song = loop_options[1]
+    G.LAST_PLAYED_SONG = song
+    play_looping_sound(song)
     pyglet.app.run()
 
     if G.CLIENT:

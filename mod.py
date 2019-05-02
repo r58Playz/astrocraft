@@ -14,7 +14,7 @@ from debug import log_info
 __all__ = ('load_modules')
 
 def load_modules(server=False):
-	mod_dir = os.path.join(G.game_dir, 'mods')
+	mod_dir = 'mods'
 
 	if not os.path.isdir(mod_dir):
 		if os.path.exists(mod_dir):
