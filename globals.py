@@ -217,7 +217,7 @@ LANGUAGE = 'default'
 _ = lambda x:x
 
 # Global files & directories
-game_dir = "ASTROCRAFT"
+game_dir = pyglet.resource.get_settings_path(APP_NAME)
 if not os.path.exists(game_dir):
     os.makedirs(game_dir)
 worlds_dir = os.path.join(game_dir, 'worlds')

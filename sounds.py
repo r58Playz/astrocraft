@@ -4,6 +4,13 @@
 # Nothing for now...
 
 # Third-party packages
+import ctypes
+import pyglet
+# AVBin fix for PyInstaller
+lib = ctypes.cdll.LoadLibrary("resources/avbin.dll")
+pyglet.has_avbin = True
+print(lib) 
+
 import pyglet.media
 
 # Modules from this project
@@ -17,7 +24,6 @@ __all__ = (
     'loop_1', 'loop_2', 'loop_3', 'loop_4', 'loop_options', 'play_looping_sound',
 )
 
-pyglet.options['audio'] = ('openal', 'directsound', 'pulse', 'silent')
 
 # Note: Pyglet uses /'s regardless of OS
 pyglet.resource.path = [".", "resources/sounds"]
