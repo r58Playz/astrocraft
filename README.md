@@ -6,32 +6,31 @@ Py3 support just started! Py2 has been dropped, as it reaches the end of its lif
 
 ### Dependencies
 
-The dependencies are `pyglet`, `typing`, `cython`, and `cx_Freeze`. `typing` is included just in case the Python API drops support for typehints.
+The dependencies are `pyglet`, `typing`, and `cython`. `typing` is included just in case the Python API drops support for typehints.
 
 Install them using:
 ```
 pip install pyglet
 pip install typing
 pip install cython
-pip install cx_Freeze
 ```
 
-### Cython
-```
-pip install cython
-python setup.py build_ext --inplace
-```
+### Making your own installer or build for Windows
 
-This will generate .pyd files, which Python will prefer to load instead of your .py files, so you will need to rebuild or delete the .pyd each time you make changes.
-
-setup.py will also compile Pyglet using Cython, if you download the pyglet source code and put the pyglet folder inside the game repository.
-
-### Making your own builds for Windows
-
-You can use setup.py to build `exe` files.
+You can use PyInstaller(https://github.com/pyinstaller/pyinstaller) to build a one-folder build. 
 
 ```
-python setup.py build
+pyinstaller main.spec
 ```
 
-This builds Cython-optimised `pyd` files, bundles all dependencies(including `Python`), and creates `exe` files.
+Extensive documentation for PyInstaller is available at https://pyinstaller.readthedocs.io/en/stable/
+
+Then you can use FreeExtractor (https://sourceforge.net/projects/freeextractor/) to build a installer for AstroCraft.
+
+You can install PyInstaller with administrator priveleges to get system-wide commands.
+
+```
+pip install PyInstaller
+```
+
+Otherwise you will need to invoke `pyinstaller.py` to use PyInstaller.
