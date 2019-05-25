@@ -25,7 +25,9 @@ pyinstaller main.spec
 
 Extensive documentation for PyInstaller is available at https://pyinstaller.readthedocs.io/en/stable/
 
-Then you can use FreeExtractor (https://sourceforge.net/projects/freeextractor/) to build a installer for AstroCraft.
+Then you can use InstallForge(https://installforge.net/) to create an installer.
+
+In InstallForge click "Open" in the toolbar at the top and navigate to the 'dist' directory. Then select 'installersettings.ifp'. After that, click 'Build' in the toolbar at the top.
 
 You can install PyInstaller with administrator priveleges to get system-wide commands.
 
