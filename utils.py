@@ -3,7 +3,7 @@
 # Python packages
 import os
 import struct
-from typing import Tuple, List
+from typing import Tuple, List, Union
 from ctypes import byref
 
 # Third-party packages
@@ -18,7 +18,7 @@ from custom_types import iVector, fVector
 __all__ = (
     'load_image', 'image_sprite', 'hidden_image_sprite', 'vec', 'FastRandom',
     'init_resources', 'init_font', 'get_block_icon',
-    'FACES', 'FACES_WITH_DIAGONALS', 'normalize_float', 'normalize',
+    'logstream', 'FACES', 'FACES_WITH_DIAGONALS', 'normalize_float', 'normalize',
     'sectorize', 'TextureGroup', 'make_nbt_from_dict', 'extract_nbt'
 )
 
@@ -59,8 +59,20 @@ class FastRandom:
         self.seed = seed
 
     def randint(self) -> int:
-        self.seed = (214013 * self.seed + 2531011)
+        self.seed = (214013 * int(self.seed) + 2531011)
         return (self.seed >> 16) & 0x7FFF
+
+
+def logstream(io_stream, logger_callback):
+    """A threading helper, which runs the callback (ie. print) for each line in the io_stream"""
+    while True:
+        out = io_stream.readline()
+        if out:
+            logger_callback(out.rstrip())
+        else:
+            break
+
+
 
 
 def init_resources():
@@ -204,12 +216,10 @@ def normalize(position: fVector) -> fVector:
     return normalize_float(x), normalize_float(y), normalize_float(z)
 
 
-def sectorize(position: iVector) -> iVector:
-    x, y, z = normalize(position)
-    x, y, z = (x // G.SECTOR_SIZE,
-               y // G.SECTOR_SIZE,
-               z // G.SECTOR_SIZE)
-    return x, y, z
+def sectorize(position: Union[iVector, fVector]) -> iVector:
+    return (normalize_float(float(position[0])) // G.SECTOR_SIZE,
+            normalize_float(float(position[1])) // G.SECTOR_SIZE,
+            normalize_float(float(position[2])) // G.SECTOR_SIZE)
 
 
 class TextureGroup(pyglet.graphics.Group):

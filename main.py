@@ -28,7 +28,7 @@ from timer import Timer
 from debug import log_info
 from mod import load_modules
 from savingsystem import save_world
-from sounds import loop_options, play_looping_sound
+from sounds import play_background_sound
 
 
 class Window(pyglet.window.Window):
@@ -138,13 +138,12 @@ def main(options):
     window = Window(resizable=True, vsync=False)
     icon = pyglet.image.load(os.path.join('resources','astrocraft.png'))
     window.set_icon(icon)
-    song = loop_options[1]
-    G.LAST_PLAYED_SONG = song
-    play_looping_sound(song)
+    play_background_sound()
     pyglet.app.run()
 
     if G.CLIENT:
-        G.CLIENT.stop()
+        G.BACKGROUND_PLAYER.pause()
+        sys.exit(0)
         
     if G.SERVER:
         print('Saving...')
@@ -153,6 +152,8 @@ def main(options):
         G.main_timer.stop()
         G.SERVER._stop.set()
         G.SERVER.shutdown()
+
+    G.BACKGROUND_PLAYER.pause()
 
 def start():
     parser = argparse.ArgumentParser(description='Play a Python made Minecraft clone.')

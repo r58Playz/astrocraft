@@ -29,7 +29,7 @@ from model import PlayerModel
 from skydome import Skydome
 import utils
 from utils import vec, sectorize, normalize, load_image, image_sprite
-from views import MainMenuView, OptionsView, ControlsView, TexturesView, MultiplayerView
+import views
 from world import World
 from biome import BiomeGenerator
 from server import start_server
@@ -96,12 +96,13 @@ class MainMenuController(Controller):
 
     def __init__(self, *args, **kwargs):
         super(MainMenuController, self).__init__(*args, **kwargs)
-        self.setup = partial(self.switch_view_class, MainMenuView)
-        self.game_options = partial(self.switch_view_class, OptionsView)
-        self.main_menu = partial(self.switch_view_class, MainMenuView)
-        self.controls = partial(self.switch_view_class, ControlsView)
-        self.textures = partial(self.switch_view_class, TexturesView)
-        self.multiplayer = partial(self.switch_view_class, MultiplayerView)
+        self.setup = partial(self.switch_view_class, views.MainMenuView)
+        self.game_options = partial(self.switch_view_class, views.OptionsView)
+        self.main_menu = partial(self.switch_view_class, views.MainMenuView)
+        self.controls = partial(self.switch_view_class, views.ControlsView)
+        self.textures = partial(self.switch_view_class, views.TexturesView)
+        self.multiplayer = partial(self.switch_view_class, views.MultiplayerView)
+        self.sound = partial(self.switch_view_class, views.SoundView)
         self.exit_game = pyglet.app.exit
 
     def start_singleplayer_game(self):
@@ -227,7 +228,19 @@ class GameController(Controller):
                 print('Starting internal server...')
                 # TODO: create world menu
                 G.SAVE_FILENAME = "world"
-                start_server(internal=True)
+                self.local_server_process = subprocess.Popen([sys.executable, 'server.py'],
+                                                           stdin=subprocess.PIPE,
+                                                           stdout=subprocess.PIPE,
+                                                           stderr=subprocess.STDOUT,
+                                                           universal_newlines=True)
+                for line in self.local_server_process.stdout:
+                    print("Server:", line, end="")
+                    if "Listening on" in line:
+                        break
+                self.local_server_stdout_thread = threading.Thread(
+                    target=utils.logstream, args=(self.local_server_process.stdout, lambda s: print("Server:", s))
+                )
+                self.local_server_stdout_thread.start()
                 sock = socket.socket()
                 sock.connect(("localhost", 1486))
             except socket.error as e:
@@ -262,7 +275,6 @@ class GameController(Controller):
         #else:
         #    default_skybox = 'skybox.jpg'
 
-        print('loading ' + default_skybox)
 
         self.skydome = Skydome(
             'resources/' + default_skybox,
@@ -687,6 +699,12 @@ class GameController(Controller):
     def on_close(self):
         G.save_config()
         self.world.packetreceiver.stop()  # Disconnect from the server so the process can close
+        if hasattr(self, 'local_server_process'):
+            print("Stopping Local Server...")
+            self.local_server_process.stdin.write("stop")
+            self.local_server_process.stdin.close()
+            self.local_server_stdout_thread.join()
+            print("Local Server stopped.")
 
     def show_map(self):
         print("map called...")

@@ -10,6 +10,7 @@
 from blocks import *
 import globals as G
 from items import *
+import textures
 
 
 __all__ = (

@@ -1,16 +1,12 @@
 # Imports, sorted alphabetically.
 
 # Python packages
-# Nothing for now...
+import random
+import time
+import threading
 
 # Third-party packages
-import ctypes
 import pyglet
-# AVBin fix for PyInstaller
-lib = ctypes.cdll.LoadLibrary("resources/avbin.dll")
-pyglet.has_avbin = True
-print(lib) 
-
 import pyglet.media
 
 # Modules from this project
@@ -21,7 +17,7 @@ import custom_types
 __all__ = (
     'wood_break', 'water_break', 'leaves_break', 'glass_break', 'dirt_break',
     'gravel_break', 'stone_break', 'melon_break', 'sand_break', 'play_sound',
-    'loop_1', 'loop_2', 'loop_3', 'loop_4', 'loop_options', 'play_looping_sound',
+    'loop_1', 'loop_2', 'loop_3', 'loop_4', 'loop_options', 'play_background_sound',
 )
 
 
@@ -62,20 +58,26 @@ def play_sound(sound, player: custom_types.Player, position=None):
                 sound_player.position = position
             sound_player.queue(sound)
             sound_player.play()
-            play_looping_sound(G.LAST_PLAYED_SONG)
+            G.BACKGROUND_PLAYER.play()
         except:
             return sound_player
 
     return sound_player
 
-def play_looping_sound(sound):
+def play_background_sound():
     try:
         driver = pyglet.media.drivers.silent.SilentAudioDriver
     except:
-        looper = pyglet.media.SourceGroup(sound.audio_format, None)
-        looper.loop = True
-        looper.queue(sound)
         p = pyglet.media.Player()
-        p.queue(looper)
+        p.volume = G.BACKGROUND_VOLUME
+        G.BACKGROUND_PLAYER = p
+        p.queue(random.choice(loop_options))
         p.play()
-
+        def add_sounds():
+            while True:
+                G.BACKGROUND_PLAYER.queue(random.choice(loop_options))
+                if G.LAUNCH_OPTIONS.fast:
+                    time.sleep(3)
+                else:
+                    time.sleep(30)
+        threading.Thread(target=add_sounds).start()

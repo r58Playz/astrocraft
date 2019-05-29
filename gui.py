@@ -16,11 +16,13 @@ from pyglet.image.atlas import TextureAtlas
 from blocks import air_block
 # FIXME: Initialize crafting in a proper way, other than by importing.
 import crafting
+import textures
 import globals as G
 from inventory import Inventory
 from items import ItemStack
 from utils import load_image, image_sprite, hidden_image_sprite, get_block_icon
 
+G.texture_pack_list = textures.TexturePackList()
 
 __all__ = (
     'Rectangle', 'Button', 'ToggleButton', 'Control', 'AbstractInventory',

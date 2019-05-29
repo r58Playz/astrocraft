@@ -9,7 +9,7 @@ verify_ssl = true
 pyglet = "*"
 Cython = "*"
 Pillow = "*"
-shortcut = "*"
+cx_Freeze = {git = "https://github.com/anthony-tuininga/cx_Freeze"}
 
 [requires]
 python_version = "3.7"

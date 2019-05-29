@@ -181,7 +181,7 @@ FAR_CLIP_DISTANCE = 200.0  # Maximum render distance,
                            # ignoring effects of sector_size
 
 MOTION_BLUR = False
-FOG_ENABLED = False
+FOG_ENABLED = True
 
 TEXTURE_PACK = 'default'
 texture_pack_list = None
@@ -190,8 +190,9 @@ HUD_ENABLED = True
 DEBUG_TEXT_ENABLED = True
 
 # Sound
-EFFECT_VOLUME = 0.5
-LAST_PLAYED_SONG = None # For play_sound
+EFFECT_VOLUME = 1
+BACKGROUND_VOLUME = 0.3
+BACKGROUND_PLAYER = None # For play_sound
 
 # Tool types
 WOODEN_TOOL, STONE_TOOL, IRON_TOOL, DIAMOND_TOOL, GOLDEN_TOOL = list(range(5))
@@ -278,17 +279,23 @@ def get_or_update_config(section, option, default_value, conv=str, choices=()):
     config.set(section, option, str(user_value))
     return user_value
 
+
 def save_config():
     config.set("General","username", USERNAME)
     config.set("General","ip_address", IP_ADDRESS)
     with open(config_file, 'w') as handle:
         config.write(handle)
 
+
 def initialize_config():
     #
     # General
     #
     global DEBUG, FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, DRAW_DISTANCE_CHOICE, DRAW_DISTANCE_CHOICES, DRAW_DISTANCE, MOTION_BLUR, FOG_ENABLED, TEXTURE_PACK, USERNAME, IP_ADDRESS, LANGUAGE
+    # set username first to solve some issues...
+    config.set("General", "username", USERNAME)
+    with open(config_file, 'w') as handle:
+        config.write(handle)
 
     general = 'General'
 

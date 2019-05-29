@@ -102,7 +102,7 @@ def save_blocks(blocks: custom_types.WorldServer, world: str):
     #blocks and sectors (window.world and window.world.sectors)
     #Saves individual sectors in region files (4x4x4 sectors)
 
-    for secpos in blocks.sectors: #TODO: only save dirty sectors
+    for secpos in blocks.sectors.keys(): #TODO: only save dirty sectors
         if not blocks.sectors[secpos]:
             continue #Skip writing empty sectors
         file = os.path.join(G.game_dir, world, sector_to_filename(secpos))
@@ -182,7 +182,7 @@ def load_region(world: custom_types.WorldServer, world_name: str = "world", regi
                                                 print("load_region: Invalid Block", e)
                                         sectors[(x//SECTOR_SIZE, y//SECTOR_SIZE, z//SECTOR_SIZE)].append(position)
 
-def load_player(player, world: str):
+def load_player(player: custom_types.ServerPlayer, world: str):
     db = connect_db(world)
     cur = db.cursor()
     cur.execute("select * from players where name='%s'" % player.username)

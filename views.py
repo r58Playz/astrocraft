@@ -441,6 +441,38 @@ class MainMenuView(MenuView):
         self.batch.draw()
         self.draw_splash_text()
 
+
+class SoundView(MenuView):
+    def setup(self):
+        MenuView.setup(self)
+        width, height = self.controller.window.width, self.controller.window.height
+
+        self.layout = VerticalLayout(0, 0)
+
+        def change_sound_volume(bar, pos):
+            if bar == 'e':
+                G.EFFECT_VOLUME = float(float(pos) / 100)
+            elif bar == 'm':
+                G.BACKGROUND_VOLUME = float(float(pos) / 100)
+            else:
+                raise ValueError("bar is not 'e' or 'm'. Invalid value for bar:" + bar)
+
+        sb = self.Scrollbar(x=0, y=0, width=610, height=40, sb_width=20, sb_height=40, caption="Music",
+                            pos=int(G.BACKGROUND_VOLUME / 100), on_pos_change=lambda pos: change_sound_volume('m', pos))
+        self.layout.add(sb)
+        sb = self.Scrollbar(x=0, y=0, width=610, height=40, sb_width=20, sb_height=40, caption="Sound",
+                            pos=int(G.EFFECT_VOLUME * 100), on_pos_change=lambda pos: change_sound_volume('e', pos))
+        self.layout.add(sb)
+        button = self.Button(width=610, caption=G._("Done"), on_click=self.controller.game_options)
+        self.layout.add(button)
+        self.buttons.append(button)
+
+        self.on_resize(width, height)
+
+    def on_resize(self, width, height):
+        MenuView.on_resize(self, width, height)
+
+
 class OptionsView(MenuView):
     def setup(self):
         MenuView.setup(self)
@@ -450,30 +482,26 @@ class OptionsView(MenuView):
 
         textures_enabled = len(G.texture_pack_list.available_texture_packs) > 1
 
-        self.text_input = TextWidget(self.controller.window, G.USERNAME, 0, 0, width=160, height=20, font_name='Arial', batch=self.batch)
+        self.text_input = TextWidget(self.controller.window, G.USERNAME, 0, 0, width=160, height=20, font_name='Arial',
+                                     batch=self.batch)
         self.controller.window.push_handlers(self.text_input)
         self.text_input.focus()
-        self.text_input.caret.mark = len(self.text_input.document.text)  # Don't select the whole text
+        self.text_input.caret.mark = len(self.text_input.document.text)  # Don't select the whole tex
+
         def text_input_callback(symbol, modifier):
             G.USERNAME = self.text_input.text
+
         self.text_input.push_handlers(key_released=text_input_callback)
-
-        hl = HorizontalLayout(0, 0)
-        sb = self.Scrollbar(x=0, y=0, width=300, height=40, sb_width=20, sb_height=40, caption="Music")
-        hl.add(sb)
-
-        def change_sound_volume(pos):
-            print(G.EFFECT_VOLUME)
-            G.EFFECT_VOLUME = float(float(pos) / 100)
-        sb = self.Scrollbar(x=0, y=0, width=300, height=40, sb_width=20, sb_height=40, caption="Sound", pos=int(G.EFFECT_VOLUME * 100), on_pos_change=change_sound_volume)
-        hl.add(sb)
-        self.layout.add(hl)
 
         hl = HorizontalLayout(0, 0)
         button = self.Button(width=300, caption=G._("Controls..."), on_click=self.controller.controls)
         hl.add(button)
         self.buttons.append(button)
-        button = self.Button(width=300, caption=G._("Textures"), on_click=self.controller.textures, enabled=textures_enabled)
+        button = self.Button(width=300, caption=G._("Textures"), on_click=self.controller.textures,
+                             enabled=textures_enabled)
+        hl.add(button)
+        self.buttons.append(button)
+        button = self.Button(width=300, caption=G._("Sound settings"), on_click=self.controller.sound)
         hl.add(button)
         self.buttons.append(button)
         self.layout.add(hl)
@@ -485,9 +513,9 @@ class OptionsView(MenuView):
         self.layout.add(button)
         self.buttons.append(button)
 
-        self.label = Label('Options', font_name='ChunkFive Roman', font_size=25, x=width//2, y=self.frame.y + self.frame.height,
-            anchor_x='center', anchor_y='top', color=(255, 255, 255, 255), batch=self.batch,
-            group=self.labels_group)
+        self.label = Label('Options', font_name='ChunkFive Roman', font_size=25, x=width//2,
+                           y=self.frame.y + self.frame.height,anchor_x='center', anchor_y='top',
+                           color=(255, 255, 255, 255), batch=self.batch, group=self.labels_group)
 
         self.on_resize(width, height)
 
@@ -588,7 +616,7 @@ class TexturesView(MenuView):
                 G.config.set("Graphics", "texture_pack", button.id)
                 G.TEXTURE_PACK = button.id
                 for block in list(G.BLOCKS_DIR.values()):
-                    block.update_texture() #Reload textures
+                    block.update_texture()  # Reload textures
 
                 G.save_config()
 

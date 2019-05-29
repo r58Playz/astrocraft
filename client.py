@@ -33,7 +33,7 @@ class PacketReceiver(Thread):
         try:
             self.loop()
         except socket.error as e:
-            if e[0] in (10053, 10054):
+            if e.errno in (104, 10053, 10054):
                 #TODO: GUI tell the client they were disconnected
                 print("Disconnected from server.")
             else:
@@ -175,7 +175,7 @@ class PacketReceiver(Thread):
                 self.world[struct.unpack("iii", packet[:12])].update_tile_entity(packet[12:])
             except:warn("Cannot update Tile Entity!")
         elif packetid == 255:  # Spawn Position
-            self.controller.player.position = struct.unpack("iii", packet[:12])
+            self.controller.player.position = struct.unpack("fff", packet[:12])
             packet = packet[12:]
             packet, seed = extract_string_packet(packet)
             self.world.biome_generator = BiomeGenerator(seed)

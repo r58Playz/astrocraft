@@ -45,6 +45,7 @@ def init_3d_list(x_size, y_size, z_size):
         xblks[x] = yblks
     return xblks
 
+
 class Chunk:
     def __init__(self, position, x_size=CHUNK_X_SIZE, y_size=CHUNK_Y_SIZE, z_size=CHUNK_Z_SIZE):
         self.x_pos, self.y_pos, self.z_pos = position
@@ -83,6 +84,7 @@ class TerrainGeneratorBase:
 
 class TerrainGenerator(TerrainGeneratorBase):
     def __init__(self, seed):
+        seed = int(seed)
         super(TerrainGenerator, self).__init__(seed)
         self.base_gen = PerlinNoise(seed)
         self.base_gen.octave = 8
@@ -271,7 +273,7 @@ class TerrainGeneratorSimple(TerrainGeneratorBase):
     def __init__(self, world, seed):
         super(TerrainGeneratorSimple, self).__init__(seed)
         self.world = world
-        self.seed = G.SEED  #seed
+        self.seed = G.SEED  # seed
         self.rand = random.Random(seed)
         perm = list(range(255))
         self.rand.shuffle(perm)
@@ -283,12 +285,12 @@ class TerrainGeneratorSimple(TerrainGeneratorBase):
         self.biome_generator = BiomeGenerator(seed)
 
         #Fun things to adjust
-        self.OCTAVES = 9        #Higher linearly increases calc time; increases apparent 'randomness'
-        self.height_range = 32  #If you raise this, you should shrink zoom_level equally
-        self.height_base = 32   #The lowest point the perlin terrain will generate (below is "underground")
-        self.island_shore = 38  #below this is sand, above is grass .. island only
-        self.water_level = 36 # have water 2 block higher than base, allowing for some rivers...
-        self.zoom_level = 0.002 #Smaller will create gentler, softer transitions. Larger is more mountainy
+        self.OCTAVES = 10        # Higher linearly increases calc time; increases apparent 'randomness'
+        self.height_range = 32   # If you raise this, you should shrink zoom_level equally
+        self.height_base = 32    # The lowest point the perlin terrain will generate (below is "underground")
+        self.island_shore = 38   # below this is sand, above is grass .. island only
+        self.water_level = 36    # have water 2 block higher than base, allowing for some rivers...
+        self.zoom_level = 0.002  # Smaller will create gentler, softer transitions. Larger is more mountainy
 
 
         # ores avaliable on the lowest level, closet to bedrock
