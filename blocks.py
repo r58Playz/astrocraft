@@ -368,8 +368,13 @@ class Block:
                     setattr(self, k, get_texture_coordinates(*v))
             self.texture_data = self.get_texture_data()
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
+    def on_neighbor_change(self, world:custom_types.World, neighbor_pos:iVector, self_pos:iVector):
         pass
+
+    def generic_on_missing_floor_drop(self, world: custom_types.World, neighbor_pos: iVector, self_pos: iVector):
+        if not world.get_block_below(self_pos):
+            world.remove_block(None, self_pos)
+            # todo: actually drop an item
 
     def can_place_on(self, block_id):
         return False
@@ -454,7 +459,8 @@ class GrassBlock(Block):
 
     def on_neighbor_change(self, world, neighbor_pos, self_pos):
         # something has been put on this grass block, which makes it become dirt block
-        if (self_pos[0], self_pos[1] + 1, self_pos[-1]) in world:
+        block_above = world.get_block_above(self_pos)
+        if block_above in world and not world[block_above].transparent:
             world.remove_block(None, self_pos)
             world.add_block(self_pos, dirt_block)
 
@@ -885,10 +891,7 @@ class TorchBlock(WoodBlock):
     id = 50
     name = "Torch"
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        # the block under this torch has been removed, so remove the torch too
-        if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None, self_pos)
+    on_neighbor_change = Block.generic_on_missing_floor_drop
 
 class YFlowersBlock(Block):
     vertex_mode = G.VERTEX_CROSS
@@ -907,9 +910,7 @@ class YFlowersBlock(Block):
         super(YFlowersBlock, self).__init__()
         self.texture_data = self.texture_data[0:2 * 4 * 2]
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None,self_pos)
+    on_neighbor_change = Block.generic_on_missing_floor_drop
 
 
 class StoneSlabBlock(HardBlock):
@@ -1050,9 +1051,9 @@ class FarmBlock(Block):
         super(FarmBlock, self).__init__()
         self.drop_id = BlockID(DirtBlock.id)
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        # replace self with dirt
-        if (self_pos[0], self_pos[1] + 1, self_pos[-1]) in world:
+    def on_neighbor_change(self, world: custom_types.World, neighbor_pos: iVector, self_pos: iVector):
+        block_above = world.get_block_above(self_pos)
+        if block_above and not block_above.transparent:
             world.remove_block(None, self_pos)
             world.add_block(self_pos, dirt_block)
 
@@ -1311,7 +1312,7 @@ class WhiteCarpetBlock(Block):
     name = "White Carpet"
     amount_label_color = 0, 0, 0, 255
 
-# moreplants
+# more plants
 class RoseBlock(Block):
     vertex_mode = G.VERTEX_CROSS
     side_texture = 0, 0
@@ -1329,9 +1330,7 @@ class RoseBlock(Block):
         super(RoseBlock, self).__init__()
         self.texture_data = self.texture_data[0:2 * 4 * 2]
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None, self_pos)
+    on_neighbor_change = Block.generic_on_missing_floor_drop
 
 class ReedBlock(Block):
     texture_name = "reeds"
@@ -1346,9 +1345,7 @@ class ReedBlock(Block):
     max_stack_size = 16
     amount_label_color = 0, 0, 0, 255
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None, self_pos)
+    on_neighbor_change = Block.generic_on_missing_floor_drop
 
 class CropBlock(Block):
     top_texture = -1, -1
@@ -1422,9 +1419,7 @@ class CropBlock(Block):
             if nbt['action'] == 'fertilize':
                 self.entity.fertilize()
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None, self_pos)
+    on_neighbor_change = Block.generic_on_missing_floor_drop
 
 class PotatoBlock(CropBlock):
     id = 142
@@ -1526,9 +1521,7 @@ class TallGrassBlock(Block):
     def drop_id(self, value):
         self._drop_id = value
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None, self_pos)
+    on_neighbor_change = Block.generic_on_missing_floor_drop
 
 # More tall grass blocks
 
@@ -1589,9 +1582,7 @@ class DesertGrassBlock(TallGrassBlock):
     name = "Desert Grass"
     texture_name = 'wg_red_bush'
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None, self_pos)
+    on_neighbor_change = Block.generic_on_missing_floor_drop
 
 
 class DeadBushBlock(TallGrassBlock):
@@ -1600,10 +1591,7 @@ class DeadBushBlock(TallGrassBlock):
     name = "Dead bush"
     texture_name = 'deadbush'
 
-    def on_neighbor_change(self, world, neighbor_pos, self_pos):
-        if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None, self_pos)
-
+    on_neighbor_change = Block.generic_on_missing_floor_drop
 
 class DiamondBlock(HardBlock):
     texture_name = "blockDiamond",
