@@ -15,6 +15,7 @@ import getpass
 from math import pi
 import os
 import random
+import urllib.request
 
 # Third-party packages
 import pyglet
@@ -22,6 +23,9 @@ import pyglet
 # Modules from this project
 # Nothing for now...
 
+# Resource check(that's why this is imported first in main.py)
+if not os.path.isdir('resources'):
+    urllib.request.urlopen("")
 
 APP_NAME = 'AstroCraft'
 APP_VERSION = "0.4.2"

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import globals as G
 
 # Imports, sorted alphabetically.
 
@@ -23,7 +24,6 @@ import pyglet.image
 
 # Modules from this project
 from controllers import MainMenuController
-import globals as G
 from timer import Timer
 from debug import log_info
 from mod import load_modules
