@@ -459,10 +459,15 @@ class TerrainGeneratorSimple(TerrainGeneratorBase):
                                 if TERRAIN_CHOICE == G.SNOW:  # top block is ice
                                     init_block((x, water_level, z), ice_block)
                                 else:
-                                    init_block((x, water_level, z), water_block)
-                                # init_block((x, y -1, z), water_block)
-                                init_block((x, water_level - 2, z), choose(underwater_blocks))
-                                init_block((x, water_level - 3, z), dirt_block)
+                                    continue
+
+                                # Choose amount of water.
+                                water_bottom = 0
+                                for water_y in range(0, random.randint(1, 20)):  # shallow to deep ocean
+                                    init_block((x, water_y, z), water_block)
+                                    water_bottom = water_bottom + 1
+                                init_block((x, water_bottom - 1, z), choose(underwater_blocks))
+                                init_block((x, water_level - 2, z), dirt_block)
                             else:  # no water for you!
                                 init_block((x, y + 1, z), sand_block)
                                 init_block((x, y, z), sand_block)

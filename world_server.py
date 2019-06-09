@@ -36,6 +36,8 @@ class WorldServer(dict):
 
         self.sectors = defaultdict(list)
         self.exposed_cache = dict()
+        self.seed = self.generate_seed()
+        G.SEED = self.seed
 
         self.spreading_mutable_blocks = deque()
 
@@ -51,9 +53,9 @@ class WorldServer(dict):
             if not os.path.exists(os.path.join(G.game_dir, G.SAVE_FILENAME)):
                 os.makedirs(os.path.join(G.game_dir, G.SAVE_FILENAME))
             with open(os.path.join(G.game_dir, G.SAVE_FILENAME, "seed"), "wb") as f:
-                f.write(self.generate_seed().encode('utf-8'))
+                f.write(self.seed.encode('utf-8'))
 
-        self.terraingen = terrain.TerrainGeneratorSimple(self, G.SEED)
+        self.terraingen = terrain.TerrainGeneratorSimple(self, self.seed)
 
     def __del__(self):
         self.db.close()

@@ -5,6 +5,9 @@ import os
 import struct
 from typing import Tuple, List, Union
 from ctypes import byref
+from subprocess import Popen
+import sys
+import threading
 
 # Third-party packages
 import pyglet
@@ -91,7 +94,6 @@ _block_icon_fbo = None
 def get_block_icon(block, icon_size, world):
     global _block_icon_fbo
 
-    print(block.id.filename())
     block_icon = G.texture_pack_list.selected_texture_pack.load_texture(block.id.filename()) \
         or (block.group or world.group).texture.get_region(
             int(block.texture_data[2 * 8] * G.TILESET_SIZE) * icon_size,
@@ -221,6 +223,26 @@ def sectorize(position: Union[iVector, fVector]) -> iVector:
             normalize_float(float(position[1])) // G.SECTOR_SIZE,
             normalize_float(float(position[2])) // G.SECTOR_SIZE)
 
+cmd = None
+
+def runserver():
+    global cmd
+    def run():
+        global cmd
+        with Popen([sys.executable, 'server.py']) as process:
+            while True:
+                if cmd == "stop":
+                    process.stdin.write('stop')
+                    process.stdin.flush()
+                    return
+                elif 'say' in cmd:
+                    process.stdin.write(cmd)
+                    process.stdin.flush()
+                else:
+                    continue
+    threading.Thread(target=run).start()
+
+
 
 class TextureGroup(pyglet.graphics.Group):
     def __init__(self, path):
@@ -297,3 +319,22 @@ def extract_nbt(nbt):
         result[key] = value
 
     return result
+
+def send_feedback(feedbackstr):
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+
+    s = smtplib.SMTP('smtp.gmail.com', 587)
+    s.connect('smtp.gmail.com', 587)
+    s.starttls()
+    s.login("mhfeedbk@gmail.com", "MHfeedb1k")  # This account is completely new, if you want to use another account,
+                                                 # use a new one to prevent leakages of passwords.
+
+    msg = MIMEMultipart()
+    message = "Feedback from %s \n\n\n" % (G.USERNAME,) + feedbackstr
+    msg['From'] = "mhfeedbk@gmail.com"
+    msg['To'] = "toshit307@gmail.com"
+    msg['Subject'] = "Feedback from " + G.USERNAME + "!"
+    msg.attach(MIMEText(message, 'plain'))
+    s.send_message(msg)

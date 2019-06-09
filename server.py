@@ -193,7 +193,13 @@ class ServerPlayer(socketserver.BaseRequestHandler):
                     self.send_sector(world, sector_below)
 
                 #Send them their spawn position and world seed(for client side biome generator)
-                seed_packet = make_string_packet(G.SEED)
+                if not G.SEED:
+                    try:
+                        seed = int(hexlify(os.urandom(16)), 16)
+                    except (NotImplementedError, NameError):
+                        seed = int(time.time() * 256)
+                    G.SEED = seed
+                seed_packet = make_string_packet(str(G.SEED))
                 self.sendpacket(12 + len(seed_packet),
                                 struct.pack("B", 255) + struct.pack("fff", *self.position) + seed_packet)
                 self.sendpacket(4*40, b"\6" + self.inventory)
@@ -244,7 +250,7 @@ def start_server(internal=False):
     if internal:
         localip = "localhost"
     else:
-        localip = "0.0.0.0"
+        localip = socket.gethostbyname(socket.gethostname())
     server = Server((localip, 1486), ServerPlayer)
     G.SERVER = server
     server_thread = threading.Thread(target=server.serve_forever)

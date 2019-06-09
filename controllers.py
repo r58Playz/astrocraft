@@ -5,10 +5,12 @@ import socket
 import time
 import datetime
 from functools import partial
+import subprocess
 
 from math import cos, sin, pi, fmod
 import operator
 import os
+import sys
 import random
 
 
@@ -103,6 +105,7 @@ class MainMenuController(Controller):
         self.textures = partial(self.switch_view_class, views.TexturesView)
         self.multiplayer = partial(self.switch_view_class, views.MultiplayerView)
         self.sound = partial(self.switch_view_class, views.SoundView)
+        self.feedback = lambda: self.switch_view_class(views.FeedbackView)
         self.exit_game = pyglet.app.exit
 
     def start_singleplayer_game(self):
@@ -215,11 +218,11 @@ class GameController(Controller):
         glEnable(GL_POLYGON_SMOOTH)
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
 
-        #glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE)
-        #glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE)
-        #glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE)
+        # glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE)
+        # glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE)
+        # glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE)
 
-        #glClearColor(0, 0, 0, 0)
+        # glClearColor(0, 0, 0, 0)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def setup(self):
@@ -228,24 +231,17 @@ class GameController(Controller):
                 print('Starting internal server...')
                 # TODO: create world menu
                 G.SAVE_FILENAME = "world"
-                self.local_server_process = subprocess.Popen([sys.executable, 'server.py'],
-                                                           stdin=subprocess.PIPE,
-                                                           stdout=subprocess.PIPE,
-                                                           stderr=subprocess.STDOUT,
-                                                           universal_newlines=True)
-                for line in self.local_server_process.stdout:
-                    print("Server:", line, end="")
-                    if "Listening on" in line:
-                        break
-                self.local_server_stdout_thread = threading.Thread(
-                    target=utils.logstream, args=(self.local_server_process.stdout, lambda s: print("Server:", s))
-                )
-                self.local_server_stdout_thread.start()
+                try:
+                    utils.runserver()
+                except:
+                    print("Cannot run server with utils.runserver(), starting server with start_server(internal=True)")
+                    start_server(internal=True)
+                time.sleep(3)
                 sock = socket.socket()
-                sock.connect(("localhost", 1486))
+                sock.connect((socket.gethostbyname(socket.gethostname()), 1486))
             except socket.error as e:
                 print("Socket Error:", e)
-                #Otherwise back to the main menu we go
+                # Otherwise back to the main menu we go
                 return False
             except Exception as e:
                 print('Unable to start internal server')
@@ -254,14 +250,14 @@ class GameController(Controller):
                 return False
         else:
             try:
-                #Make sure the address they want to connect to works
+                # Make sure the address they want to connect to works
                 ipport = G.IP_ADDRESS.split(":")
                 if len(ipport) == 1: ipport.append(1486)
                 sock = socket.socket()
                 sock.connect((tuple(ipport)))
             except socket.error as e:
                 print("Socket Error:", e)
-                #Otherwise back to the main menu we go
+                # Otherwise back to the main menu we go
                 return False
 
         self.init_gl()

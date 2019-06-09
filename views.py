@@ -9,6 +9,7 @@ import subprocess
 import sys
 import datetime
 from math import sin, pi
+import threading
 
 # Third-party packages
 import pyglet
@@ -23,6 +24,7 @@ from gui import frame_image, Rectangle, backdrop, Button, button_image, \
 from textures import TexturePackList
 from utils import image_sprite, load_image
 from update import update as up
+import utils
 
 __all__ = (
     'View', 'MainMenuView', 'OptionsView', 'ControlsView', 'TexturesView', 'MultiplayerView'
@@ -246,6 +248,11 @@ class MainMenuView(MenuView):
         self.label.width = self.label.content_width
         self.label.height = self.label.content_height
         self.layout.add(self.label)
+        label = Label(G.APP_VERSION, font_name='ChunkFive Roman', font_size=15,x=width-10, y=height-height, anchor_x='right', anchor_y='bottom',
+                      color=(255, 255, 255, 255), batch=self.batch, group=self.labels_group)
+        label.width = label.content_width
+        label.height = label.content_height
+        self.layout.add(label)
 
         button = self.Button(caption=G._("Singleplayer"),on_click=self.controller.start_singleplayer_game)
         self.layout.add(button)
@@ -472,6 +479,32 @@ class SoundView(MenuView):
     def on_resize(self, width, height):
         MenuView.on_resize(self, width, height)
 
+class FeedbackView(MenuView):
+    def setup(self):
+        MenuView.setup(self)
+        width, height = self.controller.window.width, self.controller.window.height
+        self.layout = VerticalLayout(0, 0)
+        hl = HorizontalLayout(0,0)
+
+        self.text_input = TextWidget(hl, x=0, y=0, width=300, height=400, font_name='Arial',
+                                     batch=self.batch, text="")
+        self.controller.window.push_handlers(self.text_input)
+        self.text_input.focus()
+        self.text_input.caret.mark = len(self.text_input.document.text)  # Don't select the whole text
+        hl.add(self.text_input)
+        self.layout.add(hl)
+
+        button = self.Button(width=610, caption=G._("Send feedback now"),
+                             on_click=lambda: threading.Thread(target=lambda: utils.send_feedback(self.text_input.text)).start())
+        self.layout.add(button)
+        self.buttons.append(button)
+        button = self.Button(width=610, caption=G._("Done"), on_click=self.controller.game_options)
+        self.layout.add(button)
+        self.buttons.append(button)
+
+        self.label = Label('Feedback', font_name='ChunkFive Roman', font_size=25, x=width//2,
+                           y=self.frame.y + self.frame.height,anchor_x='center', anchor_y='top',
+                           color=(255, 255, 255, 255), batch=self.batch, group=self.labels_group)
 
 class OptionsView(MenuView):
     def setup(self):
@@ -505,7 +538,11 @@ class OptionsView(MenuView):
         hl.add(button)
         self.buttons.append(button)
         self.layout.add(hl)
+
         button = self.Button(width=610, caption=G._("Update game"), on_click=up)
+        self.layout.add(button)
+        self.buttons.append(button)
+        button = self.Button(width=610, caption=G._("Send feedback"), on_click=self.controller.feedback)
         self.layout.add(button)
         self.buttons.append(button)
 

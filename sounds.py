@@ -22,7 +22,7 @@ __all__ = (
 
 
 # Note: Pyglet uses /'s regardless of OS
-pyglet.resource.path = [".", "resources/sounds"]
+pyglet.resource.path = ["", G.RESOURCES + "sounds"]
 pyglet.resource.reindex()
 
 wood_break = pyglet.resource.media("wood_break.wav", streaming=False)
