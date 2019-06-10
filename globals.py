@@ -52,8 +52,6 @@ elif not os.path.isdir('resources'):
 else:
     raise ResourceError("Cannot find resources")
 
->>>>>>> d74a1e6... add lots of features; add version, add clunky feedback(security issues...)
-
 APP_NAME = 'AstroCraft'
 APP_VERSION = "v0.5.0"
 DEBUG = False
