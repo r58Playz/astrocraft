@@ -21,7 +21,6 @@ import globals as G
 from gui import frame_image, Rectangle, backdrop, Button, button_image, \
     button_highlighted, ToggleButton, TextWidget, ScrollbarWidget, \
     button_disabled, resize_button_image
-import gui
 from textures import TexturePackList
 from utils import image_sprite, load_image
 from update import update as up
@@ -282,7 +281,7 @@ class MainMenuView(MenuView):
         self.on_resize(width, height)
 
         # Panorama
-        self.panorama = [gui.load_image(G.RESOURCES + 'title', 'bg', 'panorama' + str(x) + '.png') for x in range(6)]
+        self.panorama = [G.texture_pack_list.selected_texture_pack.load_texture(['title', 'bg', 'panorama' + str(x) + '.png']) for x in range(6)]
         self.panorama_timer = 0
 
         pyglet.clock.schedule_interval(self.update_panorama_timer, .05)
