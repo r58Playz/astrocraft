@@ -1,4 +1,4 @@
-# astrocraft-python ![badge1](https://img.shields.io/badge/maintainance-none-inactive.svg)
+# astrocraft-python ![badge1](https://img.shields.io/badge/maintainance-not%20much-inactive.svg)
 
 
 This is the Python version of AstroCraft, a game like Minecraft.
