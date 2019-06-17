@@ -49,7 +49,7 @@ class World(dict):
         super(World, self).__init__()
         self.batch = pyglet.graphics.Batch()
         self.transparency_batch = pyglet.graphics.Batch()
-        self.group = TextureGroup(os.path.join('resources', 'textures', 'texture.png'))
+        self.group = TextureGroup(G.RESOURCES + 'textures' + '\\texture.png')
 
         self.shown = {}
         self._shown = {}

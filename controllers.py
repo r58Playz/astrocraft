@@ -131,6 +131,8 @@ class GameController(Controller):
         self.back_to_main_menu = threading.Event()
 
     def update(self, dt):
+        if self.player:
+            self.push_handlers()
         if self.back_to_main_menu.isSet():
             self.switch_controller_class(MainMenuController)
             return
@@ -273,7 +275,7 @@ class GameController(Controller):
 
 
         self.skydome = Skydome(
-            'resources/' + default_skybox,
+            G.RESOURCES + default_skybox,
             #'resources/skydome.jpg',
             0.7,
             100.0,

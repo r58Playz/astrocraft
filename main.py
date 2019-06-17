@@ -136,7 +136,7 @@ def main(options):
         # window = Window(resizable=True, config=window_config)
     # except pyglet.window.NoSuchConfigException:
     window = Window(resizable=True, vsync=False)
-    icon = pyglet.image.load(os.path.join('resources','astrocraft.png'))
+    icon = pyglet.image.load(G.RESOURCES + 'astrocraft.png')
     window.set_icon(icon)
     play_background_sound()
     pyglet.app.run()

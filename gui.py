@@ -312,7 +312,7 @@ class ItemSelector(AbstractInventory):
         self.num_keys = [getattr(G, 'INVENTORY_%d_KEY' % i)
                          for i in range(1, 10)]
 
-        image = G.texture_pack_list.selected_texture_pack.load_texture(['gui', 'gui.png'])
+        image = load_image(G.RESOURCES + 'gui', 'gui.png')
         image_scale = image.height // 256
         x_size = 182 * image_scale
         y_size = 22 * image_scale
@@ -320,7 +320,7 @@ class ItemSelector(AbstractInventory):
         self.frame.scale = (1.0 / image_scale) * 2
         self.frame.x = (self.parent.window.width - self.frame.width) // 2
 
-        heart_image = load_image('resources', 'gui', 'heart.png')
+        heart_image = load_image(G.RESOURCES + 'gui', 'heart.png')
 
         x_size = 24 * image_scale
         y_size = 22 * image_scale
@@ -560,7 +560,7 @@ class InventorySelector(AbstractInventory):
             self.current_panel = self.furnace_panel
 
     def change_image(self):
-        image = G.texture_pack_list.selected_texture_pack.load_texture(['gui', 'inventory.png' if self.mode == 0 else 'crafting.png' if self.mode == 1 else 'furnace.png'])
+        image = load_image(G.RESOURCES + 'gui', 'inventory.png' if self.mode == 0 else 'crafting.png' if self.mode == 1 else 'furnace.png')
         image_scale = image.height // 256
         x_size = 176 * image_scale
         y_size = 166 * image_scale
@@ -1176,10 +1176,10 @@ class ScrollbarWidget(Control):
             return pyglet.event.EVENT_HANDLED
 
 
-frame_image = load_image('resources', 'textures', 'frame.png')
+frame_image = load_image(G.RESOURCES + 'textures', 'frame.png')
 
 def init_button_image():
-    gui_image = G.texture_pack_list.selected_texture_pack.load_texture(['gui', 'gui.png'])
+    gui_image = load_image(G.RESOURCES + 'gui', 'gui.png')
     image_scale = gui_image.height // 256
     x_size = 200 * image_scale
     y_offset = 66 * image_scale
