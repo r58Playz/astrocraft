@@ -5,6 +5,7 @@ WARNING: Never use `from globals import *`!
 Since these global variables are modified during runtime, using `import *`
 would lead to unpredictable consequences.
 """
+class ResourceError(Exception): pass
 
 # Imports, sorted alphabetically.
 
@@ -15,7 +16,9 @@ import getpass
 from math import pi
 import os
 import random
-import urllib.request
+import shutil
+from zipfile import ZipFile
+import warnings
 
 # Third-party packages
 import pyglet
@@ -24,13 +27,36 @@ import pyglet
 # Nothing for now...
 
 # Resource check(that's why this is imported first in main.py)
-if not os.path.isdir('resources'):
-    urllib.request.urlopen("")
+pth = pyglet.resource.get_settings_path("AstroCraft")
+if not os.path.isdir(pth):
+    os.makedirs(pth)
+
+RESOURCES = pth + "\\resources\\"
+
+if os.path.isdir('resources'):
+    shutil.move("resources", pth)
+    z = ZipFile("other_texture_packs.zip")
+    z.extractall(RESOURCES)
+    z.close()
+elif os.path.isdir(RESOURCES):
+    if os.path.isdir(RESOURCES + "\\other_texture_packs"):
+        warnings.warn("Other texture packs re not available, you will have to get your own MC 1.5 texture packs or" +
+                      " get texture packs from our website.", ResourceWarning)
+    pass
+elif not os.path.isdir('resources'):
+    zp = ZipFile("r.zip")
+    zp.extractall(pth)
+    zp.close()
+    zpref = ZipFile("other_texture_packs.zip")
+    zpref.extractall(RESOURCES)
+    zpref.close()
+else:
+    raise ResourceError("Cannot find resources")
 
 >>>>>>> d74a1e6... add lots of features; add version, add clunky feedback(security issues...)
 
 APP_NAME = 'AstroCraft'
-APP_VERSION = "0.4.2"
+APP_VERSION = "v0.5.0"
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
@@ -225,8 +251,6 @@ _ = lambda x:x
 
 # Global files & directories
 game_dir = pyglet.resource.get_settings_path(APP_NAME)
-if not os.path.exists(game_dir):
-    os.makedirs(game_dir)
 worlds_dir = os.path.join(game_dir, 'worlds')
 
 config = ConfigParser()
