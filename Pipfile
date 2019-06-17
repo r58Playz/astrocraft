@@ -8,7 +8,6 @@ verify_ssl = true
 [packages]
 pyglet = "*"
 Cython = "*"
-Pillow = "*"
 cx_Freeze = {git = "https://github.com/anthony-tuininga/cx_Freeze"}
 
 [requires]

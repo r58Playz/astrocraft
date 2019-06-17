@@ -163,7 +163,7 @@ class MenuView(View):
 
         image = frame_image
         self.frame_rect = Rectangle(0, 0, image.width, image.height)
-        self.background = G.texture_pack_list.selected_texture_pack.load_texture(['gui', 'background.png'])
+        self.background = load_image(G.RESOURCES + 'gui', 'background.png')
         self.background = self.background.get_texture()
         self.background.height = 64
         self.background.width = 64
@@ -281,7 +281,7 @@ class MainMenuView(MenuView):
         self.on_resize(width, height)
 
         # Panorama
-        self.panorama = [G.texture_pack_list.selected_texture_pack.load_texture(['title', 'bg', 'panorama' + str(x) + '.png']) for x in range(6)]
+        self.panorama = [load_image(G.RESOURCES + 'title', 'bg', 'panorama' + str(x) + '.png') for x in range(6)]
         self.panorama_timer = 0
 
         pyglet.clock.schedule_interval(self.update_panorama_timer, .05)

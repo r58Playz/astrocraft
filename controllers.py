@@ -231,11 +231,7 @@ class GameController(Controller):
                 print('Starting internal server...')
                 # TODO: create world menu
                 G.SAVE_FILENAME = "world"
-                try:
-                    utils.runserver()
-                except:
-                    print("Cannot run server with utils.runserver(), starting server with start_server(internal=True)")
-                    start_server(internal=True)
+                start_server()
                 time.sleep(3)
                 sock = socket.socket()
                 sock.connect((socket.gethostbyname(socket.gethostname()), 1486))
@@ -273,7 +269,7 @@ class GameController(Controller):
 
 
         self.skydome = Skydome(
-            'resources/' + default_skybox,
+            G.RESOURCES + default_skybox,
             #'resources/skydome.jpg',
             0.7,
             100.0,

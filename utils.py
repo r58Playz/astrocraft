@@ -79,8 +79,8 @@ def logstream(io_stream, logger_callback):
 
 
 def init_resources():
-    init_font('resources/fonts/Chunkfive.ttf', 'ChunkFive Roman')
-    init_font('resources/fonts/slkscr.ttf', 'Silkscreen Normal')
+    init_font(G.RESOURCES + 'fonts\\Chunkfive.ttf', 'ChunkFive Roman')
+    init_font(G.RESOURCES + 'fonts\\slkscr.ttf', 'Silkscreen Normal')
 
 
 def init_font(filename, fontname):

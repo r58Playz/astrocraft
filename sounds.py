@@ -24,6 +24,7 @@ __all__ = (
 # Note: Pyglet uses /'s regardless of OS
 pyglet.resource.path = ["", G.RESOURCES + "sounds"]
 pyglet.resource.reindex()
+print(pyglet.resource.path)
 
 wood_break = pyglet.resource.media("wood_break.wav", streaming=False)
 water_break = pyglet.resource.media("water_break.wav", streaming=False)

@@ -53,7 +53,9 @@ elif not os.path.isdir('resources'):
 else:
     raise ResourceError("Cannot find resources")
 
->>>>>>> d74a1e6... add lots of features; add version, add clunky feedback(security issues...)
+if os.path.isdir('mods'):
+    shutil.move('mods', pyglet.resource.get_settings_path("AstroCraft"))
+
 
 APP_NAME = 'AstroCraft'
 APP_VERSION = "v0.5.0"
@@ -254,7 +256,7 @@ game_dir = pyglet.resource.get_settings_path(APP_NAME)
 worlds_dir = os.path.join(game_dir, 'worlds')
 
 config = ConfigParser()
-config_file = os.path.join(game_dir, 'config.ASTROCRAFT')
+config_file = os.path.join(game_dir, 'game.cfg')
 config.read(config_file)
 LAUNCH_OPTIONS = argparse.Namespace()
 
