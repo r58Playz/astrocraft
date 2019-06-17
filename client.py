@@ -31,7 +31,7 @@ class PacketReceiver(Thread):
 
     def run(self):
         try:
-            Thread(target=self.loop()).start()
+            self.loop()
         except socket.error as e:
             if e.errno in (104, 10053, 10054):
                 #TODO: GUI tell the client they were disconnected
