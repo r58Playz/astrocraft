@@ -3,11 +3,8 @@
 # Python packages
 import os
 import struct
-from typing import Tuple, List, Union
+from typing import Tuple, List
 from ctypes import byref
-from subprocess import Popen
-import sys
-import threading
 
 # Third-party packages
 import pyglet
@@ -21,7 +18,7 @@ from custom_types import iVector, fVector
 __all__ = (
     'load_image', 'image_sprite', 'hidden_image_sprite', 'vec', 'FastRandom',
     'init_resources', 'init_font', 'get_block_icon',
-    'logstream', 'FACES', 'FACES_WITH_DIAGONALS', 'normalize_float', 'normalize',
+    'FACES', 'FACES_WITH_DIAGONALS', 'normalize_float', 'normalize',
     'sectorize', 'TextureGroup', 'make_nbt_from_dict', 'extract_nbt'
 )
 
@@ -62,25 +59,13 @@ class FastRandom:
         self.seed = seed
 
     def randint(self) -> int:
-        self.seed = (214013 * int(self.seed) + 2531011)
+        self.seed = (214013 * self.seed + 2531011)
         return (self.seed >> 16) & 0x7FFF
 
 
-def logstream(io_stream, logger_callback):
-    """A threading helper, which runs the callback (ie. print) for each line in the io_stream"""
-    while True:
-        out = io_stream.readline()
-        if out:
-            logger_callback(out.rstrip())
-        else:
-            break
-
-
-
-
 def init_resources():
-    init_font(G.RESOURCES + 'fonts\\Chunkfive.ttf', 'ChunkFive Roman')
-    init_font(G.RESOURCES + 'fonts\\slkscr.ttf', 'Silkscreen Normal')
+    init_font('resources/fonts/Chunkfive.ttf', 'ChunkFive Roman')
+    init_font('resources/fonts/slkscr.ttf', 'Silkscreen Normal')
 
 
 def init_font(filename, fontname):
@@ -94,6 +79,7 @@ _block_icon_fbo = None
 def get_block_icon(block, icon_size, world):
     global _block_icon_fbo
 
+    print(block.id.filename())
     block_icon = G.texture_pack_list.selected_texture_pack.load_texture(block.id.filename()) \
         or (block.group or world.group).texture.get_region(
             int(block.texture_data[2 * 8] * G.TILESET_SIZE) * icon_size,
@@ -218,30 +204,12 @@ def normalize(position: fVector) -> fVector:
     return normalize_float(x), normalize_float(y), normalize_float(z)
 
 
-def sectorize(position: Union[iVector, fVector]) -> iVector:
-    return (normalize_float(float(position[0])) // G.SECTOR_SIZE,
-            normalize_float(float(position[1])) // G.SECTOR_SIZE,
-            normalize_float(float(position[2])) // G.SECTOR_SIZE)
-
-cmd = None
-
-def runserver():
-    global cmd
-    def run():
-        global cmd
-        with Popen([sys.executable, 'server.py']) as process:
-            while True:
-                if cmd == "stop":
-                    process.stdin.write('stop')
-                    process.stdin.flush()
-                    return
-                elif 'say' in cmd:
-                    process.stdin.write(cmd)
-                    process.stdin.flush()
-                else:
-                    continue
-    threading.Thread(target=run).start()
-
+def sectorize(position: iVector) -> iVector:
+    x, y, z = normalize(position)
+    x, y, z = (x // G.SECTOR_SIZE,
+               y // G.SECTOR_SIZE,
+               z // G.SECTOR_SIZE)
+    return x, y, z
 
 
 class TextureGroup(pyglet.graphics.Group):
@@ -319,22 +287,3 @@ def extract_nbt(nbt):
         result[key] = value
 
     return result
-
-def send_feedback(feedbackstr):
-    import smtplib
-    from email.mime.text import MIMEText
-    from email.mime.multipart import MIMEMultipart
-
-    s = smtplib.SMTP('smtp.gmail.com', 587)
-    s.connect('smtp.gmail.com', 587)
-    s.starttls()
-    s.login("mhfeedbk@gmail.com", "MHfeedb1k")  # This account is completely new, if you want to use another account,
-                                                 # use a new one to prevent leakages of passwords.
-
-    msg = MIMEMultipart()
-    message = "Feedback from %s \n\n\n" % (G.USERNAME,) + feedbackstr
-    msg['From'] = "mhfeedbk@gmail.com"
-    msg['To'] = "toshit307@gmail.com"
-    msg['Subject'] = "Feedback from " + G.USERNAME + "!"
-    msg.attach(MIMEText(message, 'plain'))
-    s.send_message(msg)

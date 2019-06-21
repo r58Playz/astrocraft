@@ -9,7 +9,7 @@ from pyglet.gl import *
 import globals as G
 
 # Modules from this project
-from utils import load_image
+# Nothing for now...
 
 
 __all__ = (
@@ -25,7 +25,7 @@ class Skydome:
         self.image = pyglet.image.load(filename)
         self.color = [brightness] * 3
 
-        self.sun_image = load_image(G.RESOURCES + 'environment', 'sun.png')
+        self.sun_image = G.texture_pack_list.selected_texture_pack.load_texture(['environment', 'sun.png'])
         self.size = size
 
         self.time_of_day = 0.0

@@ -5,7 +5,6 @@ from threading import Thread, Event, Lock
 import struct
 from warnings import warn
 # Third-party packages
-# Nothing for now...
 
 # Modules from this project
 import pyglet
@@ -17,8 +16,6 @@ from player import Player
 from savingsystem import null2, structuchar2, sector_to_blockpos
 from utils import extract_string_packet
 from biome import BiomeGenerator
-
-class ClientError(Exception):pass
 
 class PacketReceiver(Thread):
     def __init__ (self, world, controller, sock):
@@ -33,7 +30,7 @@ class PacketReceiver(Thread):
         try:
             self.loop()
         except socket.error as e:
-            if e.errno in (104, 10053, 10054):
+            if e[0] in (10053, 10054):
                 #TODO: GUI tell the client they were disconnected
                 print("Disconnected from server.")
             else:
@@ -108,74 +105,51 @@ class PacketReceiver(Thread):
                         exposed_pos += 1
             if secpos in self.world.sector_queue:
                 del self.world.sector_queue[secpos] #Delete any hide sector orders
-        elif packetid == 2:# Blank Sector
-            try:
-                self.world.sectors[struct.unpack("iii", packet)] = []
-            except:
-                warn("Cannot update blank sector!")
+        elif packetid == 2:  # Blank Sector
+            self.world.sectors[struct.unpack("iii", packet)] = []
         elif packetid == 3:  # Add Block
-            try:
-                self.world._add_block(struct.unpack("iii", packet[:12]),
-                    BLOCKS_DIR[struct.unpack("BB", packet[12:])])
-            except:
-                warn("Cannot add block!")
+            self.world._add_block(struct.unpack("iii", packet[:12]),
+                BLOCKS_DIR[struct.unpack("BB", packet[12:])])
         elif packetid == 4:  # Remove Block
-            try:
-                self.world._remove_block(struct.unpack("iii", packet))
-            except:
-                warn("Cannot remove block!")
+            self.world._remove_block(struct.unpack("iii", packet))
         elif packetid == 5:  # Chat Print
-            try:
-                self.controller.write_line(packet[:-4].decode('utf-8'), color=struct.unpack("BBBB", packet[-4:]))
-                if not self.controller.text_input.visible:
-                    self.controller.chat_box.visible = True
-                    pyglet.clock.unschedule(self.controller.hide_chat_box)
-                    pyglet.clock.schedule_once(self.controller.hide_chat_box, G.CHAT_FADE_TIME)
-            except:
-                warn("Cannot print chat!")
+            self.controller.write_line(packet[:-4].decode('utf-8'), color=struct.unpack("BBBB", packet[-4:]))
+            if not self.controller.text_input.visible:
+                self.controller.chat_box.visible = True
+                pyglet.clock.unschedule(self.controller.hide_chat_box)
+                pyglet.clock.schedule_once(self.controller.hide_chat_box, G.CHAT_FADE_TIME)
         elif packetid == 6:  # Inventory
-            try:
-                player = self.controller.player
-                caret = 0
-                for inventory in (player.quick_slots.slots, player.inventory.slots, player.armor.slots):
-                    for i in range(len(inventory)):
-                        id_main, id_sub, amount = struct.unpack("HBB", packet[caret:caret+4])
-                        caret += 4
-                        if id_main == 0: continue
-                        durability = -1
-                        if id_main >= G.ITEM_ID_MIN and (id_main, id_sub) not in G.ITEMS_DIR:
-                            #The subid must be durability
-                            durability = id_sub * G.ITEMS_DIR[(id_main, 0)].durability // 255
-                            id_sub = 0
-                        inventory[i] = ItemStack(type=BlockID(id_main, id_sub), amount=amount, durability=durability)
-                self.controller.item_list.update_items()
-                self.controller.inventory_list.update_items()
-            except:
-                warn("Cannot update inventory!")
+            player = self.controller.player
+            caret = 0
+            for inventory in (player.quick_slots.slots, player.inventory.slots, player.armor.slots):
+                for i in range(len(inventory)):
+                    id_main, id_sub, amount = struct.unpack("HBB", packet[caret:caret+4])
+                    caret += 4
+                    if id_main == 0: continue
+                    durability = -1
+                    if id_main >= G.ITEM_ID_MIN and (id_main, id_sub) not in G.ITEMS_DIR:
+                        #The subid must be durability
+                        durability = id_sub * G.ITEMS_DIR[(id_main, 0)].durability // 255
+                        id_sub = 0
+                    inventory[i] = ItemStack(type=BlockID(id_main, id_sub), amount=amount, durability=durability)
+            self.controller.item_list.update_items()
+            self.controller.inventory_list.update_items()
         elif packetid == 7:  # New player connected
-            try:
-                plyid, name = struct.unpack("H", packet[:2])[0], packet[2:].decode('utf-8')
-                if plyid not in self.controller.player_ids:
-                    self.controller.player_ids[plyid] = Player(username=name, local_player=False)
-                elif name == '\0':
-                    del self.controller.player_ids[plyid]
-            except:raise ClientError("Cannot update list of players!!")
+            plyid, name = struct.unpack("H", packet[:2])[0], packet[2:].decode('utf-8')
+            if plyid not in self.controller.player_ids:
+                self.controller.player_ids[plyid] = Player(username=name, local_player=False)
+            elif name == '\0':
+                del self.controller.player_ids[plyid]
         elif packetid == 8:  # Player Movement
-            try:
-                ply = self.controller.player_ids[struct.unpack("H", packet[:2])[0]]
-                ply.momentum = struct.unpack("fff", packet[2:14])
-                ply.position = struct.unpack("ddd", packet[14:])
-            except:raise ClientError("Cannot update player movement!")
+            ply = self.controller.player_ids[struct.unpack("H", packet[:2])[0]]
+            ply.momentum = struct.unpack("fff", packet[2:14])
+            ply.position = struct.unpack("ddd", packet[14:])
         elif packetid == 9:  # Player Jump
-            try:
-                self.controller.player_ids[struct.unpack("H", packet)[0]].dy = 0.016
-            except:raise ClientError("Cannot update player gravity!")
+            self.controller.player_ids[struct.unpack("H", packet)[0]].dy = 0.016
         elif packetid == 10: # Update Tile Entity
-            try:
-                self.world[struct.unpack("iii", packet[:12])].update_tile_entity(packet[12:])
-            except:warn("Cannot update Tile Entity!")
+            self.world[struct.unpack("iii", packet[:12])].update_tile_entity(packet[12:])
         elif packetid == 255:  # Spawn Position
-            self.controller.player.position = struct.unpack("fff", packet[:12])
+            self.controller.player.position = struct.unpack("iii", packet[:12])
             packet = packet[12:]
             packet, seed = extract_string_packet(packet)
             self.world.biome_generator = BiomeGenerator(seed)

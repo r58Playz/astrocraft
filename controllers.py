@@ -5,12 +5,10 @@ import socket
 import time
 import datetime
 from functools import partial
-import subprocess
 
 from math import cos, sin, pi, fmod
 import operator
 import os
-import sys
 import random
 
 
@@ -31,7 +29,7 @@ from model import PlayerModel
 from skydome import Skydome
 import utils
 from utils import vec, sectorize, normalize, load_image, image_sprite
-import views
+from views import MainMenuView, OptionsView, ControlsView, TexturesView, MultiplayerView
 from world import World
 from biome import BiomeGenerator
 from server import start_server
@@ -98,14 +96,12 @@ class MainMenuController(Controller):
 
     def __init__(self, *args, **kwargs):
         super(MainMenuController, self).__init__(*args, **kwargs)
-        self.setup = partial(self.switch_view_class, views.MainMenuView)
-        self.game_options = partial(self.switch_view_class, views.OptionsView)
-        self.main_menu = partial(self.switch_view_class, views.MainMenuView)
-        self.controls = partial(self.switch_view_class, views.ControlsView)
-        self.textures = partial(self.switch_view_class, views.TexturesView)
-        self.multiplayer = partial(self.switch_view_class, views.MultiplayerView)
-        self.sound = partial(self.switch_view_class, views.SoundView)
-        self.feedback = lambda: self.switch_view_class(views.FeedbackView)
+        self.setup = partial(self.switch_view_class, MainMenuView)
+        self.game_options = partial(self.switch_view_class, OptionsView)
+        self.main_menu = partial(self.switch_view_class, MainMenuView)
+        self.controls = partial(self.switch_view_class, ControlsView)
+        self.textures = partial(self.switch_view_class, TexturesView)
+        self.multiplayer = partial(self.switch_view_class, MultiplayerView)
         self.exit_game = pyglet.app.exit
 
     def start_singleplayer_game(self):
@@ -127,6 +123,7 @@ class GameController(Controller):
         self.time_of_day = 0.0
         self.hour_deg = 15.0
         self.clock = 6
+        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
 
         self.back_to_main_menu = threading.Event()
 
@@ -218,44 +215,41 @@ class GameController(Controller):
         glEnable(GL_POLYGON_SMOOTH)
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
 
-        # glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE)
-        # glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE)
-        # glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE)
+        #glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE)
+        #glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE)
+        #glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE)
 
-        # glClearColor(0, 0, 0, 0)
+        #glClearColor(0, 0, 0, 0)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def setup(self):
         if G.SINGLEPLAYER:
             try:
-                print('Starting internal server...')
                 # TODO: create world menu
                 G.SAVE_FILENAME = "world"
-                start_server()
-                time.sleep(3)
+                start_server(internal=True)
                 sock = socket.socket()
-                sock.connect((socket.gethostbyname(socket.gethostname()), 1486))
+                time.sleep(2)
+                sock.connect(("localhost", 1486))
             except socket.error as e:
                 print("Socket Error:", e)
-                # Otherwise back to the main menu we go
+                #Otherwise back to the main menu we go
                 return False
             except Exception as e:
-                print('Unable to start internal server')
                 import traceback
                 traceback.print_exc()
                 return False
         else:
             try:
-                # Make sure the address they want to connect to works
+                #Make sure the address they want to connect to works
                 ipport = G.IP_ADDRESS.split(":")
                 if len(ipport) == 1: ipport.append(1486)
                 sock = socket.socket()
                 sock.connect((tuple(ipport)))
             except socket.error as e:
                 print("Socket Error:", e)
-                # Otherwise back to the main menu we go
+                #Otherwise back to the main menu we go
                 return False
-
         self.init_gl()
 
         sky_rotation = -20.0  # -20.0
@@ -267,9 +261,8 @@ class GameController(Controller):
         #else:
         #    default_skybox = 'skybox.jpg'
 
-
         self.skydome = Skydome(
-            G.RESOURCES + default_skybox,
+            'resources/' + default_skybox,
             #'resources/skydome.jpg',
             0.7,
             100.0,
@@ -302,7 +295,6 @@ class GameController(Controller):
         #We'll re-enable it when the server tells us where we should be
 
         self.player = Player(game_mode=G.GAME_MODE)
-        print(('Game mode: ' + self.player.game_mode))
         self.item_list = ItemSelector(self, self.player, self.world)
         self.inventory_list = InventorySelector(self, self.player, self.world)
         self.item_list.on_resize(self.window.width, self.window.height)
@@ -429,11 +421,11 @@ class GameController(Controller):
                 self.inventory_list.set_furnace(hit_block)
                 self.inventory_list.toggle(False)
             elif hit_block.density >= 1:
-               self.put_block(previous)
+               self.place_block(previous)
         elif self.item_list.get_current_block() and getattr(self.item_list.get_current_block(), 'regenerated_health', 0) != 0 and self.player.health < self.player.max_health:
-            self.eat_item()
+            self.eat_food()
 
-    def put_block(self, previous): # FIXME - Better name...
+    def place_block(self, previous):
         current_block = self.item_list.get_current_block()
         if current_block is not None:
             if current_block.id.is_item():
@@ -447,7 +439,7 @@ class GameController(Controller):
                     self.world.add_block(previous, current_block)
                     self.item_list.remove_current_block()
 
-    def eat_item(self): # FIXME - Better name (2)...
+    def eat_food(self):
         self.player.change_health(self.item_list.get_current_block().regenerated_health)
         self.item_list.get_current_block_item().change_amount(-1)
         self.item_list.update_health()
@@ -618,9 +610,9 @@ class GameController(Controller):
         x, y, z = self.player.position
         self.label.text = 'Time:%.1f Inaccurate FPS:%02d (%.2f, %.2f, %.2f) Blocks Shown: %d / %d sector_packets:%d'\
                           % (self.time_of_day if (self.time_of_day < 12.0)
-               else (24.0 - self.time_of_day),
-               pyglet.clock.get_fps(), x, y, z,
-               len(self.world._shown), len(self.world), len(self.world.sector_packets))
+                          else (24.0 - self.time_of_day),
+                          pyglet.clock.get_fps(), x, y, z,
+                          len(self.world._shown), len(self.world), len(self.world.sector_packets))
         self.label.draw()
 
     def update_label(self):
@@ -691,12 +683,6 @@ class GameController(Controller):
     def on_close(self):
         G.save_config()
         self.world.packetreceiver.stop()  # Disconnect from the server so the process can close
-        if hasattr(self, 'local_server_process'):
-            print("Stopping Local Server...")
-            self.local_server_process.stdin.write("stop")
-            self.local_server_process.stdin.close()
-            self.local_server_stdout_thread.join()
-            print("Local Server stopped.")
 
     def show_map(self):
         print("map called...")

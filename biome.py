@@ -1,19 +1,22 @@
 # Imports, sorted alphabetically.
 
-# Modules from this project
-import globals as G
 # Third-party packages
 from noise import SimplexNoiseGen
+
+# Modules from this project
+import globals as G
 
 __all__ = ("BiomeGenerator")
 
 class BiomeGenerator:
     def __init__(self, seed):
-        temp_seed = int(seed)
-        temp_gen = temp_seed + 97
-        temp_humid = temp_seed + 147
-        self.temperature_gen = SimplexNoiseGen(temp_gen, zoom_level=0.01)
-        self.humidity_gen = SimplexNoiseGen(temp_humid, zoom_level=0.01)
+         self.temperature_gen = SimplexNoiseGen(seed + "97", zoom_level=0.01)
+         self.humidity_gen = SimplexNoiseGen(seed + "147", zoom_level=0.01)
+        #temp_seed = int(G.SEED)
+        #temp_gen = temp_seed + 97
+        #temp_humid = temp_seed + 147
+        #self.temperature_gen = SimplexNoiseGen(temp_gen, zoom_level=0.01)
+        #self.humidity_gen = SimplexNoiseGen(temp_humid, zoom_level=0.01)
 
     def _clamp(self, a):
         if a > 1:

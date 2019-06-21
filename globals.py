@@ -5,7 +5,6 @@ WARNING: Never use `from globals import *`!
 Since these global variables are modified during runtime, using `import *`
 would lead to unpredictable consequences.
 """
-class ResourceError(Exception): pass
 
 # Imports, sorted alphabetically.
 
@@ -15,55 +14,22 @@ import argparse
 import getpass
 from math import pi
 import os
-import random
-import shutil
-from zipfile import ZipFile
-import warnings
 
 # Third-party packages
 import pyglet
+from pyglet.resource import get_settings_path
 
 # Modules from this project
 # Nothing for now...
 
-# Resource check(that's why this is imported first in main.py)
-pth = pyglet.resource.get_settings_path("AstroCraft")
-if not os.path.isdir(pth):
-    os.makedirs(pth)
 
-RESOURCES = pth + "\\resources\\"
-
-if os.path.isdir('resources'):
-    shutil.move("resources", pth)
-    z = ZipFile("other_texture_packs.zip")
-    z.extractall(RESOURCES)
-    z.close()
-elif os.path.isdir(RESOURCES):
-    if os.path.isdir(RESOURCES + "\\other_texture_packs"):
-        warnings.warn("Other texture packs re not available, you will have to get your own MC 1.5 texture packs or" +
-                      " get texture packs from our website.", ResourceWarning)
-    pass
-elif not os.path.isdir('resources'):
-    zp = ZipFile("r.zip")
-    zp.extractall(pth)
-    zp.close()
-    zpref = ZipFile("other_texture_packs.zip")
-    zpref.extractall(RESOURCES)
-    zpref.close()
-else:
-    raise ResourceError("Cannot find resources")
-
-if os.path.isdir('mods'):
-    shutil.move('mods', pyglet.resource.get_settings_path("AstroCraft"))
-
-
-APP_NAME = 'AstroCraft'
-APP_VERSION = "v0.5.0"
+APP_NAME = 'AstroCraft'  # should I stay or should I go?
+APP_VERSION = 0.1
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
-IP_ADDRESS = ""  # The IP Address to connect to
-USERNAME = "User " + str(random.randint(1,1000))
+IP_ADDRESS = "neb.nebtown.info"  # The IP Address to connect to
+USERNAME = getpass.getuser()  # Default to system username
 
 CLIENT = None  # Becomes the instance of PacketReceiver if running the client
 SERVER = None  # Becomes the instance of Server if running the server
@@ -119,8 +85,8 @@ KEY_BINDINGS = dict(
 
 # Saves
 DISABLE_SAVE = False
-SAVE_FILENAME = "save " + str(random.randint(0, 99999))
-DB_NAME = 'world.FACTORIES'
+SAVE_FILENAME = "save.ASTROCRAFT"
+DB_NAME = 'world.db'
 
 # Game engine
 SECTOR_SIZE = 8
@@ -215,7 +181,7 @@ FAR_CLIP_DISTANCE = 200.0  # Maximum render distance,
                            # ignoring effects of sector_size
 
 MOTION_BLUR = False
-FOG_ENABLED = True
+FOG_ENABLED = False
 
 TEXTURE_PACK = 'default'
 texture_pack_list = None
@@ -224,9 +190,9 @@ HUD_ENABLED = True
 DEBUG_TEXT_ENABLED = True
 
 # Sound
-EFFECT_VOLUME = 1
+EFFECT_VOLUME = 1.0
 BACKGROUND_VOLUME = 0.3
-BACKGROUND_PLAYER = None # For play_sound
+BACKGROUND_PLAYER = None
 
 # Tool types
 WOODEN_TOOL, STONE_TOOL, IRON_TOOL, DIAMOND_TOOL, GOLDEN_TOOL = list(range(5))
@@ -252,7 +218,9 @@ LANGUAGE = 'default'
 _ = lambda x:x
 
 # Global files & directories
-game_dir = pyglet.resource.get_settings_path(APP_NAME)
+game_dir = get_settings_path(APP_NAME)
+if not os.path.exists(game_dir):
+    os.makedirs(game_dir)
 worlds_dir = os.path.join(game_dir, 'worlds')
 
 config = ConfigParser()
@@ -311,23 +279,17 @@ def get_or_update_config(section, option, default_value, conv=str, choices=()):
     config.set(section, option, str(user_value))
     return user_value
 
-
 def save_config():
     config.set("General","username", USERNAME)
     config.set("General","ip_address", IP_ADDRESS)
     with open(config_file, 'w') as handle:
         config.write(handle)
 
-
 def initialize_config():
     #
     # General
     #
     global DEBUG, FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, DRAW_DISTANCE_CHOICE, DRAW_DISTANCE_CHOICES, DRAW_DISTANCE, MOTION_BLUR, FOG_ENABLED, TEXTURE_PACK, USERNAME, IP_ADDRESS, LANGUAGE
-    # set username first to solve some issues...
-    config.set("General", "username", USERNAME)
-    with open(config_file, 'w') as handle:
-        config.write(handle)
 
     general = 'General'
 

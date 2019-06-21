@@ -9,7 +9,6 @@ import socketserver
 import threading
 
 import globals as G
-from custom_types import fVector, iVector
 from savingsystem import save_sector_to_bytes, save_blocks, save_world, load_player, save_player
 from world_server import WorldServer
 import blocks
@@ -19,32 +18,13 @@ from mod import load_modules
 
 #This class is effectively a serverside "Player" object
 class ServerPlayer(socketserver.BaseRequestHandler):
-    id: int
-    position: fVector
-    momentum: fVector
-    username: str
     inventory = b"\0"*(4*40)  # Currently, is serialized to be 4 bytes * (27 inv + 9 quickbar + 4 armor) = 160 bytes
     command_parser = CommandParser()
-    server: 'Server'
 
     operator = False
 
     def sendpacket(self, size: int, packet: bytes):
         self.request.sendall(struct.pack("i", 5 + size) + packet)
-
-    def send_sector(self, world: WorldServer, sector: iVector):
-        if sector not in world.sectors:
-            with world.server_lock:
-                world.open_sector(sector)
-
-        if not world.sectors[sector]:
-            # Empty sector, send packet 2
-            self.sendpacket(12, b"\2" + struct.pack("iii", *sector))
-        else:
-            packet = struct.pack("iii", *sector) \
-                     + save_sector_to_bytes(world, sector) \
-                     + world.get_exposed_sector(sector)
-            self.sendpacket(len(packet), b"\1" + packet)
 
     def sendchat(self, txt: str, color=(255,255,255,255)):
         txt_bytes = txt.encode('utf-8')
@@ -76,7 +56,7 @@ class ServerPlayer(socketserver.BaseRequestHandler):
         except socket.error as e:
             if self.server._stop.isSet():
                 return  # Socket error while shutting down doesn't matter
-            if e.errno in (32, 10053, 10054):
+            if e[0] in (10053, 10054):
                 print("Client %s %s crashed." % (self.username, self.client_address))
             else:
                 raise e
@@ -96,10 +76,11 @@ class ServerPlayer(socketserver.BaseRequestHandler):
                         world.open_sector(sector)
 
                 if not world.sectors[sector]:
-                    # Empty sector, send packet 2
+                    #Empty sector, send packet 2
                     self.sendpacket(12, b"\2" + struct.pack("iii",*sector))
                 else:
-                    self.send_sector(world, sector)
+                    msg = struct.pack("iii",*sector) + save_sector_to_bytes(world, sector) + world.get_exposed_sector(sector)
+                    self.sendpacket(len(msg), b"\1" + msg)
             elif packettype == 3:  # Add block
                 positionbytes = self.request.recv(4*3)
                 blockbytes = self.request.recv(2)
@@ -160,6 +141,7 @@ class ServerPlayer(socketserver.BaseRequestHandler):
             elif packettype == 255:  # Initial Login
                 txtlen = struct.unpack("i", self.request.recv(4))[0]
                 self.username = self.request.recv(txtlen).decode('utf-8')
+                self.position = None
                 load_player(self, "world")
 
                 for player in self.server.players.values():
@@ -167,12 +149,7 @@ class ServerPlayer(socketserver.BaseRequestHandler):
                 print("%s's username is %s" % (self.client_address, self.username))
 
                 position = (0,self.server.world.terraingen.get_height(0,0)+2,0)
-                if self.position is None:
-                    # New player, set initial position
-                    self.position = (0.0, world.terraingen.get_height(0, 0) + 2.0, 0.0)
-                elif self.position[1] < 0:
-                    # Somehow fell below the world, reset their height
-                    self.position = (self.position[0], world.terraingen.get_height(0, 0) + 2.0, self.position[2])
+                if self.position is None: self.position = position  # New player, set initial position
 
                 # Send list of current players to the newcomer
                 for player in self.server.players.values():
@@ -185,23 +162,17 @@ class ServerPlayer(socketserver.BaseRequestHandler):
                     if player is self: continue
                     player.sendpacket(2 + len(name), b'\7' + struct.pack("H", self.id) + name)
 
-                # Send them the sector under their feet first so they don't fall
-                sector = sectorize(self.position)
-                self.send_sector(world, sector)
-                if sector[1] > 0:
-                    sector_below = (sector[0], sector[1] - 1, sector[2])
-                    self.send_sector(world, sector_below)
+                #Send them the sector under their feet first so they don't fall
+                sector = sectorize(position)
+                if sector not in world.sectors:
+                    with world.server_lock:
+                        world.open_sector(sector)
+                msg = struct.pack("iii",*sector) + save_sector_to_bytes(world, sector) + world.get_exposed_sector(sector)
+                self.sendpacket(len(msg), b"\1" + msg)
 
                 #Send them their spawn position and world seed(for client side biome generator)
-                if not G.SEED:
-                    try:
-                        seed = int(hexlify(os.urandom(16)), 16)
-                    except (NotImplementedError, NameError):
-                        seed = int(time.time() * 256)
-                    G.SEED = seed
-                seed_packet = make_string_packet(str(G.SEED))
-                self.sendpacket(12 + len(seed_packet),
-                                struct.pack("B", 255) + struct.pack("fff", *self.position) + seed_packet)
+                seed_packet = make_string_packet(G.SEED)
+                self.sendpacket(12 + len(seed_packet), struct.pack("B",255) + struct.pack("iii", *position) + seed_packet)
                 self.sendpacket(4*40, b"\6" + self.inventory)
             else:
                 print("Received unknown packettype", packettype)
@@ -250,7 +221,9 @@ def start_server(internal=False):
     if internal:
         localip = "localhost"
     else:
-        localip = socket.gethostbyname(socket.gethostname())
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 1))  # connect() for UDP doesn't send packets
+        localip = s.getsockname()[0]
     server = Server((localip, 1486), ServerPlayer)
     G.SERVER = server
     server_thread = threading.Thread(target=server.serve_forever)
@@ -281,7 +254,7 @@ if __name__ == '__main__':
 
     helptext = "Available commands: " + ", ".join(["say", "stop", "save"])
     while 1:
-        args = input().strip().split(" ")
+        args = input().replace(chr(13), "").split(" ")  # On some systems CR is appended, gotta remove that
         cmd = args.pop(0)
         if cmd == "say":
             msg = "Server: %s" % " ".join(args)
@@ -298,7 +271,7 @@ if __name__ == '__main__':
             server._stop.set()
             G.main_timer.stop()
             print("Disconnecting clients...")
-            for address in server.players.keys():
+            for address in server.players:
                 try:
                     server.players[address].request.shutdown(SHUT_RDWR)
                     server.players[address].request.close()
@@ -314,9 +287,6 @@ if __name__ == '__main__':
             print("Unknown command '%s'." % cmd, helptext)
     while len(threading.enumerate()) > 1:
         threads = threading.enumerate()
-        for t in threads:
-            if hasattr(t, 'do_kill_pydev_thread'):
-                t.do_kill_pydev_thread()
         threads.remove(threading.current_thread())
         print("Waiting on these threads to close:", threads)
         time.sleep(1)

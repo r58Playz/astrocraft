@@ -1,21 +1,21 @@
-import datetime
+from binascii import hexlify
+from collections import deque, defaultdict, OrderedDict
 import os
 import threading
 import time
 import warnings
-from binascii import hexlify
-from collections import deque, defaultdict
+import datetime
 from sqlite3.dbapi2 import Connection
 from threading import Lock
 from typing import Any, Dict, DefaultDict, Deque, Tuple, Optional, Set
 
-import globals as G
-import savingsystem
-import terrain
 from blocks import *
 from custom_types import iVector
+import savingsystem
+from utils import FACES, FACES_WITH_DIAGONALS, normalize_float, normalize, sectorize, TextureGroup
+import globals as G
 from nature import TREES, TREE_BLOCKS
-from utils import FACES, FACES_WITH_DIAGONALS, sectorize
+import terrain
 
 
 class WorldServer(dict):
@@ -36,8 +36,6 @@ class WorldServer(dict):
 
         self.sectors = defaultdict(list)
         self.exposed_cache = dict()
-        self.seed = self.generate_seed()
-        G.SEED = self.seed
 
         self.spreading_mutable_blocks = deque()
 
@@ -50,12 +48,11 @@ class WorldServer(dict):
             with open(os.path.join(G.game_dir, G.SAVE_FILENAME, "seed"), "rb") as f:
                 G.SEED = f.read().decode('utf-8')
         else:
-            if not os.path.exists(os.path.join(G.game_dir, G.SAVE_FILENAME)):
-                os.makedirs(os.path.join(G.game_dir, G.SAVE_FILENAME))
+            if not os.path.exists(os.path.join(G.game_dir, G.SAVE_FILENAME)): os.makedirs(os.path.join(G.game_dir, G.SAVE_FILENAME))
             with open(os.path.join(G.game_dir, G.SAVE_FILENAME, "seed"), "wb") as f:
-                f.write(self.seed.encode('utf-8'))
+                f.write(self.generate_seed().encode('utf-8'))
 
-        self.terraingen = terrain.TerrainGeneratorSimple(self, self.seed)
+        self.terraingen = terrain.TerrainGeneratorSimple(self, G.SEED)
 
     def __del__(self):
         self.db.close()
@@ -179,9 +176,11 @@ class WorldServer(dict):
                 seed = int(hexlify(os.urandom(16)), 16)
             except NotImplementedError:
                 seed = int(time.time() * 256)  # use fractional seconds
+                # Then convert it to a string so all seeds have the same type.
+            seed = str(seed)
 
-            print(('No seed set, generated random seed: ' + str(seed)))
-        G.SEED = int(seed)
+            print(('No seed set, generated random seed: ' + seed))
+        G.SEED = seed
 
         with open(os.path.join(G.game_dir, 'seeds.txt'), 'a') as seeds:
             seeds.write(datetime.datetime.now().strftime('Seed used the %d %m %Y at %H:%M:%S\n'))

@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
-import globals as G
 
 # Imports, sorted alphabetically.
 
 # Python packages
 from configparser import NoSectionError, NoOptionError
 import argparse
+import os
 import random
 import time
 import gettext
 import sys
-from random import choice
-import os
 from importlib import reload
 
 # Third-party packages
@@ -20,16 +18,14 @@ import pyglet
 pyglet.options['debug_gl'] = False
 from pyglet.gl import *
 from pyglet.window import key
-import pyglet.image
-
 
 # Modules from this project
 from controllers import MainMenuController
+import globals as G
 from timer import Timer
 from debug import log_info
 from mod import load_modules
 from savingsystem import save_world
-from sounds import play_background_sound
 
 
 class Window(pyglet.window.Window):
@@ -65,7 +61,7 @@ class Window(pyglet.window.Window):
     def disableFog(self):
         glDisable(GL_FOG)
 
-    def set_exclusive_mouse(self, exclusive):
+    def set_exclusive_mouse(self, exclusive=True):
         super(Window, self).set_exclusive_mouse(exclusive)
         self.exclusive = exclusive
 
@@ -132,19 +128,16 @@ def main(options):
 
     load_modules()
 
-    # try:
-        # window_config = Config(sample_buffers=1, samples=4) #, depth_size=8)  #, double_buffer=True) #TODO Break anti-aliasing/multisampling into an explicit menu option
-        # window = Window(resizable=True, config=window_config)
-    # except pyglet.window.NoSuchConfigException:
+    #try:
+    #    window_config = Config(sample_buffers=1, samples=4, depth_size=8, double_buffer=True)  # TODO Break anti-aliasing/multisampling into an explicit menu option
+    #    window = Window(resizable=True, config=window_config)
+    #    pyglet.app.run()
+    #except pyglet.window.NoSuchConfigException:
     window = Window(resizable=True, vsync=False)
-    icon = pyglet.image.load(G.RESOURCES + "astrocraft.png")
-    window.set_icon(icon)
-    play_background_sound()
     pyglet.app.run()
 
     if G.CLIENT:
-        G.BACKGROUND_PLAYER.pause()
-        sys.exit(0)
+        G.CLIENT.stop()
         
     if G.SERVER:
         print('Saving...')
@@ -154,9 +147,8 @@ def main(options):
         G.SERVER._stop.set()
         G.SERVER.shutdown()
 
-    G.BACKGROUND_PLAYER.pause()
 
-def start():
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Play a Python made Minecraft clone.')
 
     game_group = parser.add_argument_group('Game options')
@@ -164,7 +156,8 @@ def start():
     game_group.add_argument("--game-mode", choices=G.GAME_MODE_CHOICES, default=G.GAME_MODE)
 
     save_group = parser.add_argument_group('Save options')
-    save_group.add_argument("--disable-auto-save", action="store_false", default=True, help="Do not save world on exit.")
+    save_group.add_argument("--disable-auto-save", action="store_false", default=False,
+                            help="Do not save world on exit.")
     save_group.add_argument("--save", default=G.SAVE_FILENAME, help="Type a name for the world to be saved as.")
     save_group.add_argument("--disable-save", action="store_false", default=True, help="Disables saving.")
 
@@ -172,7 +165,3 @@ def start():
 
     options = parser.parse_args()
     main(options)
-
-
-if __name__ == '__main__':
-    start()

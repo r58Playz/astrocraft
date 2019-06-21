@@ -6,7 +6,6 @@ import os
 import sys
 
 # Third-party packages
-import pyglet
 
 # Modules from this project
 import globals as G
@@ -15,9 +14,11 @@ from debug import log_info
 __all__ = ('load_modules')
 
 def load_modules(server=False):
-	mod_dir = pyglet.resource.get_settings_path("AstroCraft") + '\\mods'
+	mod_dir = os.path.join(G.game_dir, 'mods')
 
 	if not os.path.isdir(mod_dir):
+		if os.path.exists(mod_dir):
+			os.remove(mod_dir)
 		os.makedirs(mod_dir)
 
 	sys.path.append(mod_dir)

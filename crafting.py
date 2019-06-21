@@ -10,7 +10,6 @@
 from blocks import *
 import globals as G
 from items import *
-import textures
 
 
 __all__ = (
@@ -90,7 +89,7 @@ class Recipes:
         self.nr_recipes += 1
 
     def add_shapeless_recipe(self, ingre, output):
-        ingre_list = [x.id for x in ingre if x.id]
+        ingre_list = [x.id.type.main if isinstance(x, ItemStack) else x.id.main for x in ingre if x.id]
         ingre_list.sort()
         r = Recipe(ingre_list, output)
         r.shapeless = True
@@ -100,10 +99,8 @@ class Recipes:
         id_list = []
         shapeless_id_list = []
         for line in input_blocks:
-            id_list.append([b.id for b in
-                            line])    # removed b.id != 0: it may make the
-                            # shape different
-            shapeless_id_list.extend([b.id for b in line if b.id])
+            id_list.append([b.id for b in line])    # removed b.id != 0: it may make the shape different
+            shapeless_id_list.extend([b.id.type.main if isinstance(b, ItemStack) else b.id.main for b in line if b.id])
         shapeless_id_list.sort()
 
         self.remove_empty_line_col(id_list)

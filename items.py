@@ -83,7 +83,7 @@ class ItemStack:
 
     # for debugging
     def __repr__(self):
-        return '{ Item stack with type = ' + str(get_item(self.type)) + ' }'
+        return str(get_item(self.type))
 
     def change_amount(self, change=0):
         overflow = 0

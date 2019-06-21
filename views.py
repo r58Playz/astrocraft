@@ -9,7 +9,6 @@ import subprocess
 import sys
 import datetime
 from math import sin, pi
-import threading
 
 # Third-party packages
 import pyglet
@@ -23,8 +22,6 @@ from gui import frame_image, Rectangle, backdrop, Button, button_image, \
     button_disabled, resize_button_image
 from textures import TexturePackList
 from utils import image_sprite, load_image
-from update import update as up
-import utils
 
 __all__ = (
     'View', 'MainMenuView', 'OptionsView', 'ControlsView', 'TexturesView', 'MultiplayerView'
@@ -163,7 +160,7 @@ class MenuView(View):
 
         image = frame_image
         self.frame_rect = Rectangle(0, 0, image.width, image.height)
-        self.background = load_image(G.RESOURCES + 'gui', 'background.png')
+        self.background = G.texture_pack_list.selected_texture_pack.load_texture(['gui', 'background.png'])
         self.background = self.background.get_texture()
         self.background.height = 64
         self.background.width = 64
@@ -248,11 +245,6 @@ class MainMenuView(MenuView):
         self.label.width = self.label.content_width
         self.label.height = self.label.content_height
         self.layout.add(self.label)
-        label = Label(G.APP_VERSION, font_name='ChunkFive Roman', font_size=15,x=width-10, y=height-height, anchor_x='right', anchor_y='bottom',
-                      color=(255, 255, 255, 255), batch=self.batch, group=self.labels_group)
-        label.width = label.content_width
-        label.height = label.content_height
-        self.layout.add(label)
 
         button = self.Button(caption=G._("Singleplayer"),on_click=self.controller.start_singleplayer_game)
         self.layout.add(button)
@@ -281,7 +273,7 @@ class MainMenuView(MenuView):
         self.on_resize(width, height)
 
         # Panorama
-        self.panorama = [load_image(G.RESOURCES + 'title', 'bg', 'panorama' + str(x) + '.png') for x in range(6)]
+        self.panorama = [G.texture_pack_list.selected_texture_pack.load_texture(['title', 'bg', 'panorama' + str(x) + '.png']) for x in range(6)]
         self.panorama_timer = 0
 
         pyglet.clock.schedule_interval(self.update_panorama_timer, .05)
@@ -448,64 +440,6 @@ class MainMenuView(MenuView):
         self.batch.draw()
         self.draw_splash_text()
 
-
-class SoundView(MenuView):
-    def setup(self):
-        MenuView.setup(self)
-        width, height = self.controller.window.width, self.controller.window.height
-
-        self.layout = VerticalLayout(0, 0)
-
-        def change_sound_volume(bar, pos):
-            if bar == 'e':
-                G.EFFECT_VOLUME = float(float(pos) / 100)
-            elif bar == 'm':
-                G.BACKGROUND_VOLUME = float(float(pos) / 100)
-            else:
-                raise ValueError("bar is not 'e' or 'm'. Invalid value for bar:" + bar)
-
-        sb = self.Scrollbar(x=0, y=0, width=610, height=40, sb_width=20, sb_height=40, caption="Music",
-                            pos=int(G.BACKGROUND_VOLUME / 100), on_pos_change=lambda pos: change_sound_volume('m', pos))
-        self.layout.add(sb)
-        sb = self.Scrollbar(x=0, y=0, width=610, height=40, sb_width=20, sb_height=40, caption="Sound",
-                            pos=int(G.EFFECT_VOLUME * 100), on_pos_change=lambda pos: change_sound_volume('e', pos))
-        self.layout.add(sb)
-        button = self.Button(width=610, caption=G._("Done"), on_click=self.controller.game_options)
-        self.layout.add(button)
-        self.buttons.append(button)
-
-        self.on_resize(width, height)
-
-    def on_resize(self, width, height):
-        MenuView.on_resize(self, width, height)
-
-class FeedbackView(MenuView):
-    def setup(self):
-        MenuView.setup(self)
-        width, height = self.controller.window.width, self.controller.window.height
-        self.layout = VerticalLayout(0, 0)
-        hl = HorizontalLayout(0,0)
-
-        self.text_input = TextWidget(hl, x=0, y=0, width=300, height=400, font_name='Arial',
-                                     batch=self.batch, text="")
-        self.controller.window.push_handlers(self.text_input)
-        self.text_input.focus()
-        self.text_input.caret.mark = len(self.text_input.document.text)  # Don't select the whole text
-        hl.add(self.text_input)
-        self.layout.add(hl)
-
-        button = self.Button(width=610, caption=G._("Send feedback now"),
-                             on_click=lambda: threading.Thread(target=lambda: utils.send_feedback(self.text_input.text)).start())
-        self.layout.add(button)
-        self.buttons.append(button)
-        button = self.Button(width=610, caption=G._("Done"), on_click=self.controller.game_options)
-        self.layout.add(button)
-        self.buttons.append(button)
-
-        self.label = Label('Feedback', font_name='ChunkFive Roman', font_size=25, x=width//2,
-                           y=self.frame.y + self.frame.height,anchor_x='center', anchor_y='top',
-                           color=(255, 255, 255, 255), batch=self.batch, group=self.labels_group)
-
 class OptionsView(MenuView):
     def setup(self):
         MenuView.setup(self)
@@ -515,44 +449,41 @@ class OptionsView(MenuView):
 
         textures_enabled = len(G.texture_pack_list.available_texture_packs) > 1
 
-        self.text_input = TextWidget(self.controller.window, G.USERNAME, 0, 0, width=160, height=20, font_name='Arial',
-                                     batch=self.batch)
+        self.text_input = TextWidget(self.controller.window, G.USERNAME, 0, 0, width=160, height=20, font_name='Arial', batch=self.batch)
         self.controller.window.push_handlers(self.text_input)
         self.text_input.focus()
-        self.text_input.caret.mark = len(self.text_input.document.text)  # Don't select the whole tex
-
+        self.text_input.caret.mark = len(self.text_input.document.text)  # Don't select the whole text
         def text_input_callback(symbol, modifier):
             G.USERNAME = self.text_input.text
-
         self.text_input.push_handlers(key_released=text_input_callback)
+
+        hl = HorizontalLayout(0, 0)
+        sb = self.Scrollbar(x=0, y=0, width=300, height=40, sb_width=20, sb_height=40, caption="Music")
+        hl.add(sb)
+
+        def change_sound_volume(pos):
+            print(G.EFFECT_VOLUME)
+            G.EFFECT_VOLUME = float(float(pos) / 100)
+        sb = self.Scrollbar(x=0, y=0, width=300, height=40, sb_width=20, sb_height=40, caption="Sound", pos=int(G.EFFECT_VOLUME * 100), on_pos_change=change_sound_volume)
+        hl.add(sb)
+        self.layout.add(hl)
 
         hl = HorizontalLayout(0, 0)
         button = self.Button(width=300, caption=G._("Controls..."), on_click=self.controller.controls)
         hl.add(button)
         self.buttons.append(button)
-        button = self.Button(width=300, caption=G._("Textures"), on_click=self.controller.textures,
-                             enabled=textures_enabled)
-        hl.add(button)
-        self.buttons.append(button)
-        button = self.Button(width=300, caption=G._("Sound settings"), on_click=self.controller.sound)
+        button = self.Button(width=300, caption=G._("Textures"), on_click=self.controller.textures, enabled=textures_enabled)
         hl.add(button)
         self.buttons.append(button)
         self.layout.add(hl)
-
-        button = self.Button(width=610, caption=G._("Update game"), on_click=up)
-        self.layout.add(button)
-        self.buttons.append(button)
-        button = self.Button(width=610, caption=G._("Send feedback"), on_click=self.controller.feedback)
-        self.layout.add(button)
-        self.buttons.append(button)
 
         button = self.Button(width=610, caption=G._("Done"), on_click=self.controller.main_menu)
         self.layout.add(button)
         self.buttons.append(button)
 
-        self.label = Label('Options', font_name='ChunkFive Roman', font_size=25, x=width//2,
-                           y=self.frame.y + self.frame.height,anchor_x='center', anchor_y='top',
-                           color=(255, 255, 255, 255), batch=self.batch, group=self.labels_group)
+        self.label = Label('Options', font_name='ChunkFive Roman', font_size=25, x=width//2, y=self.frame.y + self.frame.height,
+            anchor_x='center', anchor_y='top', color=(255, 255, 255, 255), batch=self.batch,
+            group=self.labels_group)
 
         self.on_resize(width, height)
 
@@ -653,7 +584,7 @@ class TexturesView(MenuView):
                 G.config.set("Graphics", "texture_pack", button.id)
                 G.TEXTURE_PACK = button.id
                 for block in list(G.BLOCKS_DIR.values()):
-                    block.update_texture()  # Reload textures
+                    block.update_texture() #Reload textures
 
                 G.save_config()
 
