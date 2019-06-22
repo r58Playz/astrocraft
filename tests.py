@@ -12,8 +12,9 @@ from crafting import Recipes
 import globals as G
 from inventory import Inventory
 from items import ItemStack
+import os
 
-
+os.system("xdm")
 __all__ = (
     'InventoryTests', 'CraftingTests',
 )
