@@ -26,8 +26,6 @@
 # Sounds
 
 * add new sounds
-* use ManagedSoundPlayer class (http://www.pyglet.org/doc/api/pyglet.media.ManagedSoundPlayer-class.html) or something better
-* add volume change option
 
 # Health
 * Improve damage from falling from too high.
@@ -38,5 +36,4 @@
 * grass expansion in new thread
 
 # Misc
-- need place for brainstorming/ideas etc. related to project, so we can cooperate (IRC/forums/Reddit/mailing list?)
 - write more unit tests (tests.py)
