@@ -17,5 +17,6 @@ matrix:
 install:
   - pip install pyglet
   - pip install cython
+  - pip install pyopengl
 # command to run tests
 script: python tests.py
