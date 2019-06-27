@@ -39,38 +39,29 @@ null2 = struct.pack("xx") #Two \0's
 null1024 = null2*512      #1024 \0's
 air = G.BLOCKS_DIR[(0,0)]
 
+
 def sector_to_filename(secpos: iVector) -> str:
     x,y,z = secpos
     return "%i.%i.%i.pyr" % (x//4, y//4, z//4)
 
+
 def region_to_filename(region: iVector) -> str:
     return "%i.%i.%i.pyr" % region
+
 
 def sector_to_region(secpos: iVector) -> iVector:
     x,y,z = secpos
     return (x//4, y//4, z//4)
 
+
 def sector_to_offset(secpos: iVector) -> int:
     x,y,z = secpos
     return ((x % 4)*16 + (y % 4)*4 + (z % 4)) * 1024
 
+
 def sector_to_blockpos(secpos: iVector) -> iVector:
     x,y,z = secpos
     return x*8, y*8, z*8
-
-def connect_db(world=None):
-    if world is None: world = 'world'
-    world_dir = os.path.join(G.worlds_dir, world)
-    if not os.path.exists(world_dir):
-        os.makedirs(world_dir)
-    if not os.path.exists(os.path.join(world_dir, G.DB_NAME)):
-        db = sqlite3.connect(os.path.join(world_dir, G.DB_NAME))
-        db.execute('create table players (id integer primary key autoincrement, version integer, ' + \
-            'pos_x real, pos_y real, pos_z real, mom_x real, mom_y real, mom_z real, ' + \
-            'inventory blob, name varchar(30) UNIQUE)');
-        db.commit()
-        return db
-    return sqlite3.connect(os.path.join(world_dir, G.DB_NAME)) 
 
 
 def save_sector_to_bytes(blocks: custom_types.WorldServer, secpos: iVector) -> bytes:
@@ -93,7 +84,14 @@ def save_world(server: custom_types.Server, world: str):
     # Non block related data
     # save = (4,window.player, window.time_of_day, G.SEED)
     # pickle.dump(save, open(os.path.join(game_dir, world, "save.pkl"), "wb"))
-    threading.Thread(target=lambda: save_blocks(server.world, world)).start()
+    import multiprocessing
+
+    def sve():
+        save_blocks(server.world, world)
+
+    pool = multiprocessing.Pool()
+    pool.map(sve, tuple())
+    pool.close()
     for player in server.players:
         save_player(player, world)
 
@@ -116,7 +114,7 @@ def save_blocks(blocks: custom_types.WorldServer, world: str):
 
 def save_player(player: custom_types.ServerPlayer, world: str):
     # We have to implement our own serialization layer since msgpack cannot pack custom classes.
-    plyer = (player.position, player.momentum, player.inventory)
+    plyer = (player.position, player.momentum if getattr(player, "momentum") else (0,0,0), player.inventory)
     bytes_player = msgpack.packb(plyer, use_bin_type=True)
     with open(os.path.join(G.game_dir, world, player.username), 'wb') as fo:
         fo.write(bytes_player)
@@ -202,7 +200,7 @@ def load_player(player, world: str):
         player.inventory = (struct.pack("HBB", 0, 0, 0)) * 40
         return
     # We have to implement our own serialization layer since msgpack cannot unpack custom classes.
-    lst = msgpack.unpackb(fo, raw=False)
+    lst = msgpack.unpackb(fo.read(), raw=False)
     player.position = lst[0]
     player.momentum = lst[1]
     player.inventory = lst[2]

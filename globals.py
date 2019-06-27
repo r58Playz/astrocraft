@@ -23,13 +23,17 @@ from pyglet.resource import get_settings_path
 # Nothing for now...
 
 
+#Threads
+REQUEST_THREAD = None
+HIDESECTOR_THREAD = None
+
 APP_NAME = 'AstroCraft'  # should I stay or should I go?
 APP_VERSION = 0.1
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
-IP_ADDRESS = "neb.nebtown.info"  # The IP Address to connect to
-USERNAME = getpass.getuser()  # Default to system username
+IP_ADDRESS = ""  # The IP Address to connect to
+USERNAME = "Guest"
 
 CLIENT = None  # Becomes the instance of PacketReceiver if running the client
 SERVER = None  # Becomes the instance of Server if running the server
@@ -193,6 +197,7 @@ DEBUG_TEXT_ENABLED = True
 EFFECT_VOLUME = 1.0
 BACKGROUND_VOLUME = 0.3
 BACKGROUND_PLAYER = None
+STOP = False
 
 # Tool types
 WOODEN_TOOL, STONE_TOOL, IRON_TOOL, DIAMOND_TOOL, GOLDEN_TOOL = list(range(5))
@@ -215,7 +220,11 @@ CHAT_FADE_TIME = 8
 
 # Localization
 LANGUAGE = 'default'
-_ = lambda x:x
+
+
+def _(x):
+    return x
+
 
 # Global files & directories
 game_dir = get_settings_path(APP_NAME)

@@ -46,7 +46,7 @@ class Trunk:
     def add_to_world(cls, world, position, sync=False):
         trunk = cls(position)
         for item in list(trunk.blocks.items()):
-            world.add_block(*item, sync=sync)
+            world.add_block(,
 
 
 class Tree:
@@ -61,7 +61,7 @@ class Tree:
                       height_range=cls.trunk_height_range)
 
         for item in list(trunk.blocks.items()):
-            world.add_block(*item, force=False, sync=sync)
+            world.add_block(,
 
         x, y, z = position
         height = trunk.height
@@ -86,8 +86,7 @@ class Tree:
                     # the least leaves we can find.
                     if random.uniform(0, dx + dz) > 0.6:
                         continue
-                    world.add_block((xl, yl, zl), cls.leaf_block, force=False,
-                                    sync=sync)
+                    world.add_block((xl, yl, zl), cls.leaf_block, sync=sync)
 
 
 #

@@ -582,7 +582,7 @@ class InventorySelector(AbstractInventory):
         items = self.current_panel.get_items()[:self.current_panel.slot_count]
         for j, item in enumerate(items):
             self.slots[i].item = item
-            if not item or item.get_object().id > BlockID(0):
+            if not item or item.get_object().id.main > 0:
                 crafting_ingredients[int(floor(j // (2 if self.mode == 0 else 3 if self.mode == 1 else 1)))].append(air_block if not item else item.get_object())
             i += 1
 
