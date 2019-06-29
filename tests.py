@@ -178,4 +178,4 @@ class CraftingTests(unittest.TestCase):
         self.test_add_2(characters='!@#$123456789')
 
 if __name__ == '__main__':
-unittest.main()
+    unittest.main()
