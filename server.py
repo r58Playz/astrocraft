@@ -56,7 +56,7 @@ class ServerPlayer(socketserver.BaseRequestHandler):
         except socket.error as e:
             if self.server._stop.isSet():
                 return  # Socket error while shutting down doesn't matter
-            if e[0] in (10053, 10054):
+            if e.errno in (10053, 10054):
                 print("Client %s %s crashed." % (self.username, self.client_address))
             else:
                 raise e

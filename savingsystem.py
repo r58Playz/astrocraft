@@ -1,14 +1,9 @@
 # Imports, sorted alphabetically.
 
 # Python packages
-import pickle as pickle
 import os
-import random
 import struct
-import time
-import sqlite3
 from typing import Optional
-import threading
 
 # Third-party packages
 import msgpack
@@ -16,17 +11,13 @@ import msgpack
 # Modules from this project
 import custom_types
 from custom_types import iVector
-
-
-from debug import performance_info
 import globals as G
-from player import Player
 
 
 __all__ = (
     'sector_to_filename', 'region_to_filename', 'sector_to_region',
     'sector_to_offset', 'save_world', 'world_exists', 'remove_world',
-    'sector_exists', 'load_region', 'open_world',
+    'sector_exists', 'load_region',
 )
 
 
@@ -39,38 +30,29 @@ null2 = struct.pack("xx") #Two \0's
 null1024 = null2*512      #1024 \0's
 air = G.BLOCKS_DIR[(0,0)]
 
+
 def sector_to_filename(secpos: iVector) -> str:
     x,y,z = secpos
     return "%i.%i.%i.pyr" % (x//4, y//4, z//4)
 
+
 def region_to_filename(region: iVector) -> str:
     return "%i.%i.%i.pyr" % region
+
 
 def sector_to_region(secpos: iVector) -> iVector:
     x,y,z = secpos
     return (x//4, y//4, z//4)
 
+
 def sector_to_offset(secpos: iVector) -> int:
     x,y,z = secpos
     return ((x % 4)*16 + (y % 4)*4 + (z % 4)) * 1024
 
+
 def sector_to_blockpos(secpos: iVector) -> iVector:
     x,y,z = secpos
     return x*8, y*8, z*8
-
-def connect_db(world=None):
-    if world is None: world = 'world'
-    world_dir = os.path.join(G.worlds_dir, world)
-    if not os.path.exists(world_dir):
-        os.makedirs(world_dir)
-    if not os.path.exists(os.path.join(world_dir, G.DB_NAME)):
-        db = sqlite3.connect(os.path.join(world_dir, G.DB_NAME))
-        db.execute('create table players (id integer primary key autoincrement, version integer, ' + \
-            'pos_x real, pos_y real, pos_z real, mom_x real, mom_y real, mom_z real, ' + \
-            'inventory blob, name varchar(30) UNIQUE)');
-        db.commit()
-        return db
-    return sqlite3.connect(os.path.join(world_dir, G.DB_NAME)) 
 
 
 def save_sector_to_bytes(blocks: custom_types.WorldServer, secpos: iVector) -> bytes:
@@ -93,7 +75,14 @@ def save_world(server: custom_types.Server, world: str):
     # Non block related data
     # save = (4,window.player, window.time_of_day, G.SEED)
     # pickle.dump(save, open(os.path.join(game_dir, world, "save.pkl"), "wb"))
-    threading.Thread(target=lambda: save_blocks(server.world, world)).start()
+    import multiprocessing
+
+    def sve():
+        save_blocks(server.world, world)
+
+    pool = multiprocessing.Pool()
+    pool.map(sve, tuple())
+    pool.close()
     for player in server.players:
         save_player(player, world)
 
@@ -116,7 +105,7 @@ def save_blocks(blocks: custom_types.WorldServer, world: str):
 
 def save_player(player: custom_types.ServerPlayer, world: str):
     # We have to implement our own serialization layer since msgpack cannot pack custom classes.
-    plyer = (player.position, player.momentum, player.inventory)
+    plyer = (player.position, player.momentum if getattr(player, "momentum") else (0,0,0), player.inventory)
     bytes_player = msgpack.packb(plyer, use_bin_type=True)
     with open(os.path.join(G.game_dir, world, player.username), 'wb') as fo:
         fo.write(bytes_player)
@@ -152,7 +141,8 @@ def sector_exists(sector, world=None):
     return os.path.lexists(os.path.join(G.game_dir, world, sector_to_filename(sector)))
 
 
-def load_region(world: custom_types.WorldServer, world_name: str = "world", region: Optional[iVector] = None, sector: Optional[iVector] = None):
+def load_region(world: custom_types.WorldServer, world_name: str = "world", region: Optional[iVector] = None,
+                sector: Optional[iVector] = None):
     sectors = world.sectors
     blocks = world
     SECTOR_SIZE = G.SECTOR_SIZE
@@ -175,7 +165,7 @@ def load_region(world: custom_types.WorldServer, world_name: str = "world", regi
                                     read = fstr[fpos:fpos+2]
                                     fpos += 2
                                     if read != null2:
-                                        position = x,y,z
+                                        position = x, y, z
                                         try: 
                                             full_id = structuchar2.unpack(read)
                                             blocks[position] = BLOCKS_DIR[full_id]
@@ -202,7 +192,7 @@ def load_player(player, world: str):
         player.inventory = (struct.pack("HBB", 0, 0, 0)) * 40
         return
     # We have to implement our own serialization layer since msgpack cannot unpack custom classes.
-    lst = msgpack.unpackb(fo, raw=False)
+    lst = msgpack.unpackb(fo.read(), raw=False)
     player.position = lst[0]
     player.momentum = lst[1]
     player.inventory = lst[2]
@@ -223,26 +213,3 @@ def load_player(player, world: str):
     #     player.inventory = data[8]
     # cur.close()
     # db.close()
-
-@performance_info
-def open_world(gamecontroller, game_dir, world=None):
-    if world is None: world = "world"
-
-    #Non block related data
-    loaded_save = pickle.load(open(os.path.join(game_dir, world, "save.pkl"), "rb"))
-    if loaded_save[0] == 4:
-        if isinstance(loaded_save[1], Player): gamecontroller.player = loaded_save[1]
-        if isinstance(loaded_save[2], float): gamecontroller.time_of_day = loaded_save[2]
-        if isinstance(loaded_save[3], str):
-            G.SEED = loaded_save[3]
-            random.seed(G.SEED)
-            print(('Loaded seed from save: ' + G.SEED))
-    elif loaded_save[0] == 3: #Version 3
-        if isinstance(loaded_save[1], Player): gamecontroller.player = loaded_save[1]
-        if isinstance(loaded_save[2], float): gamecontroller.time_of_day = loaded_save[2]
-        G.SEED = str(int(time.time() * 256))
-        random.seed(G.SEED)
-        print(('No seed in save, generated random seed: ' + G.SEED))
-
-    #blocks and sectors (window.world and window.world.sectors)
-    #Are loaded on the fly

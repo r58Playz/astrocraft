@@ -3,11 +3,8 @@
 # Imports, sorted alphabetically.
 
 # Python packages
-from configparser import NoSectionError, NoOptionError
 import argparse
-import os
-import random
-import time
+import threading
 import gettext
 import sys
 from importlib import reload
@@ -22,10 +19,10 @@ from pyglet.window import key
 # Modules from this project
 from controllers import MainMenuController
 import globals as G
-from timer import Timer
 from debug import log_info
 from mod import load_modules
 from savingsystem import save_world
+import sounds
 
 
 class Window(pyglet.window.Window):
@@ -102,14 +99,16 @@ class Window(pyglet.window.Window):
         )
 
     def on_close(self):
+        if G.SERVER:
+            save_world(G.SERVER, "world")
         log_info('Average FPS: %f' % (self.total_fps / self.iterations))
-        super(Window, self).on_close()
-
+        G.STOP = True
+        G.BACKGROUND_PLAYER.pause()
 
 def main(options):
     G.GAME_MODE = options.game_mode
     G.SAVE_FILENAME = options.save
-    G.DISABLE_SAVE = options.disable_save
+    G.DISABLE_SAVE = options.disable_save_all
     for name, val in options._get_kwargs():
         setattr(G.LAUNCH_OPTIONS, name, val)
 
@@ -134,14 +133,13 @@ def main(options):
     #    pyglet.app.run()
     #except pyglet.window.NoSuchConfigException:
     window = Window(resizable=True, vsync=False)
+    sounds.play_background_sound()
     pyglet.app.run()
 
     if G.CLIENT:
         G.CLIENT.stop()
         
     if G.SERVER:
-        print('Saving...')
-        save_world(G.SERVER, "world")
         print('Shutting down internal server...')
         G.main_timer.stop()
         G.SERVER._stop.set()
@@ -156,10 +154,11 @@ if __name__ == '__main__':
     game_group.add_argument("--game-mode", choices=G.GAME_MODE_CHOICES, default=G.GAME_MODE)
 
     save_group = parser.add_argument_group('Save options')
-    save_group.add_argument("--disable-auto-save", action="store_false", default=False,
+    save_group.add_argument("--disable--save", action="store_false", default=False,
                             help="Do not save world on exit.")
     save_group.add_argument("--save", default=G.SAVE_FILENAME, help="Type a name for the world to be saved as.")
-    save_group.add_argument("--disable-save", action="store_false", default=True, help="Disables saving.")
+    save_group.add_argument("--disable-save-all", action="store_false", default=False, help="Disables saving.")
+
 
     parser.add_argument("--seed", default=None)
 

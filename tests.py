@@ -45,7 +45,7 @@ class InventoryTests(unittest.TestCase):
                 self.assertFalse(result2)
             else:
                 self.assertTrue(result)
-                self.assertTrue(result2) 
+                self.assertTrue(result2)
                 foundItem = False
                 foundBlock = False
                 for slot in inv.slots:

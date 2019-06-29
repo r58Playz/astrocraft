@@ -6,17 +6,16 @@ import os
 from time import time
 import warnings
 from typing import Tuple, Set, Optional, Any, Dict, Deque, DefaultDict
+import threading
 
 # Third-party packages
-import pyglet
-from pyglet.gl import *
 from pyglet.graphics import Batch
 
 # Modules from this project
 from blocks import *
-from utils import FACES, FACES_WITH_DIAGONALS, normalize_float, normalize, sectorize, TextureGroup
+from utils import FACES, FACES_WITH_DIAGONALS, normalize, sectorize, TextureGroup
 import globals as G
-from client import PacketReceiver
+
 from entity import TileEntity
 from custom_types import iVector, fVector
 
@@ -26,7 +25,7 @@ __all__ = (
 )
 
 
-#The Client's world
+# The Client's world
 class World(dict):
     batch: Batch
     transparency_batch: Batch
@@ -38,6 +37,10 @@ class World(dict):
     urgent_queue: Deque[Any]
     lazy_queue: Deque[Any]
     sector_queue: Dict[iVector, bool]
+    request_sector_queue: Deque[iVector]
+    packetreceiver: None
+    sector_packets: Deque[Any]
+    biome_generator: None
     packetreceiver: None
     sector_packets: Deque[Any]
     biome_generator: None
@@ -56,13 +59,13 @@ class World(dict):
         self.sectors = defaultdict(list)
         self.sectors_shown = dict()
         self.urgent_queue = deque()
-        self.lazy_queue = deque()
+        self.hide_sector_queue = deque()
+        self.request_sector_queue = deque()
         self.sector_queue = OrderedDict()
 
         self.packetreceiver = None
         self.sector_packets = deque()
-        # biome generator for colorizer, set by packet receiver
-        self.biome_generator = None
+        self.biome_generator = None  # set by packet receiver
 
     def get_block(self, position: iVector) -> Optional[Block]:
         return self.get(position)
@@ -74,7 +77,7 @@ class World(dict):
         return self.get_block((position[0], position[1] - 1, position[2]))
 
     # Add the block clientside, then tell the server about the new block
-    def add_block(self, position: iVector, block, sync: bool = True, force: bool = True):
+    def add_block(self, position: iVector, block, sync: bool = True):
         self._add_block(position, block)  # For Prediction
         if sync:
             self.packetreceiver.add_block(position, block)
@@ -101,14 +104,14 @@ class World(dict):
             self.show_block(position)
         self.inform_neighbors_of_block_change(position)
 
-    def remove_block(self, player, position: iVector, sync: bool = True, sound: bool = True):
-        if sound and player is not None:
+    def remove_block(self, player, position: iVector, sync: bool = True):
+        if player is not None:
             self[position].play_break_sound(player, position)
         self._remove_block(position, sync=sync)
         if sync:
             self.packetreceiver.remove_block(position)
 
-    # Clientside, delete the block
+    # Client side, delete the block
     def _remove_block(self, position: iVector, sync: bool = True):
         del self[position]
         sector_position = sectorize(position)
@@ -126,7 +129,7 @@ class World(dict):
 
     def is_exposed(self, position: iVector) -> bool:
         x, y, z = position
-        for fx,fy,fz in FACES:
+        for fx, fy, fz in FACES:
             other_position = (fx+x, fy+y, fz+z)
             if other_position not in self or self[other_position].transparent:
                 return True
@@ -209,17 +212,17 @@ class World(dict):
             humidity = self.biome_generator.get_humidity(position[0], position[-1])
             color_data =  block.get_color(temp, humidity)
         # FIXME: Do something of what follows.
-        #for neighbor in self.neighbors_iterator(position):
-        #    if neighbor in self:
-        #        count -= 4
-        #        i = index * 12
-        #        j = index * 8
-        #        del vertex_data[i:i + 12]
-        #        del texture_data[j:j + 8]
-        #        if color_data is not None:
-        #            del color_data[i:i+12]
-        #    else:
-        #       index += 1
+        # for neighbor in self.neighbors_iterator(position):
+        #     if neighbor in self:
+        #         count -= 4
+        #         i = index * 12
+        #         j = index * 8
+        #         del vertex_data[i:i + 12]
+        #         del texture_data[j:j + 8]
+        #         if color_data is not None:
+        #             del color_data[i:i+12]
+        #     else:
+        #        index += 1
 
         count = len(texture_data) // 2
         # create vertex list
@@ -238,7 +241,7 @@ class World(dict):
         if sector in self.sectors:
             self._show_sector(sector)
         else:
-            self.sectors[sector] = [] #Initialize it so we don't keep requesting it
+            self.sectors[sector] = [] # Initialize it so we don't keep requesting it
             self.packetreceiver.request_sector(sector)
 
     #Clientside, show a sector we've downloaded
@@ -278,7 +281,7 @@ class World(dict):
         self.sector_queue[sector] = state
 
     def dequeue_sector(self):
-        sector, state = self.sector_queue.popitem(False)
+        sector, state = self.sector_queue.popitem()
         if state:
             self.show_sector(sector)
             pass
@@ -313,12 +316,11 @@ class World(dict):
             self.dequeue()
 
     def hide_sectors(self, dt, player):
-        #TODO: This is pretty laggy, I feel an FPS drop once a second while sector changing because of this
-        deload = G.DELOAD_SECTORS_RADIUS
-        plysector = sectorize(player.position)
-        if player.last_sector != plysector:
-            px, py, pz = plysector
+        unload = G.DELOAD_SECTORS_RADIUS
+        player_sector = sectorize(player.position)
+        if player.last_sector != player_sector:
+            px, py, pz = player_sector
             for sector in self.sectors:
-                x,y,z = sector
-                if abs(px-x) > deload or abs(py-y) > deload or abs(pz-z) > deload:
+                x, y, z = sector
+                if abs(px - x) > unload or abs(py - y) > unload or abs(pz - z) > unload:
                     self.enqueue_sector(False, sector)

@@ -24,7 +24,6 @@ class WorldServer(dict):
     spreading_mutable_blocks: Deque[iVector]
     server_lock: Lock
     server: Any
-    db: Connection
     terraingen: terrain.TerrainGeneratorSimple
     spreading_mutations = {
         dirt_block: grass_block,
@@ -42,7 +41,10 @@ class WorldServer(dict):
         self.server_lock = threading.Lock()
         self.server = server
 
-        self.db = savingsystem.connect_db(G.SAVE_FILENAME)
+        class db:
+            def close(self): pass
+
+        self.db = db()
 
         if os.path.exists(os.path.join(G.game_dir, G.SAVE_FILENAME, "seed")):
             with open(os.path.join(G.game_dir, G.SAVE_FILENAME, "seed"), "rb") as f:
@@ -57,8 +59,10 @@ class WorldServer(dict):
     def __del__(self):
         self.db.close()
 
-    def __delitem__(self, position):
-        super(WorldServer, self).__delitem__(position)
+    def __delitem__(self, position):h
+        try:
+            super(WorldServer, self).__delitem__(position)
+        except KeyError: pass
 
         if position in self.spreading_mutable_blocks:
             try:
@@ -223,9 +227,12 @@ class WorldServer(dict):
                 break  # Close the thread
             if self.spreading_mutable_blocks:
                 with self.server_lock:
-                    position = self.spreading_mutable_blocks.pop()
-                    self.add_block(position,
-                        self.spreading_mutations[self[position]], check_spread=False)
+                    try:
+                        position = self.spreading_mutable_blocks.pop()
+                        self.add_block(position,
+                            self.spreading_mutations[self[position]], check_spread=False)
+                    except KeyError:
+                        return
 
     def generate_vegetation(self, position: iVector, vegetation_class):
         if position in self:
