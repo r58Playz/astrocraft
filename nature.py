@@ -46,7 +46,7 @@ class Trunk:
     def add_to_world(cls, world, position, sync=False):
         trunk = cls(position)
         for item in list(trunk.blocks.items()):
-            world.add_block(,
+            world.add_block(*item, sync=sync)
 
 
 class Tree:
@@ -61,7 +61,7 @@ class Tree:
                       height_range=cls.trunk_height_range)
 
         for item in list(trunk.blocks.items()):
-            world.add_block(,
+            world.add_block(*item, sync=sync)
 
         x, y, z = position
         height = trunk.height

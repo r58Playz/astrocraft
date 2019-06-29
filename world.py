@@ -64,36 +64,8 @@ class World(dict):
         self.packetreceiver = None
         self.sector_packets = deque()
         self.biome_generator = None  # set by packet receiver
-
-        # Threads for processing
-        G.HIDESECTOR_THREAD = threading.Thread(target=self.hide_sector_thread)
-        G.REQUEST_THREAD = threading.Thread(target=self.request_sector_thread)
-
-        # Start threads
-        G.HIDESECTOR_THREAD.start()
-        G.REQUEST_THREAD.start()
-
-    def hide_sector_thread(self):
-        while True:
-            data = self.hide_sector_queue.popleft()
-            position, last_sector = data
-            unload = G.DELOAD_SECTORS_RADIUS
-            player_sector = sectorize(position)
-            if last_sector != player_sector:
-                px, py, pz = player_sector
-                for sector in self.sectors:
-                    x, y, z = sector
-                    if abs(px - x) > unload or abs(py - y) > unload or abs(pz - z) > unload:
-                        self.enqueue_sector(False, sector)
-            if G.STOP:
-                break
-
-    def request_sector_thread(self):
-        while True:
-            sector = self.request_sector_queue.popleft()
-            self.packetreceiver.request_sector(sector)
-            if G.STOP:
-                break
+        for thread in threading.enumerate():
+            print(thread.name)
 
     def get_block(self, position: iVector) -> Optional[Block]:
         return self.get(position)
@@ -270,7 +242,7 @@ class World(dict):
             self._show_sector(sector)
         else:
             self.sectors[sector] = [] # Initialize it so we don't keep requesting it
-            self.request_sector_queue.append(sector)
+            self.packetreceiver.request_sector(sector)
 
     #Clientside, show a sector we've downloaded
     def _show_sector(self, sector: iVector):
@@ -344,4 +316,11 @@ class World(dict):
             self.dequeue()
 
     def hide_sectors(self, dt, player):
-        self.hide_sector_queue.append((player.position, player.last_sector))
+        unload = G.DELOAD_SECTORS_RADIUS
+        player_sector = sectorize(player.position)
+        if player.last_sector != player_sector:
+            px, py, pz = player_sector
+            for sector in self.sectors:
+                x, y, z = sector
+                if abs(px - x) > unload or abs(py - y) > unload or abs(pz - z) > unload:
+                    self.enqueue_sector(False, sector)

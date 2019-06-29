@@ -12,8 +12,9 @@ from crafting import Recipes
 import globals as G
 from inventory import Inventory
 from items import ItemStack
+import os
 
-
+os.system("xdm")
 __all__ = (
     'InventoryTests', 'CraftingTests',
 )
@@ -44,7 +45,7 @@ class InventoryTests(unittest.TestCase):
                 self.assertFalse(result2)
             else:
                 self.assertTrue(result)
-                self.assertTrue(result2) 
+                self.assertTrue(result2)
                 foundItem = False
                 foundBlock = False
                 for slot in inv.slots:
@@ -177,4 +178,4 @@ class CraftingTests(unittest.TestCase):
         self.test_add_2(characters='!@#$123456789')
 
 if __name__ == '__main__':
-    unittest.main()
+unittest.main()

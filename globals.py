@@ -22,11 +22,6 @@ from pyglet.resource import get_settings_path
 # Modules from this project
 # Nothing for now...
 
-
-#Threads
-REQUEST_THREAD = None
-HIDESECTOR_THREAD = None
-
 APP_NAME = 'AstroCraft'  # should I stay or should I go?
 APP_VERSION = 0.1
 DEBUG = False

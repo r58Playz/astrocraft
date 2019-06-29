@@ -60,10 +60,10 @@ def play_sound(sound, player: custom_types.Player, position=None):
             sound_player.volume = G.EFFECT_VOLUME
             sound_player.queue(sound)
             sound_player.play()
-            def f(): time.sleep(1); G.BACKGROUND_PLAYER.play()
-            threading.Thread(target=f).start()
+            time.sleep(1)
+            G.BACKGROUND_PLAYER.play()
         except:
-            return sound_player
+            return sound_player, False
 
     return sound_player
 

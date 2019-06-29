@@ -1,14 +1,9 @@
 # Imports, sorted alphabetically.
 
 # Python packages
-import pickle as pickle
 import os
-import random
 import struct
-import time
-import sqlite3
 from typing import Optional
-import threading
 
 # Third-party packages
 import msgpack
@@ -16,17 +11,13 @@ import msgpack
 # Modules from this project
 import custom_types
 from custom_types import iVector
-
-
-from debug import performance_info
 import globals as G
-from player import Player
 
 
 __all__ = (
     'sector_to_filename', 'region_to_filename', 'sector_to_region',
     'sector_to_offset', 'save_world', 'world_exists', 'remove_world',
-    'sector_exists', 'load_region', 'open_world',
+    'sector_exists', 'load_region',
 )
 
 
@@ -150,7 +141,8 @@ def sector_exists(sector, world=None):
     return os.path.lexists(os.path.join(G.game_dir, world, sector_to_filename(sector)))
 
 
-def load_region(world: custom_types.WorldServer, world_name: str = "world", region: Optional[iVector] = None, sector: Optional[iVector] = None):
+def load_region(world: custom_types.WorldServer, world_name: str = "world", region: Optional[iVector] = None,
+                sector: Optional[iVector] = None):
     sectors = world.sectors
     blocks = world
     SECTOR_SIZE = G.SECTOR_SIZE
@@ -173,7 +165,7 @@ def load_region(world: custom_types.WorldServer, world_name: str = "world", regi
                                     read = fstr[fpos:fpos+2]
                                     fpos += 2
                                     if read != null2:
-                                        position = x,y,z
+                                        position = x, y, z
                                         try: 
                                             full_id = structuchar2.unpack(read)
                                             blocks[position] = BLOCKS_DIR[full_id]
@@ -221,26 +213,3 @@ def load_player(player, world: str):
     #     player.inventory = data[8]
     # cur.close()
     # db.close()
-
-@performance_info
-def open_world(gamecontroller, game_dir, world=None):
-    if world is None: world = "world"
-
-    #Non block related data
-    loaded_save = pickle.load(open(os.path.join(game_dir, world, "save.pkl"), "rb"))
-    if loaded_save[0] == 4:
-        if isinstance(loaded_save[1], Player): gamecontroller.player = loaded_save[1]
-        if isinstance(loaded_save[2], float): gamecontroller.time_of_day = loaded_save[2]
-        if isinstance(loaded_save[3], str):
-            G.SEED = loaded_save[3]
-            random.seed(G.SEED)
-            print(('Loaded seed from save: ' + G.SEED))
-    elif loaded_save[0] == 3: #Version 3
-        if isinstance(loaded_save[1], Player): gamecontroller.player = loaded_save[1]
-        if isinstance(loaded_save[2], float): gamecontroller.time_of_day = loaded_save[2]
-        G.SEED = str(int(time.time() * 256))
-        random.seed(G.SEED)
-        print(('No seed in save, generated random seed: ' + G.SEED))
-
-    #blocks and sectors (window.world and window.world.sectors)
-    #Are loaded on the fly

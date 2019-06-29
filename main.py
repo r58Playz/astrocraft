@@ -145,7 +145,7 @@ def main(options):
         print('Shutting down internal server...')
         G.main_timer.stop()
         G.SERVER._stop.set()
-        threading.Thread(target=G.SERVER.shutdown).start()
+        G.SERVER.shutdown()
 
 
 if __name__ == '__main__':
@@ -164,4 +164,5 @@ if __name__ == '__main__':
     parser.add_argument("--seed", default=None)
 
     options = parser.parse_args()
+    print(options)
     main(options)
