@@ -88,7 +88,6 @@ class Tree:
                         continue
                     world.add_block((xl, yl, zl), cls.leaf_block, sync=sync)
 
-
 #
 # Small plants
 #

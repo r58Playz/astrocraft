@@ -15,6 +15,7 @@ from pyglet.graphics import Batch
 from blocks import *
 from utils import FACES, FACES_WITH_DIAGONALS, normalize, sectorize, TextureGroup
 import globals as G
+
 from entity import TileEntity
 from custom_types import iVector, fVector
 
@@ -40,7 +41,9 @@ class World(dict):
     packetreceiver: None
     sector_packets: Deque[Any]
     biome_generator: None
-    hide_sector_queue = Deque[Tuple]
+    packetreceiver: None
+    sector_packets: Deque[Any]
+    biome_generator: None
     spreading_mutations = {
         dirt_block: grass_block,
     }
@@ -56,7 +59,6 @@ class World(dict):
         self.sectors = defaultdict(list)
         self.sectors_shown = dict()
         self.urgent_queue = deque()
-        self.lazy_queue = deque()
         self.hide_sector_queue = deque()
         self.request_sector_queue = deque()
         self.sector_queue = OrderedDict()
@@ -64,8 +66,6 @@ class World(dict):
         self.packetreceiver = None
         self.sector_packets = deque()
         self.biome_generator = None  # set by packet receiver
-        for thread in threading.enumerate():
-            print(thread.name)
 
     def get_block(self, position: iVector) -> Optional[Block]:
         return self.get(position)

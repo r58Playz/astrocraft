@@ -22,6 +22,7 @@ from pyglet.resource import get_settings_path
 # Modules from this project
 # Nothing for now...
 
+
 APP_NAME = 'AstroCraft'  # should I stay or should I go?
 APP_VERSION = 0.1
 DEBUG = False
@@ -215,11 +216,8 @@ CHAT_FADE_TIME = 8
 
 # Localization
 LANGUAGE = 'default'
-
-
 def _(x):
     return x
-
 
 # Global files & directories
 game_dir = get_settings_path(APP_NAME)

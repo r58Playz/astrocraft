@@ -42,7 +42,6 @@ class Player(Entity):
         self.last_damage_block = 0, 100, 0 # dummy temp value
         self.username = username
         self.local_player = local_player
-
         if not local_player:
             self.model = PlayerModel(position)
             self.momentum = (0,0,0)

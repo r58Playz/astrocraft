@@ -104,8 +104,6 @@ class Window(pyglet.window.Window):
         log_info('Average FPS: %f' % (self.total_fps / self.iterations))
         G.STOP = True
         G.BACKGROUND_PLAYER.pause()
-        super(Window, self).on_close()
-
 
 def main(options):
     G.GAME_MODE = options.game_mode
@@ -161,8 +159,8 @@ if __name__ == '__main__':
     save_group.add_argument("--save", default=G.SAVE_FILENAME, help="Type a name for the world to be saved as.")
     save_group.add_argument("--disable-save-all", action="store_false", default=False, help="Disables saving.")
 
+
     parser.add_argument("--seed", default=None)
 
     options = parser.parse_args()
-    print(options)
     main(options)
