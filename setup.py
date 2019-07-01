@@ -86,7 +86,7 @@ includes = [name for name, f in get_modules() if name not in excluded_includes]
 
 packages = ["pyglet", "sqlite3"]  # force cx_Freeze to bundle these
 
-cython_output_dir = "build/lib.%s-%d.%d" % (get_platform(), *sys.version_info[:2])
+cython_output_dir = "build/cython"
 options = {
     'build_ext': {
         # 'inplace': True,

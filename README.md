@@ -1,4 +1,4 @@
-# astrocraft-python ![badge1](https://img.shields.io/badge/maintainance-much-sucess.svg) ![badge2](https://img.shields.io/badge/runnable-yes-success.svg) [![Build status](https://ci.appveyor.com/api/projects/status/413so98eyitcn9jx?svg=true)](https://ci.appveyor.com/project/r58Playz/astrocraft-python)
+# astrocraft-python ![badge1](https://img.shields.io/badge/maintainance-much-sucess.svg) ![badge2](https://img.shields.io/badge/runnable-yes-success.svg) [![Build status](https://ci.appveyor.com/api/projects/status/413so98eyitcn9jx?svg=true)](https://ci.appveyor.com/project/r58Playz/astrocraft-python) ![Tests](https://img.shields.io/appveyor/tests/r58Playz/astrocraft-python.svg?compact_message&logo=appveyor)
 
 
 
