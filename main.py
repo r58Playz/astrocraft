@@ -104,6 +104,7 @@ class Window(pyglet.window.Window):
         log_info('Average FPS: %f' % (self.total_fps / self.iterations))
         G.STOP = True
         G.BACKGROUND_PLAYER.pause()
+        super(Window, self).on_close()
 
 def main(options):
     G.GAME_MODE = options.game_mode
@@ -118,7 +119,7 @@ def main(options):
     if G.LANGUAGE != 'default':
         reload(sys)
         sys.setdefaultencoding('utf8')
-        gettext.install(True, localedir=None, str=1)
+        gettext.install(True, localedir=None)
         gettext.find(G.APP_NAME.lower(), 'locale')
         gettext.textdomain(G.APP_NAME.lower())
         gettext.bind_textdomain_codeset(G.APP_NAME.lower(), 'utf8')
@@ -140,7 +141,6 @@ def main(options):
         G.CLIENT.stop()
         
     if G.SERVER:
-        print('Shutting down internal server...')
         G.main_timer.stop()
         G.SERVER._stop.set()
         G.SERVER.shutdown()

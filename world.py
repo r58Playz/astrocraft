@@ -41,9 +41,6 @@ class World(dict):
     packetreceiver: None
     sector_packets: Deque[Any]
     biome_generator: None
-    packetreceiver: None
-    sector_packets: Deque[Any]
-    biome_generator: None
     spreading_mutations = {
         dirt_block: grass_block,
     }
@@ -59,6 +56,7 @@ class World(dict):
         self.sectors = defaultdict(list)
         self.sectors_shown = dict()
         self.urgent_queue = deque()
+        self.lazy_queue = deque()
         self.hide_sector_queue = deque()
         self.request_sector_queue = deque()
         self.sector_queue = OrderedDict()
@@ -271,7 +269,7 @@ class World(dict):
                         if dx ** 2 + dy ** 2 + dz ** 2 > (pad + 1) ** 2:
                             continue
                         new_sectors_shown[(x + dx, y + dy, z + dz)] = True
-        #Queue the sectors to be shown, instead of rendering them in real time
+        # Queue the sectors to be shown, instead of rendering them in real time
         for sector in new_sectors_shown.keys():
             if sector not in self.sectors_shown:
                 self.enqueue_sector(True, sector)

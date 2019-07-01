@@ -10,6 +10,7 @@ import msgpack
 
 # Modules from this project
 import custom_types
+from blocks import BlockID
 from custom_types import iVector
 import globals as G
 
@@ -28,7 +29,7 @@ structvecBB = struct.Struct("hhhBB")
 
 null2 = struct.pack("xx") #Two \0's
 null1024 = null2*512      #1024 \0's
-air = G.BLOCKS_DIR[(0,0)]
+air = BlockID(0)
 
 
 def sector_to_filename(secpos: iVector) -> str:
@@ -61,8 +62,8 @@ def save_sector_to_bytes(blocks: custom_types.WorldServer, secpos: iVector) -> b
     for x in range(cx, cx+8):
         for y in range(cy, cy+8):
             for z in range(cz, cz+8):
-                blk = blocks.get((x, y, z), air).id
-                if blk is not air:
+                blk = blocks.get((x, y, z), air) if isinstance(blocks.get((x, y, z), air), BlockID) else blocks.get((x, y, z), air).id
+                if blk is not air.main:
                     # if isinstance(blk, int): # When does this occur? Its expensive and I don't see it triggering
                     #     blk = BlockID(blk)
                     fstr += structuchar2.pack(blk.main, blk.sub)
@@ -85,6 +86,19 @@ def save_world(server: custom_types.Server, world: str):
     pool.close()
     for player in server.players:
         save_player(player, world)
+
+def save_quit_world(server, world: str = "world"):
+    import multiprocessing
+
+    def sve():
+        import threading
+        threading.Thread(target=lambda: save_blocks(server.world, world))
+        for player in server.players:
+            save_player(player, world)
+
+    pool = multiprocessing.Pool()
+    pool.map(sve, tuple())
+    pool.close()
 
 
 def save_blocks(blocks: custom_types.WorldServer, world: str):
@@ -178,9 +192,8 @@ def load_region(world: custom_types.WorldServer, world_name: str = "world", regi
                                                 if main_blk.sub_id_as_metadata: # sub id is metadata
                                                     blocks[position] = type(main_blk)()
                                                     blocks[position].set_metadata(full_id[-1])
-                                            except KeyError as e:
-                                                print("load_region: Invalid Block", e)
-                                        sectors[(x//SECTOR_SIZE, y//SECTOR_SIZE, z//SECTOR_SIZE)].append(position)
+                                            except KeyError:
+                                                sectors[(x//SECTOR_SIZE, y//SECTOR_SIZE, z//SECTOR_SIZE)].append(position)
 
 
 def load_player(player, world: str):

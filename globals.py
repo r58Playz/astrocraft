@@ -24,7 +24,7 @@ from pyglet.resource import get_settings_path
 
 
 APP_NAME = 'AstroCraft'  # should I stay or should I go?
-APP_VERSION = 0.1
+APP_VERSION = "v0.5.0"
 DEBUG = False
 LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
@@ -67,13 +67,14 @@ INVENTORY_9_KEY = '9'
 INVENTORY_10_KEY = '0'
 TALK_KEY = 'T'
 VALIDATE_KEY = 'ENTER'
+QUIT_KEY = "X"
 
 # Settings
 SOUND_UP_KEY = 'PAGEUP'
 SOUND_DOWN_KEY = 'PAGEDOWN'
 TOGGLE_HUD_KEY = 'F1'
 SCREENCAP_KEY = 'F2'
-TOGGLE_DEBUG_TEXT_KEY = 'F3'
+TOGGLE_DEBUG_TEXT_KEY = 'F#'
 SHOWMAP_KEY = 'F4'
 
 # Various
@@ -109,7 +110,7 @@ VERTEX_MODES = (
 # ids of items should be >= ITEM_ID_MIN
 ITEM_ID_MIN = 256
 
-TIME_RATE = 240 * 10  # Rate of change (steps per hour).
+TIME_RATE = (20 * 60)  # Rate of change (seconds per game day).
 SPREADING_MUTATION_DELAY = 4  # in seconds
 
 

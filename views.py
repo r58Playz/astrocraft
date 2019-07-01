@@ -245,6 +245,12 @@ class MainMenuView(MenuView):
         self.label.width = self.label.content_width
         self.label.height = self.label.content_height
         self.layout.add(self.label)
+        label = Label(G.APP_VERSION, font_name='ChunkFive Roman', font_size=20, x=width-80, y=height-height,
+            anchor_x='left', anchor_y='bottom', color=(255, 255, 255, 255), batch=self.batch,
+            group=self.labels_group)
+        label.width = label.content_width
+        label.height = label.content_height
+        self.layout.add(label)
 
         button = self.Button(caption=G._("Singleplayer"),on_click=self.controller.start_singleplayer_game)
         self.layout.add(button)
@@ -462,7 +468,6 @@ class OptionsView(MenuView):
         hl.add(sb)
 
         def change_sound_volume(pos):
-            print(G.EFFECT_VOLUME)
             G.EFFECT_VOLUME = float(float(pos) / 100)
         sb = self.Scrollbar(x=0, y=0, width=300, height=40, sb_width=20, sb_height=40, caption="Sound", pos=int(G.EFFECT_VOLUME * 100), on_pos_change=change_sound_volume)
         hl.add(sb)
@@ -631,7 +636,7 @@ class MultiplayerView(MenuView):
             subprocess.Popen([sys.executable, "server.py"], creationflags=subprocess.CREATE_NEW_CONSOLE)
         else:
             subprocess.Popen([sys.executable, "server.py"])
-        localip = [ip for ip in socket.gethostbyname_ex(socket.gethostname())[2] if not ip.startswith("127.")][0]
+        localip = socket.gethostbyname(socket.getfqdn()) # Works on Linux and Windows.
         self.text_input.text = localip
         G.IP_ADDRESS = localip
 

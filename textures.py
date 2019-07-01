@@ -56,7 +56,6 @@ class TexturePackImplementation:
 
                 return fo
         except:
-            print('Texture not found \'' + '/'.join(path) + '\'')
             return None
 
     def load_description(self):

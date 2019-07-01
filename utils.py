@@ -79,7 +79,6 @@ _block_icon_fbo = None
 def get_block_icon(block, icon_size, world):
     global _block_icon_fbo
 
-    print(block.id.filename())
     block_icon = G.texture_pack_list.selected_texture_pack.load_texture(block.id.filename()) \
         or (block.group or world.group).texture.get_region(
             int(block.texture_data[2 * 8] * G.TILESET_SIZE) * icon_size,
@@ -255,7 +254,6 @@ def make_packet(obj) -> bytes:
     elif type(obj) == str:
         return make_string_packet(obj)
     else:
-        print(('make_packet: unsupported type: ' + str(type(obj))))
         return None
 
 def extract_packet(packet):

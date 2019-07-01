@@ -59,7 +59,7 @@ class WorldServer(dict):
     def __del__(self):
         self.db.close()
 
-    def __delitem__(self, position):h
+    def __delitem__(self, position):
         try:
             super(WorldServer, self).__delitem__(position)
         except KeyError: pass

@@ -1730,7 +1730,6 @@ class BedBlock(Block):
         return (block_id != 0)
 
     def set_metadata(self, metadata):
-        print('metadata: ', metadata)
         if self.sub_id_as_metadata:
             self.id.sub = metadata
 

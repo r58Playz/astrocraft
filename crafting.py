@@ -70,7 +70,6 @@ class Recipes:
 
             # line length should not be greater than 3
             if len(line) > 3:
-                print('add_recipe(): line length should be <= 3!')
                 return
 
             for c in line:
@@ -114,9 +113,6 @@ class Recipes:
 
         return None
 
-    def dump(self):
-        for recipe in self.recipes:
-            print(recipe)
 
 class SmeltingRecipe:
     def __init__(self, ingre, output):

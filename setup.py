@@ -119,8 +119,8 @@ setup(
     cmdclass={'build_ext': build_ext},
     options=options,
     requires=['pyglet', 'Cython'],
-    version="0.1",
-    description="A Minecraft demo clone in Python 3.6.x",
+    version=G.APP_VERSION,
+    description="",
     ext_modules=ext_modules,
     executables=executables,
 )

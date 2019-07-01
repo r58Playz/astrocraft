@@ -10,7 +10,7 @@ from warnings import warn
 import pyglet
 from blocks import BlockID
 import globals as G
-from globals import BLOCKS_DIR, SECTOR_SIZE
+from globals import BLOCKS_DIR
 from items import ItemStack
 from player import Player
 from savingsystem import null2, structuchar2, sector_to_blockpos
@@ -30,7 +30,7 @@ class PacketReceiver(Thread):
         try:
             self.loop()
         except socket.error as e:
-            if e.errno in (10053, 10054):
+            if e[0] in (10053, 10054):
                 #TODO: GUI tell the client they were disconnected
                 print("Disconnected from server.")
             else:

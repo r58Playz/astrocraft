@@ -8,6 +8,7 @@ verify_ssl = true
 [packages]
 pyglet = "*"
 cython = "*"
+msgpack = "*"
 
 [requires]
 python_version = "3.7"

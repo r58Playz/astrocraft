@@ -9,15 +9,13 @@ from functools import partial
 from math import cos, sin, pi, fmod
 import operator
 import os
-import random
-
+import threading
 
 # Third-party packages
-import threading
-from pyglet.gl import *
-from pyglet import image
+# Nothing for now...
 
 # Modules from this project
+import savingsystem
 from blocks import *
 from cameras import Camera3D
 from client import PacketReceiver
@@ -25,7 +23,6 @@ import globals as G
 from gui import ItemSelector, InventorySelector, TextWidget
 from items import Tool
 from player import Player
-from model import PlayerModel
 from skydome import Skydome
 import utils
 from utils import vec, sectorize, normalize, load_image, image_sprite
@@ -112,20 +109,18 @@ class MainMenuController(Controller):
         G.SINGLEPLAYER = False
         self.switch_controller_class(GameController)
 
+
 class GameController(Controller):
     def __init__(self, window):
         super(GameController, self).__init__(window)
         self.sector, self.highlighted_block, self.crack, self.last_key = (None,) * 4
         self.bg_red, self.bg_green, self.bg_blue = (0.0,) * 3
         self.mouse_pressed, self.sorted = (False,) * 2
-        self.count, self.block_damage = (0,) * 2
-        self.light_y, self.light_z = (1.0,) * 2
-        self.time_of_day = 0.0
-        self.hour_deg = 15.0
-        self.clock = 6
-        glHint(GL_LINE_SMOOTH_HINT, GL_NICEST)
+        self.block_damage = 0
+        self.time_of_day = 6.0
 
         self.back_to_main_menu = threading.Event()
+
 
     def update(self, dt):
         if self.back_to_main_menu.isSet():
@@ -134,7 +129,7 @@ class GameController(Controller):
         self.update_sector(dt)
         self.update_player(dt)
         self.update_mouse(dt)
-        self.update_time()
+        self.update_time(dt)
         self.camera.update(dt)
 
     def update_sector(self, dt):
@@ -215,11 +210,11 @@ class GameController(Controller):
         glEnable(GL_POLYGON_SMOOTH)
         glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST)
 
-        #glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE)
-        #glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE)
-        #glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE)
+        # glClampColorARB(GL_CLAMP_VERTEX_COLOR_ARB, GL_FALSE)
+        # glClampColorARB(GL_CLAMP_FRAGMENT_COLOR_ARB, GL_FALSE)
+        # glClampColorARB(GL_CLAMP_READ_COLOR_ARB, GL_FALSE)
 
-        #glClearColor(0, 0, 0, 0)
+        # glClearColor(0, 0, 0, 0)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
     def setup(self):
@@ -232,7 +227,6 @@ class GameController(Controller):
                 time.sleep(2)
                 sock.connect(("localhost", 1486))
             except socket.error as e:
-                print("Socket Error:", e)
                 #Otherwise back to the main menu we go
                 return False
             except Exception as e:
@@ -247,19 +241,18 @@ class GameController(Controller):
                 sock = socket.socket()
                 sock.connect((tuple(ipport)))
             except socket.error as e:
-                print("Socket Error:", e)
                 #Otherwise back to the main menu we go
                 return False
         self.init_gl()
 
         sky_rotation = -20.0  # -20.0
 
-       # TERRAIN_CHOICE = self.biome_generator.get_biome_type(sector[0], sector[2])
+        # TERRAIN_CHOICE = self.biome_generator.get_biome_type(sector[0], sector[2])
         default_skybox = 'skydome.jpg'
-        #if TERRAIN_CHOICE == G.NETHER:
-        #    default_skybox = 'skydome_nether.jpg'
-        #else:
-        #    default_skybox = 'skybox.jpg'
+        # if TERRAIN_CHOICE == G.NETHER:
+        #     default_skybox = 'skydome_nether.jpg'
+        # else:
+        #     default_skybox = 'skybox.jpg'
 
         self.skydome = Skydome(
             'resources/' + default_skybox,
@@ -274,12 +267,11 @@ class GameController(Controller):
         self.focus_block = Block(width=1.05, height=1.05)
         self.earth = vec(0.8, 0.8, 0.8, 1.0)
         self.white = vec(1.0, 1.0, 1.0, 1.0)
-        self.ambient = vec(1.0, 1.0, 1.0, 1.0)
         self.polished = GLfloat(100.0)
         self.crack_batch = pyglet.graphics.Batch()
 
-        #if G.DISABLE_SAVE and world_exists(G.game_dir, G.SAVE_FILENAME):
-        #    open_world(self, G.game_dir, G.SAVE_FILENAME)
+        # if G.DISABLE_SAVE and world_exists(G.game_dir, G.SAVE_FILENAME):
+        #     open_world(self, G.game_dir, G.SAVE_FILENAME)
 
         self.world = World()
         self.packetreceiver = PacketReceiver(self.world, self, sock)
@@ -320,68 +312,28 @@ class GameController(Controller):
                 '', font_name='Arial', font_size=8, x=10, y=self.window.height - 10,
                 anchor_x='left', anchor_y='top', color=(255, 255, 255, 255))
 
-        #if G.DEBUG_TEXT_ENABLED:
-        #    self.debug_text = TextWidget(self.window, '',
-        #                           0, self.window.height - 300,
-        #                           500, 300,
-        #                           visible=True, multi_line=True, readonly=True,
-        #                           font_name='Arial', font_size=10,
-        #                           text_color=(255, 255, 255, 255),
-        #                           background_color=(0, 0, 0, 0))
+        self.debug_text = TextWidget(self.window, '',
+                              0, self.window.height - 300,
+                              500, 300,
+                              visible=True, multi_line=True, readonly=True,
+                              font_name='Arial', font_size=8,
+                              text_color=(255, 255, 255, 255),
+                              background_color=(0, 0, 0, 0))
         pyglet.clock.schedule_interval_soft(self.world.process_queue,
                                             1.0 / G.MAX_FPS)
         pyglet.clock.schedule_interval_soft(self.world.hide_sectors, 10.0, self.player)
         return True
 
-    def update_time(self):
-        """
-        The idle function advances the time of day.
-        The day has 24 hours, from sunrise to sunset and from sunrise to
-        second sunset.
-        The time of day is converted to degrees and then to radians.
-        """
-
-        if not self.window.exclusive:
-            return
-
-        time_of_day = self.time_of_day if self.time_of_day < 12.0 \
-            else 24.0 - self.time_of_day
-
-        if time_of_day <= 2.5:
-            self.time_of_day += 1.0 / G.TIME_RATE
-            time_of_day += 1.0 / G.TIME_RATE
-            self.count += 1
-        else:
-            self.time_of_day += 20.0 / G.TIME_RATE
-            time_of_day += 20.0 / G.TIME_RATE
-            self.count += 1.0 / 20.0
+    def update_time(self, dt: float):
+        self.time_of_day += dt * 24.0 / G.TIME_RATE
         if self.time_of_day > 24.0:
-            self.time_of_day = 0.0
-            time_of_day = 0.0
-
-        side = len(self.world.sectors) * 2.0
-
-        self.light_y = 2.0 * side * sin(time_of_day * self.hour_deg
-                                        * G.DEG_RAD)
-        self.light_z = 2.0 * side * cos(time_of_day * self.hour_deg
-                                        * G.DEG_RAD)
-        if time_of_day <= 2.5:
-            ambient_value = 1.0
-        else:
-            ambient_value = 1 - (time_of_day - 2.25) / 9.5
-        self.ambient = vec(ambient_value, ambient_value, ambient_value, 1.0)
+           self.time_of_day = 0.0
 
         # Calculate sky colour according to time of day.
-        sin_t = sin(pi * time_of_day / 12.0)
+        sin_t = sin(pi * (((self.time_of_day / 12.0) + 1) % 2 - 1))
         self.bg_red = 0.1 * (1.0 - sin_t)
         self.bg_green = 0.9 * sin_t
         self.bg_blue = min(sin_t + 0.4, 0.8)
-
-        if fmod(self.count / 2, G.TIME_RATE) == 0:
-            if self.clock == 18:
-                self.clock = 6
-            else:
-                self.clock += 1
 
         self.skydome.update_time_of_day(self.time_of_day)
 
@@ -467,8 +419,8 @@ class GameController(Controller):
         if symbol == G.TOGGLE_HUD_KEY:
             G.HUD_ENABLED = not G.HUD_ENABLED
         if symbol == G.TOGGLE_DEBUG_TEXT_KEY:
-            #self.debug_text.visible = not self.debug_text.visible
-            G.DEBUG_TEXT_ENABLED = not G.DEBUG_TEXT_ENABLED
+            self.debug_text.visible = not self.debug_text.visible
+            self.debug_text.delete()
         elif symbol == G.INVENTORY_SORT_KEY:
             if self.last_key == symbol and not self.sorted:
                 self.player.quick_slots.sort()
@@ -498,6 +450,10 @@ class GameController(Controller):
             pyglet.image.get_buffer_manager().get_color_buffer().save(path)
         elif symbol == G.SHOWMAP_KEY:
             self.show_map()
+        elif symbol == G.QUIT_KEY:
+            self.back_to_main_menu.set()
+            savingsystem.save_quit_world(G.SERVER)
+            self.window.set_exclusive_mouse(False)
         self.last_key = symbol
 
     def on_key_release(self, symbol, modifiers):
@@ -511,8 +467,8 @@ class GameController(Controller):
         self.text_input.resize(x=0, y=0, width=self.window.width)
         self.chat_box.resize(x=0, y=self.text_input.y + self.text_input.height + 50,
                              width=self.window.width // 2, height=min(300, self.window.height // 3))
-        #self.debug_text.resize(0, self.window.height - 300,
-        #                           500, 300)
+        self.debug_text.resize(0, self.window.height - 300,
+                                   500, 300)
 
     def set_3d(self):
         width, height = self.window.get_size()
@@ -551,12 +507,10 @@ class GameController(Controller):
             ply.model.draw()
         self.set_2d()
         if G.HUD_ENABLED:
-            self.draw_label()
             self.item_list.draw()
             self.inventory_list.draw()
-        #if G.DEBUG_TEXT_ENABLED:
-        #    self.update_label()
-        #self.debug_text.draw()
+        self.update_label()
+        self.debug_text.draw()
         self.text_input.draw()
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -606,31 +560,20 @@ class GameController(Controller):
                 glEnable(GL_TEXTURE_2D)
                 glDisable(GL_BLEND)
 
-    def draw_label(self):
-        x, y, z = self.player.position
-        self.label.text = 'Time:%.1f Inaccurate FPS:%02d (%.2f, %.2f, %.2f) Blocks Shown: %d / %d sector_packets:%d'\
-                          % (self.time_of_day if (self.time_of_day < 12.0)
-                          else (24.0 - self.time_of_day),
-                          pyglet.clock.get_fps(), x, y, z,
-                          len(self.world._shown), len(self.world), len(self.world.sector_packets))
-        self.label.draw()
-
     def update_label(self):
         x, y, z = self.player.position
         self.debug_text.clear()
         self.debug_text.write_line(' '.join((G.APP_NAME, str(G.APP_VERSION))))
-        self.debug_text.write_line('Time:%.1f Inaccurate FPS:%02d Blocks Shown: %d / %d sector_packets:%d'\
-                          % (self.time_of_day if (self.time_of_day < 12.0)
-               else (24.0 - self.time_of_day),
-               pyglet.clock.get_fps(),
-               len(self.world._shown), len(self.world), len(self.world.sector_packets)))
-        self.debug_text.write_line('x: %.2f, sector: %d' %(x, x // G.SECTOR_SIZE))
-        self.debug_text.write_line('y: %.2f, sector: %d' %(y, y // G.SECTOR_SIZE))
-        self.debug_text.write_line('z: %.2f, sector: %d' %(z, z // G.SECTOR_SIZE))
-        #dirs = ['East', 'South', 'West', 'North']
-        #vec, direction, angle = self.player.get_sight_direction()
-        #dx, dy, dz = vec
-        #self.debug_text.write_line('Direction: (%.2f, %.2f, %.2f) %d(%s) %.2f' % (dx, dy, dz, direction, dirs[direction], angle))
+        self.debug_text.write_line('Time:%.1f Inaccurate FPS:%02d Blocks Shown: %d / %d sector_packets:%d' \
+                                   % (self.time_of_day, pyglet.clock.get_fps(),len(self.world._shown),
+                                      len(self.world), len(self.world.sector_packets)))
+        self.debug_text.write_line('x: %.2f, chunk: %d' %(x, x // G.SECTOR_SIZE))
+        self.debug_text.write_line('y: %.2f, chunk: %d' %(y, y // G.SECTOR_SIZE))
+        self.debug_text.write_line('z: %.2f, chunk: %d' %(z, z // G.SECTOR_SIZE))
+        dirs = ['East', 'South', 'West', 'North']
+        vec, direction, angle = self.player.get_sight_direction()
+        dx, dy, dz = vec
+        self.debug_text.write_line('Direction: (%.2f, %.2f, %.2f) %d(%s) %.2f' % (dx, dy, dz, direction, dirs[direction], angle))
 
     def write_line(self, text, **kwargs):
         self.chat_box.write_line(text, **kwargs)
@@ -685,7 +628,6 @@ class GameController(Controller):
         self.world.packetreceiver.stop()  # Disconnect from the server so the process can close
 
     def show_map(self):
-        print("map called...")
          # taken from Nebual's biome_explorer, this is ment to be a full screen map that uses mini tiles to make a full 2d map.
         with open(os.path.join(G.game_dir, "world", "seed"), "r") as f:
             SEED = f.read()

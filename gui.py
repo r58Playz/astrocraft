@@ -827,8 +827,8 @@ class TextWidget(Control):
                  text_color=(0, 0, 0, 255),
                  background_color=(200, 200, 200, 128),
                  readonly=False,
-                 batch = None,
-                 enable_escape = False,
+                 batch=None,
+                 enable_escape=False,
                  *args, **kwargs):
         super(TextWidget, self).__init__(parent, *args, **kwargs)
         self.batch = pyglet.graphics.Batch() if not batch else batch
@@ -861,7 +861,12 @@ class TextWidget(Control):
 
         self.layout.x = x
         self.layout.y = y
+        self.old_text = ""
         self.resize()
+
+    def delete(self):
+        self.old_text = self.text
+        self.clear()
 
     def focus(self):
         super(TextWidget, self).focus()
