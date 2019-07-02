@@ -107,6 +107,7 @@ class SoundTests(unittest.TestCase):
         time.sleep(2)
         G.BACKGROUND_PLAYER.pause()
         self.assertTrue(True)
+        return
 
 if __name__ == '__main__':
     unittest.main()
