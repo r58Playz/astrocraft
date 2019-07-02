@@ -83,7 +83,7 @@ def play_background_sound():
                 G.BACKGROUND_PLAYER.queue(random.choice(background_options))
                 if G.STOP:
                     break
-                if G.LAUNCH_OPTIONS.fast:
+                if True:
                     time.sleep(3)
                 else:
                     time.sleep(30)

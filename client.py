@@ -147,7 +147,10 @@ class PacketReceiver(Thread):
         elif packetid == 9:  # Player Jump
             self.controller.player_ids[struct.unpack("H", packet)[0]].dy = 0.016
         elif packetid == 10: # Update Tile Entity
-            self.world[struct.unpack("iii", packet[:12])].update_tile_entity(packet[12:])
+            try:
+                self.world[struct.unpack("iii", packet[:12])].update_tile_entity(packet[12:])
+            except Exception as e:
+                warn(str(e))
         elif packetid == 255:  # Spawn Position
             self.controller.player.position = struct.unpack("iii", packet[:12])
             packet = packet[12:]

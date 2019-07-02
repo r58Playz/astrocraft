@@ -1724,14 +1724,15 @@ class BedBlock(Block):
 
     hardness = 0.5
     digging_tool = G.AXE
-    name = "Bed"    # cannot be obtained, doesn't matter
+    name = "Bed"
 
     def can_place_on(self, block_id):
-        return (block_id != 0)
+        return block_id != 0
 
     def set_metadata(self, metadata):
         if self.sub_id_as_metadata:
             self.id.sub = metadata
+
 
 CRACK_LEVELS = 10
 
@@ -1750,6 +1751,7 @@ class CrackTextureBlock:
             self.texture_data.append(self.group.texture_data[i * 8:(i + 1) * 8] * 6)
 
 crack_textures = CrackTextureBlock()
+
 
 # nether
 nether_block = NetherrackBlock()

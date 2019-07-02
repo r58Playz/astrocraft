@@ -28,6 +28,7 @@ class WorldServer(dict):
     spreading_mutations = {
         dirt_block: grass_block,
     }
+
     def __init__(self, server):
         super(WorldServer, self).__init__()
         if not os.path.lexists(os.path.join(G.game_dir, "world", "players")):
@@ -41,23 +42,15 @@ class WorldServer(dict):
         self.server_lock = threading.Lock()
         self.server = server
 
-        class db:
-            def close(self): pass
-
-        self.db = db()
-
         if os.path.exists(os.path.join(G.game_dir, G.SAVE_FILENAME, "seed")):
             with open(os.path.join(G.game_dir, G.SAVE_FILENAME, "seed"), "rb") as f:
-                G.SEED = f.read().decode('utf-8')
+                G.SEED = int(f.read().decode('utf-8'))
         else:
             if not os.path.exists(os.path.join(G.game_dir, G.SAVE_FILENAME)): os.makedirs(os.path.join(G.game_dir, G.SAVE_FILENAME))
             with open(os.path.join(G.game_dir, G.SAVE_FILENAME, "seed"), "wb") as f:
-                f.write(self.generate_seed().encode('utf-8'))
+                f.write(str(self.generate_seed()).encode('utf-8'))
 
         self.terraingen = terrain.TerrainGeneratorSimple(self, G.SEED)
-
-    def __del__(self):
-        self.db.close()
 
     def __delitem__(self, position):
         try:
@@ -129,7 +122,7 @@ class WorldServer(dict):
     def get_exposed_sector(self, sector: iVector) -> bytes:
         """ Returns a 512 length string of 0's and 1's if blocks are exposed """
         cx,cy,cz = savingsystem.sector_to_blockpos(sector)
-        #Most ridiculous list comprehension ever, but this is 25% faster than using appends
+        # Most ridiculous list comprehension ever, but this is 25% faster than using appends
         return b"".join([(x,y,z) in self and self.is_exposed((x,y,z)) and b"1" or b"0"
                         for x in range(cx, cx+8) for y in range(cy, cy+8) for z in range(cz, cz+8)])
 
@@ -180,10 +173,8 @@ class WorldServer(dict):
                 seed = int(hexlify(os.urandom(16)), 16)
             except NotImplementedError:
                 seed = int(time.time() * 256)  # use fractional seconds
-                # Then convert it to a string so all seeds have the same type.
-            seed = str(seed)
 
-            print(('No seed set, generated random seed: ' + seed))
+            print(('No seed set, generated random seed: ' + str(seed)))
         G.SEED = seed
 
         with open(os.path.join(G.game_dir, 'seeds.txt'), 'a') as seeds:
@@ -192,32 +183,33 @@ class WorldServer(dict):
         return seed
 
     def open_sector(self, sector: iVector):
-        #The sector is not in memory, load or create it
+        # The sector is not in memory, load or create it
         if savingsystem.sector_exists(sector):
-            #If its on disk, load it
+            # If its on disk, load it
             savingsystem.load_region(self, sector=sector)
         else:
-            #The sector doesn't exist yet, generate it!
+            # The sector doesn't exist yet, generate it!
             bx, by, bz = savingsystem.sector_to_blockpos(sector)
             rx, ry, rz = bx//32*32, by//32*32, bz//32*32
 
-            #For ease of saving/loading, queue up generation of a whole region (4x4x4 sectors) at once
+            # For ease of saving/loading, queue up generation of a whole region (4x4x4 sectors) at once
             yiter, ziter = range(ry//8,ry//8+4), range(rz//8,rz//8+4)
             for secx in range(rx//8,rx//8+4):
                 for secy in yiter:
                     for secz in ziter:
                         self.terraingen.generate_sector((secx,secy,secz))
-            #Generate the requested sector immediately, so the following show_block's work
-            #self.terraingen.generate_sector(sector)
 
-    def hide_sector(self, sector: iVector):
-        #TODO: remove from memory; save
-        #for position in self.sectors.get(sector, ()):
-        #    if position in self.shown:
-        #        self.hide_block(position)
-        pass
+    # run in its own thread
+    def autosave(self):
+        import time
+        while True:
+            if G.SERVER._stop.isSet():
+                break
+            time.sleep(10)
+            print("Autosaving...")
+            savingsystem.autosave(G.SERVER)
 
-    #content_update is run in its own thread
+    # content_update is run in its own thread
     def content_update(self):
         # Updates spreading
         # TODO: This is too simple
@@ -230,7 +222,7 @@ class WorldServer(dict):
                     try:
                         position = self.spreading_mutable_blocks.pop()
                         self.add_block(position,
-                            self.spreading_mutations[self[position]], check_spread=False)
+                                       self.spreading_mutations[self[position]], check_spread=False)
                     except KeyError:
                         return
 

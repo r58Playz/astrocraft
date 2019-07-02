@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from _socket import SHUT_RDWR
+from socket import SHUT_RDWR
 import socket
 import struct
 import time
@@ -16,7 +16,7 @@ from text_commands import CommandParser, COMMAND_HANDLED, CommandException, COMM
 from utils import sectorize, make_string_packet
 from mod import load_modules
 
-#This class is effectively a serverside "Player" object
+# This class is effectively a serverside "Player" object
 class ServerPlayer(socketserver.BaseRequestHandler):
     inventory = b"\0"*(4*40)  # Currently, is serialized to be 4 bytes * (27 inv + 9 quickbar + 4 armor) = 160 bytes
     command_parser = CommandParser()
@@ -29,12 +29,15 @@ class ServerPlayer(socketserver.BaseRequestHandler):
     def sendchat(self, txt: str, color=(255,255,255,255)):
         txt_bytes = txt.encode('utf-8')
         self.sendpacket(len(txt_bytes) + 4, b"\5" + txt_bytes + struct.pack("BBBB", *color))
-    def sendinfo(self, info: str, color=(255,255,255,255)):
+
+    def sendinfo(self, info: str, color=(255, 255, 255, 255)):
         info_bytes = info.encode('utf-8')
         self.sendpacket(len(info_bytes) + 4, b"\5" + info_bytes + struct.pack("BBBB", *color))
+
     def broadcast(self, txt: str):
         for player in self.server.players.values():
             player.sendchat(txt)
+
     def sendpos(self, pos_bytes, mom_bytes):
         self.sendpacket(38, b"\x08" + struct.pack("H", self.id) + mom_bytes + pos_bytes)
 
@@ -76,7 +79,7 @@ class ServerPlayer(socketserver.BaseRequestHandler):
                         world.open_sector(sector)
 
                 if not world.sectors[sector]:
-                    #Empty sector, send packet 2
+                    # Empty sector, send packet 2
                     self.sendpacket(12, b"\2" + struct.pack("iii",*sector))
                 else:
                     msg = struct.pack("iii",*sector) + save_sector_to_bytes(world, sector) + world.get_exposed_sector(sector)
@@ -170,12 +173,13 @@ class ServerPlayer(socketserver.BaseRequestHandler):
                 msg = struct.pack("iii",*sector) + save_sector_to_bytes(world, sector) + world.get_exposed_sector(sector)
                 self.sendpacket(len(msg), b"\1" + msg)
 
-                #Send them their spawn position and world seed(for client side biome generator)
-                seed_packet = make_string_packet(G.SEED)
+                # Send them their spawn position and world seed(for client side biome generator)
+                seed_packet = make_string_packet(str(G.SEED))
                 self.sendpacket(12 + len(seed_packet), struct.pack("B",255) + struct.pack("iii", *position) + seed_packet)
                 self.sendpacket(4*40, b"\6" + self.inventory)
             else:
                 print("Received unknown packettype", packettype)
+
     def finish(self):
         print("Client disconnected,", self.client_address, self.username)
         try: del self.server.players[self.client_address]
@@ -230,6 +234,9 @@ def start_server(internal=False):
     server_thread.start()
 
     threading.Thread(target=server.world.content_update, name="world_server.content_update").start()
+    if not internal:
+        threading.Thread(target=server.world.autosave(), name="world_server.autosave").start()
+
 
     # start server timer
     G.main_timer = timer.Timer(G.TIMER_INTERVAL, name="G.main_timer")

@@ -101,6 +101,14 @@ def save_quit_world(server, world: str = "world"):
     pool.close()
 
 
+def autosave(server, world: str = "world"):
+    import threading
+    threading.Thread(target=lambda: save_blocks(server.world, world))
+    for player in server.players:
+        threading.Thread(target=lambda: save_player(player, world))
+    return True
+
+
 def save_blocks(blocks: custom_types.WorldServer, world: str):
     # blocks and sectors (window.world and window.world.sectors)
     # Saves individual sectors in region files (4x4x4 sectors)

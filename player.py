@@ -26,7 +26,7 @@ class Player(Entity):
 
     def __init__(self, position=(0,0,0), rotation=(-20, 0), flying=False,
                  game_mode=G.GAME_MODE, username="", local_player=True):
-        super(Player, self).__init__(position, rotation, health=7,
+        super(Player, self).__init__(position, rotation, health=10,
                                      max_health=10, attack_power=2.0 / 3,
                                      attack_range=4)
         self.inventory = Inventory(27)
@@ -42,6 +42,7 @@ class Player(Entity):
         self.last_damage_block = 0, 100, 0 # dummy temp value
         self.username = username
         self.local_player = local_player
+
         if not local_player:
             self.model = PlayerModel(position)
             self.momentum = (0,0,0)

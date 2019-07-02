@@ -12,11 +12,11 @@ from crafting import Recipes
 import globals as G
 from inventory import Inventory
 from items import ItemStack
+import sounds
 import os
 
-os.system("xdm")
 __all__ = (
-    'InventoryTests', 'CraftingTests',
+    'InventoryTests', 'SoundTests',
 )
 
 
@@ -99,83 +99,14 @@ class InventoryTests(unittest.TestCase):
         inv.remove_unnecessary_stacks()
         self.assertEqual(inv.slots, [None] * 20)
 
-class CraftingTests(unittest.TestCase):
-
-    current_block_id = 0
-
-    def generate_random_recipe(self, characters='#@'):
-        recipe = []
-        recipe2 = []
-        recipe3 = []
-        ingre = {}
-        for character in characters:
-            ingre[character] = list(G.BLOCKS_DIR.values())[self.current_block_id]
-            self.current_block_id += 1
-            if self.current_block_id >= len(list(G.BLOCKS_DIR.values())):
-                self.current_block_id = 0
-        for i in range(0, 3):
-            recipe.append(''.join(random.choice(characters) for x in range(3)))
-            recipe2.append([])
-            for character in recipe[i]:
-                recipe2[i].append(ingre[character])
-                recipe3.append(ingre[character])
-        return recipe, ingre, ItemStack(random.choice(list(G.BLOCKS_DIR.values())).id, amount=random.randint(1, 20)), recipe2, recipe3
-
-    def test_add_1(self, characters='#@'):
-        self.recipes = Recipes()
-        recipes = []
-        ingres = []
-        outputs = []
-        for i in range(0, 50):
-            recipe, ingre, output, recipe2, recipe3 = self.generate_random_recipe(characters=characters)
-            recipes.append(recipe2)
-            ingres.append(ingre)
-            outputs.append(output)
-            self.recipes.add_recipe(recipe, ingre, output)
-        self.assertEqual(self.recipes.nr_recipes, 50)
-        for i, recipe in enumerate(recipes):
-            self.assertEqual(self.recipes.craft(recipe), outputs[i])
-
-    def test_add_2(self, characters='#@'):
-        self.recipes = Recipes()
-        recipes = []
-        ingres = []
-        outputs = []
-        for i in range(0, 25):
-            recipe, ingre, output, recipe2, recipe3 = self.generate_random_recipe(characters=characters)
-            recipes.append(recipe2)
-            ingres.append(ingre)
-            outputs.append(output)
-            self.recipes.add_shapeless_recipe(recipe3, output)
-        for i, recipe in enumerate(recipes):
-            self.assertEqual(self.recipes.craft(recipe), outputs[i])
-
-    def test_add_3(self):
-        self.recipes = Recipes()
-        recipes = []
-        ingres = []
-        outputs = []
-        for i in range(0, 25):
-            shapeless = random.choice([True, False])
-            if shapeless:
-                recipe, ingre, output, recipe2, recipe3 = self.generate_random_recipe()
-            else:
-                recipe, ingre, output, recipe2, recipe3 = self.generate_random_recipe(characters='12')
-            recipes.append(recipe2)
-            ingres.append(ingre)
-            outputs.append(output)
-            if shapeless:
-                self.recipes.add_shapeless_recipe(recipe3, output)
-            else:
-                self.recipes.add_recipe(recipe, ingre, output)
-        for i, recipe in enumerate(recipes):
-            self.assertEqual(self.recipes.craft(recipe), outputs[i])
-
-    def test_add_4(self):
-        self.test_add_1(characters='!@#$123456789')
-
-    def test_add_5(self):
-        self.test_add_2(characters='!@#$123456789')
+class SoundTests(unittest.TestCase):
+    def test_background_sound(self):
+        import globals as G
+        sounds.play_background_sound()
+        import time
+        time.sleep(2)
+        G.BACKGROUND_PLAYER.pause()
+        self.assertTrue(True)
 
 if __name__ == '__main__':
     unittest.main()

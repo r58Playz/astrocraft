@@ -258,6 +258,6 @@ G.recipes.add_recipe(["   ","   ", "###"], {'#': wheat_item},
 G.recipes.add_recipe(["#", "@"], {'#': coal_item, '@': stick_item},
                    ItemStack(torch_block.id, amount=4))
 
-
 G.smelting_recipes.add_recipe(ironore_block, ItemStack(iron_ingot_item.id, amount=1))
 G.smelting_recipes.add_recipe(cobble_block, ItemStack(stone_block.id, amount=1))
+G.smelting_recipes.add_recipe(sand_block, ItemStack(glass_block.id, amount=1))
