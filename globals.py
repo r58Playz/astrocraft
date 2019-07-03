@@ -33,6 +33,19 @@ USERNAME = "Guest"
 
 CLIENT = None  # Becomes the instance of PacketReceiver if running the client
 SERVER = None  # Becomes the instance of Server if running the server
+NOTIFICATIONS = None  # Becomes the instance of ToastNotifier in all cases.
+PENDING_NOTIFICATIONS = ()
+
+def update_notifications():
+    def r():
+        for notification in PENDING_NOTIFICATIONS:
+            NOTIFICATIONS.show_toast(notification)
+            import time
+            time.sleep(5)
+        return
+
+    import threading
+    threading.Thread(target=r, name="notifications").start()
 
 # Game modes
 SURVIVAL_MODE = 'survival'

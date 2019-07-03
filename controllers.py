@@ -245,6 +245,15 @@ class GameController(Controller):
                 return False
         self.init_gl()
 
+        self.debug_text = TextWidget(self.window, 'Loading information...',
+                                     0, self.window.height - 300,
+                                     500, 300,
+                                     visible=True, multi_line=True, readonly=True,
+                                     font_name='Arial', font_size=8,
+                                     text_color=(255, 255, 255, 255),
+                                     background_color=(0, 0, 0, 0))
+        self.debug_text.write_escape("$$r")
+
         sky_rotation = -20.0  # -20.0
 
         # TERRAIN_CHOICE = self.biome_generator.get_biome_type(sector[0], sector[2])
@@ -312,13 +321,8 @@ class GameController(Controller):
                 '', font_name='Arial', font_size=8, x=10, y=self.window.height - 10,
                 anchor_x='left', anchor_y='top', color=(255, 255, 255, 255))
 
-        self.debug_text = TextWidget(self.window, '',
-                              0, self.window.height - 300,
-                              500, 300,
-                              visible=True, multi_line=True, readonly=True,
-                              font_name='Arial', font_size=8,
-                              text_color=(255, 255, 255, 255),
-                              background_color=(0, 0, 0, 0))
+        self.debug_text.write_escape("$$D")
+
         pyglet.clock.schedule_interval_soft(self.world.process_queue,
                                             1.0 / G.MAX_FPS)
         pyglet.clock.schedule_interval_soft(self.world.hide_sectors, 10.0, self.player)
@@ -520,7 +524,7 @@ class GameController(Controller):
     def show_cracks(self, hit_block, vertex_data):
         if self.block_damage:  # also show the cracks
             crack_level = int(CRACK_LEVELS * self.block_damage
-                              // hit_block.hardness)  # range: [0, CRACK_LEVELS[
+                              // hit_block.hardness)  # range: [0, CRACK_LEVELS]
             if crack_level >= CRACK_LEVELS:
                 return
             texture_data = crack_textures.texture_data[crack_level]
@@ -564,9 +568,9 @@ class GameController(Controller):
         x, y, z = self.player.position
         self.debug_text.clear()
         self.debug_text.write_line(' '.join((G.APP_NAME, str(G.APP_VERSION))))
-        self.debug_text.write_line('Time:%.1f Inaccurate FPS:%02d Blocks Shown: %d / %d sector_packets:%d' \
-                                   % (self.time_of_day, pyglet.clock.get_fps(),len(self.world._shown),
-                                      len(self.world), len(self.world.sector_packets)))
+        self.debug_text.write_line('FPS:%02d Blocks Shown: %d / %d sector_packets:%d' \
+                                   % (pyglet.clock.get_fps(),len(self.world._shown),len(self.world),
+                                      len(self.world.sector_packets)))
         self.debug_text.write_line('x: %.2f, chunk: %d' %(x, x // G.SECTOR_SIZE))
         self.debug_text.write_line('y: %.2f, chunk: %d' %(y, y // G.SECTOR_SIZE))
         self.debug_text.write_line('z: %.2f, chunk: %d' %(z, z // G.SECTOR_SIZE))

@@ -1,5 +1,5 @@
 # Python packages
-from _socket import SHUT_RDWR
+from socket import SHUT_RDWR
 import socket
 from threading import Thread, Event, Lock
 import struct
@@ -30,7 +30,7 @@ class PacketReceiver(Thread):
         try:
             self.loop()
         except socket.error as e:
-            if e[0] in (10053, 10054):
+            if e.errno in (10053, 10054):
                 #TODO: GUI tell the client they were disconnected
                 print("Disconnected from server.")
             else:

@@ -254,10 +254,13 @@ if __name__ == '__main__':
     load_modules(server=True)
 
     server, server_thread = start_server()
-    print(('Server loop running in thread: ' + server_thread.name))
+    G.PENDING_NOTIFICATIONS +=('Server loop running in thread: ' + server_thread.name)
 
     ip, port = server.server_address
-    print("Listening on",ip,port)
+
+    G.PENDING_NOTIFICATIONS += ("Listening on" + ip + port)
+
+    G.update_notifications()
 
     helptext = "Available commands: " + ", ".join(["say", "stop", "save"])
     while 1:

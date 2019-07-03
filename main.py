@@ -23,6 +23,7 @@ from debug import log_info
 from mod import load_modules
 from savingsystem import save_world
 import sounds
+import notifications
 
 
 class Window(pyglet.window.Window):
@@ -99,9 +100,11 @@ class Window(pyglet.window.Window):
         )
 
     def on_close(self):
+        G.PENDING_NOTIFICATIONS += ('Average FPS: %f' % (self.total_fps / self.iterations),)
         if G.SERVER:
+            G.PENDING_NOTIFICATIONS += ("Saving...",)
             save_world(G.SERVER, "world")
-        log_info('Average FPS: %f' % (self.total_fps / self.iterations))
+        G.update_notifications()
         G.STOP = True
         G.BACKGROUND_PLAYER.pause()
         super(Window, self).on_close()
@@ -110,6 +113,9 @@ def main(options):
     G.GAME_MODE = options.game_mode
     G.SAVE_FILENAME = options.save
     G.DISABLE_SAVE = options.disable_save_all
+    G.PENDING_NOTIFICATIONS += ("Starting " + G.APP_NAME,)
+    G.update_notifications()
+
     for name, val in options._get_kwargs():
         setattr(G.LAUNCH_OPTIONS, name, val)
 
