@@ -2,12 +2,17 @@
 Based on a solution for Linux(https://help.gnome.org/users/zenity/3.24/notification.html.en), and a solution for MacOS(https://stackoverflow.com/questions/17651017/python-post-osx-notification)
 """
 
-# standard library
+# Python packages
 import threading
 import os
 import platform
 
+# 3rd party packages
+# Nothing for now...
+
+# Modules from this project
 import globals as G
+
 
 class ToastNotifier(object):
     """Create a toast notification.
@@ -25,7 +30,7 @@ class ToastNotifier(object):
         :duration: delay in seconds before notification self-destruction
         """
         if platform.platform() == "Windows":
-           print(msg)  # TODO: add support for windows
+            print(msg)  # TODO: add support for windows
         elif platform.platform() == "Darwin":  # macos
             os.system("""
                       osascript -e 'display notification "{}" with title "{}"'
