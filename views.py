@@ -271,10 +271,12 @@ class MainMenuView(MenuView):
         now = datetime.datetime.now()
         if now.month == 1 and now.day == 1:
             self.splash_text = 'Happy new year!'
+        elif now.month == 7 and now.day == 4:
+            self.splash_text = "Happy Fourth of July!"
 
-        self.splash_text_label = Label(self.splash_text, font_name='Arial', font_size=30, x=self.label.x, y=self.label.y,
-            anchor_x='center', anchor_y='top', color=(255, 255, 0, 255),
-            group=self.labels_group)
+        self.splash_text_label = Label(self.splash_text, font_name='Arial', font_size=30, x=self.label.x + 20,
+                                       y=self.label.y + 20, anchor_x='center', anchor_y='top', color=(255, 255, 0, 255),
+                                       group=self.labels_group)
 
         self.on_resize(width, height)
 
@@ -482,9 +484,17 @@ class OptionsView(MenuView):
         self.buttons.append(button)
         self.layout.add(hl)
 
+        button = self.ToggleButton(width=610,
+                                   caption="Anti-aliasing/multisampling (need restart to take effect)",
+                                   on_toggle=self.multisampling_callback)
+        self.button = button
+        self.button.enable(G.MULTISAMPLING) # TODO: Multisampling not working
+        self.layout.add(button)
+        self.buttons.append(button)
         button = self.Button(width=610, caption=G._("Done"), on_click=self.controller.main_menu)
         self.layout.add(button)
         self.buttons.append(button)
+
 
         self.label = Label('Options', font_name='ChunkFive Roman', font_size=25, x=width//2, y=self.frame.y + self.frame.height,
             anchor_x='center', anchor_y='top', color=(255, 255, 255, 255), batch=self.batch,
@@ -495,6 +505,11 @@ class OptionsView(MenuView):
     def on_resize(self, width, height):
         MenuView.on_resize(self, width, height)
         self.text_input.resize(x=self.frame.x + (self.frame.width - self.text_input.width) // 2 + 5, y=self.frame.y + self.frame.height // 2 + 75, width=150)
+
+    def multisampling_callback(self):
+        G.MULTISAMPLING = self.button.toggled
+        G.config.set("Multisampling", "multisampling", str(self.button.toggled))
+        G.save_config()
 
 
 class ControlsView(MenuView):
@@ -526,7 +541,7 @@ class ControlsView(MenuView):
         i = 0
         for button in self.key_buttons:
             button.position = button_x, button_y
-            if i%2 == 0:
+            if i % 2 == 0:
                 button_x += button.width + 20
             else:
                 button_x = default_button_x

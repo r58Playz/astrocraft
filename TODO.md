@@ -2,7 +2,8 @@
 
 * Render blocks in the right order so they show up correctly (see water).
 * Implement sinking in blocks, based on their density
-* Add option to change world (for example from save) during program execution without closing Window
+* Add option to change world (for example from save) during program 
+  execution without closing Window(partly finished)
 * make water spread to surrounding empty areas
 
 # Items
@@ -21,7 +22,7 @@
 * shaders (motion blur?)
 * add shadows
 * add lamps light
-* add main menu with large project name/logo, save files manager, new world creation options and settings
+* add main menu with save files manager, new world creation options and settings
 
 # Sounds
 

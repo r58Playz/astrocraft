@@ -144,6 +144,7 @@ class Button(pyglet.event.EventDispatcher, Rectangle):
         if self.enabled and self.hit_test(x, y):
             self.dispatch_event('on_click')
 
+
 Button.register_event_type('on_click')
 
 
@@ -174,7 +175,9 @@ class ToggleButton(Button):
             self.dispatch_event('on_toggle')
         super(ToggleButton, self).on_mouse_click( x, y, button, modifiers)
 
+
 ToggleButton.register_event_type('on_toggle')
+
 
 class Slot(pyglet.event.EventDispatcher, Rectangle):
 

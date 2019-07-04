@@ -1,7 +1,7 @@
 # Imports, sorted alphabetically.
 
 # Python packages
-# Nothin for now...
+# Nothing for now...
 from math import pi
 
 # Third-party packages
@@ -103,10 +103,11 @@ LEG_HEIGHT = BODY_HEIGHT
 LEG_LENGTH = BODY_WIDTH
 LEG_WIDTH = BODY_WIDTH
 
+# very good for rendering players... and mobs!
 class PlayerModel:
-    def __init__(self, position):
+    def __init__(self, position, ismob=False):
         self.position = None
-        image = load_image('resources', 'mob', 'char.png')
+        image = load_image('resources', 'player', 'char.png') if not ismob else load_image('resources', 'mob', 'herobrine.png')
         # head
         self.head = BoxModel(HEAD_LENGTH, HEAD_WIDTH, HEAD_HEIGHT, image, 32, 32, 32)
         self.head.update_texture_data([(32, 96), (64, 96), (0, 64), (64, 64), (32, 64), (96, 64)])
@@ -126,17 +127,17 @@ class PlayerModel:
 
         self.update_position(position)
 
-    def update_position(self, position, init=False):
+    def update_position(self, position):
         self.position = position
         x,y,z = position
         foot_height = y - 1.25
-        
-        self.head.position =    (x - HEAD_LENGTH / 2,              foot_height + LEG_HEIGHT + BODY_HEIGHT, z - HEAD_WIDTH / 2)
-        self.body.position =    (x - BODY_LENGTH / 2,              foot_height + LEG_HEIGHT              , z - BODY_WIDTH / 2)
-        self.left_arm.position =(x - BODY_LENGTH / 2 - ARM_LENGTH, foot_height + LEG_HEIGHT              , z - BODY_WIDTH / 2)
-        self.right_arm.position=(x + BODY_LENGTH / 2,              foot_height + LEG_HEIGHT              , z - BODY_WIDTH / 2)
-        self.left_leg.position =(x - BODY_LENGTH / 2,              foot_height                           , z - BODY_WIDTH / 2)
-        self.right_leg.position=(x - BODY_LENGTH / 2 + LEG_LENGTH, foot_height                           , z - BODY_WIDTH / 2)
+
+        self.head.position =     (x - HEAD_LENGTH / 2,              foot_height + LEG_HEIGHT + BODY_HEIGHT, z - HEAD_WIDTH / 2)
+        self.body.position =     (x - BODY_LENGTH / 2,              foot_height + LEG_HEIGHT,               z - BODY_WIDTH / 2)
+        self.left_arm.position = (x - BODY_LENGTH / 2 - ARM_LENGTH, foot_height + LEG_HEIGHT,               z - BODY_WIDTH / 2)
+        self.right_arm.position= (x + BODY_LENGTH / 2,              foot_height + LEG_HEIGHT,               z - BODY_WIDTH / 2)
+        self.left_leg.position = (x - BODY_LENGTH / 2,              foot_height,                            z - BODY_WIDTH / 2)
+        self.right_leg.position= (x - BODY_LENGTH / 2 + LEG_LENGTH, foot_height,                            z - BODY_WIDTH / 2)
 
     def draw(self):
         self.head.draw()
@@ -145,4 +146,3 @@ class PlayerModel:
         self.right_arm.draw()
         self.left_leg.draw()
         self.right_leg.draw()
-        

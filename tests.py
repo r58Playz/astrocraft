@@ -99,15 +99,6 @@ class InventoryTests(unittest.TestCase):
         inv.remove_unnecessary_stacks()
         self.assertEqual(inv.slots, [None] * 20)
 
-class SoundTests(unittest.TestCase):
-    def test_background_sound(self):
-        import globals as G
-        sounds.play_background_sound()
-        import time
-        time.sleep(2)
-        G.BACKGROUND_PLAYER.pause()
-        self.assertTrue(True)
-        return
 
 if __name__ == '__main__':
     unittest.main()

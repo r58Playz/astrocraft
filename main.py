@@ -106,8 +106,8 @@ class Window(pyglet.window.Window):
             save_world(G.SERVER, "world")
         G.update_notifications()
         G.STOP = True
-        G.BACKGROUND_PLAYER.pause()
         super(Window, self).on_close()
+
 
 def main(options):
     G.GAME_MODE = options.game_mode
@@ -134,14 +134,18 @@ def main(options):
 
     load_modules()
 
-    #try:
-    #    window_config = Config(sample_buffers=1, samples=4, depth_size=8, double_buffer=True)  # TODO Break anti-aliasing/multisampling into an explicit menu option
-    #    window = Window(resizable=True, config=window_config)
-    #    pyglet.app.run()
-    #except pyglet.window.NoSuchConfigException:
-    window = Window(resizable=True, vsync=False)
-    sounds.play_background_sound()
-    pyglet.app.run()
+    if G.MULTISAMPLING:
+        try:
+            window_config = Config(sample_buffers=1, samples=4, depth_size=8, double_buffer=True)  # TODO Break anti-aliasing/multisampling into an explicit menu option
+            window = Window(resizable=True, config=window_config)
+            pyglet.app.run()
+        except pyglet.window.NoSuchConfigException as e:
+            print("Multisampling could not be initialized.", e)
+            window = Window(resizable=True, vsync=False)
+            pyglet.app.run()
+    else:
+        window = Window(resizable=True, vsync=False)
+        pyglet.app.run()
 
     if G.CLIENT:
         G.CLIENT.stop()

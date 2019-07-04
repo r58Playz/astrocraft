@@ -30,6 +30,7 @@ LOG_DEBUG, LOG_INFO, LOG_WARNING, LOG_ERROR, LOG_FATAL = list(range(5))
 LOG_LEVEL = LOG_INFO
 IP_ADDRESS = ""  # The IP Address to connect to
 USERNAME = "Guest"
+MULTISAMPLING = True
 
 CLIENT = None  # Becomes the instance of PacketReceiver if running the client
 SERVER = None  # Becomes the instance of Server if running the server
@@ -305,7 +306,7 @@ def initialize_config():
     #
     # General
     #
-    global DEBUG, FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, DRAW_DISTANCE_CHOICE, DRAW_DISTANCE_CHOICES, DRAW_DISTANCE, MOTION_BLUR, FOG_ENABLED, TEXTURE_PACK, USERNAME, IP_ADDRESS, LANGUAGE
+    global DEBUG, FULLSCREEN, WINDOW_WIDTH, WINDOW_HEIGHT, DRAW_DISTANCE_CHOICE, DRAW_DISTANCE_CHOICES, DRAW_DISTANCE, MOTION_BLUR, FOG_ENABLED, TEXTURE_PACK, USERNAME, IP_ADDRESS, LANGUAGE, MULTISAMPLING
 
     general = 'General'
 
@@ -341,15 +342,6 @@ def initialize_config():
         graphics, 'texture_pack', TEXTURE_PACK, conv=str)
 
     #
-    # World
-    #
-
-    world = 'World'
-
-    # TODO: This setting must be removed when terrain generation will improve.
-    get_or_update_config(world, 'size', 64, conv=int)
-
-    #
     # Controls
     #
 
@@ -374,6 +366,12 @@ def initialize_config():
     LANGUAGE = get_or_update_config(
         localization, 'language', LANGUAGE, conv=str)
 
+    #
+    # Multisampling
+    #
+    MULTISAMPLING = get_or_update_config('Multisampling', 'multisampling', MULTISAMPLING, conv=bool)
+
     save_config()
+
 
 initialize_config()
