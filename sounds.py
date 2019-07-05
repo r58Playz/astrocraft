@@ -62,7 +62,8 @@ cloth1 = pyglet.resource.media("cloth1.wav", streaming=False)
 cloth2 = pyglet.resource.media("cloth2.wav", streaming=False)
 cloth3 = pyglet.resource.media("cloth3.wav", streaming=False)
 chestopen = pyglet.resource.media("chestopen.wav", streaming=False)
-chestclose = pyglet.resource.media("chestclose.wav", streaming=False)
+chestclose = pyglet.resource.media("chestclosed.wav", streaming=False)
+loop_1 = pyglet.resource.media("background/2.wav", streaming=False)
 
 
 def play_sound(sound, player: custom_types.Player, position=None):
@@ -87,5 +88,4 @@ def play_sound(sound, player: custom_types.Player, position=None):
             return sound_player, False
 
     return sound_player
-
 

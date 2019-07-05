@@ -10,6 +10,7 @@ from math import floor
 # Nothing for now...
 
 # Third-party packages
+import pyglet
 from pyglet.gl import *
 from pyglet.image.atlas import TextureAtlas
 
@@ -342,9 +343,11 @@ class Block:
         if self.sub_id_as_metadata:
             self.id.sub = metadata
 
-    def play_break_sound(self, player: custom_types.Player, position=None):
+    def play_break_sound(self, player, position):
         if self.break_sound_options is not None:
-            play_sound(random.choice(self.break_sound_options), player=player, position=position)
+            import threading
+            ch = random.choice(self.break_sound_options)
+            threading.Thread(target=lambda: play_sound(ch, player=player, position=position)).start()
 
     def update_tile_entity(self, value):
         pass

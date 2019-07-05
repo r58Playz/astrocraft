@@ -111,7 +111,10 @@ class World(dict):
 
     # Client side, delete the block
     def _remove_block(self, position: iVector, sync: bool = True):
-        del self[position]
+        try:
+            del self[position]
+        except KeyError:
+            pass
         sector_position = sectorize(position)
         try:
             self.sectors[sector_position].remove(position)
