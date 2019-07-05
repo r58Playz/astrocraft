@@ -10,7 +10,6 @@ from math import floor
 # Nothing for now...
 
 # Third-party packages
-import pyglet
 from pyglet.gl import *
 from pyglet.image.atlas import TextureAtlas
 
@@ -37,18 +36,18 @@ def get_texture_coordinates(x, y, tileset_size=G.TILESET_SIZE):
     return dx, dy, dx + m, dy, dx + m, dy + m, dx, dy + m
 
 
-#To enable, extract a texture pack's blocks folder to resources/texturepacks/textures/blocks/
-#For MC 1.5 Texture Packs
+# To enable, extract a texture pack's blocks folder to resources/texturepacks/textures/blocks/
+# For MC 1.5 Texture Packs
 class TextureGroupIndividual(pyglet.graphics.Group):
     def __init__(self, names, height=1.0, width=1.0, background_color=None):
         super(TextureGroupIndividual, self).__init__()
         atlas = None
         # self.texture = atlas.texture
         self.texture_data = []
-        i=0
+        i = 0
         texture_pack = G.texture_pack_list.selected_texture_pack
         for name in names:
-            if not name in BLOCK_TEXTURE_DIR:
+            if name not in BLOCK_TEXTURE_DIR:
                 BLOCK_TEXTURE_DIR[name] = texture_pack.load_texture(['textures', 'blocks', name + '.png'])
 
             if not BLOCK_TEXTURE_DIR[name]:
@@ -60,29 +59,26 @@ class TextureGroupIndividual(pyglet.graphics.Group):
             if background_color is not None:
                 data = bytearray(BLOCK_TEXTURE_DIR[name].get_image_data().get_data('RGBA', texture_size * 4))
                 for i in range(len(data)):
-                    if data [i] == background_color:
+                    if data[i] == background_color:
                         data[i] = 0
                 BLOCK_TEXTURE_DIR[name].get_image_data().set_data('RGBA', texture_size * 4, bytes(data))
 
-            if atlas == None:
+            if atlas is None:
                 atlas = TextureAtlas(texture_size * len(names), texture_size)
                 self.texture = atlas.texture
 
-            subtex = atlas.add(BLOCK_TEXTURE_DIR[name].get_region(0,0,texture_size,texture_size))
+            subtex = atlas.add(BLOCK_TEXTURE_DIR[name].get_region(0, 0, texture_size, texture_size))
             for val in subtex.tex_coords:
                 i += 1
-                if i % 3 != 0: self.texture_data.append(val)  # tex_coords has a z component we don't utilize
-        if atlas == None:
+                if i % 3 != 0:
+                    self.texture_data.append(val)  # tex_coords has a z component we don't utilize
+        if atlas is None:
             atlas = TextureAtlas(1, 1)
         self.texture = atlas.texture
-        # Repeat the last texture for the remaining sides
-        # (top, bottom, side, side, side, side)
-        # ie: ("dirt",) ("grass_top","dirt","grass_side")
-        # Becomes ("dirt","dirt","dirt","dirt","dirt","dirt") ("grass_top","dirt","grass_side","grass_side","grass_side","grass_side")
-        self.texture_data += self.texture_data[-8:]*(6-len(names))
+        self.texture_data += self.texture_data[-8:]*(6-len(names))  # Repeats last texture for remaining sides
 
         # resize the texture
-        if height != 1.0 or width != 1.0 :
+        if height != 1.0 or width != 1.0:
             if len(self.texture_data) == 0:
                 return
 
@@ -91,14 +87,19 @@ class TextureGroupIndividual(pyglet.graphics.Group):
             w_margin = tex_width * (1.0 - width) / 2
             # top and bottom
             for i in (0, 1):
-                for j in (0, 1, 3, 6): self.texture_data[i * 8 + j] += w_margin
-                for j in (2, 4, 5, 7): self.texture_data[i * 8 + j] -= w_margin
+                for j in (0, 1, 3, 6):
+                    self.texture_data[i * 8 + j] += w_margin
+                for j in (2, 4, 5, 7):
+                    self.texture_data[i * 8 + j] -= w_margin
 
             # side
             for i in range(2, 6):
-                for j in (0, 6): self.texture_data[i * 8 + j] += w_margin
-                for j in (2, 4): self.texture_data[i * 8 + j] -= w_margin
-                for j in (5, 7): self.texture_data[i * 8 + j] -= h_margin
+                for j in (0, 6):
+                    self.texture_data[i * 8 + j] += w_margin
+                for j in (2, 4):
+                    self.texture_data[i * 8 + j] -= w_margin
+                for j in (5, 7):
+                    self.texture_data[i * 8 + j] -= h_margin
 
     def set_state(self):
         if self.texture:
@@ -178,15 +179,15 @@ class BlockID:
         return self.main >= G.ITEM_ID_MIN
 
     def filename(self):
-        if self.icon_name != None: return ["textures", "items" if self.is_item() else "blocks", str(self.icon_name) + ".png"]
-        if self.sub == 0: return ["textures", "icons", str(self.main) + ".png"]
+        if self.icon_name is not None:
+            return ["textures", "items" if self.is_item() else "blocks", str(self.icon_name) + ".png"]
+        if self.sub == 0:
+            return ["textures", "icons", str(self.main) + ".png"]
         return ["textures", "icons", '%d.%d.png' % (self.main, self.sub)]
 
 
 class Block:
-    id = None  # Original minecraft id (also called data value).
-               # Verify on http://www.minecraftwiki.net/wiki/Data_values
-               # when creating a new "official" block.
+    id = None
 
     _drop_id = None
     _drop_quantity = None
@@ -232,7 +233,8 @@ class Block:
     icon_name = None
 
     # Sounds
-    break_sound_options = (sounds.wood, sounds.wood1, sounds.wood2, sounds.wood3, sounds.wood4, sounds.wood5, sounds.wood6)
+    break_sound_options = (sounds.wood, sounds.wood1, sounds.wood2, sounds.wood3,
+                           sounds.wood4, sounds.wood5, sounds.wood6)
 
     # Physical attributes
     hardness = 0.0  # hardness can be found on http://www.minecraftwiki.net/wiki/Digging#Blocks_by_hardness
@@ -278,11 +280,11 @@ class Block:
         return self.name
 
     def get_texture_data(self):
-        textures = self.top_texture + self.bottom_texture \
-                   + self.front_texture + self.side_texture
+        texture = self.top_texture + self.bottom_texture \
+                  + self.front_texture + self.side_texture
         if self.vertex_mode != G.VERTEX_CROSS:
-            textures += self.side_texture * 2
-        return list(textures)
+            texture += self.side_texture * 2
+        return list(texture)
 
     def get_vertices(self, x, y, z):
         w = self.width / 2.0
@@ -375,23 +377,24 @@ class Block:
 
 
 class BlockColorizer:
-        def __init__(self, filename):
-            self.color_data = G.texture_pack_list.selected_texture_pack.load_texture(['misc', filename])
-            # if the texture is not available, don't colorize it
-            if self.color_data is None:
-                return
-            self.color_data = self.color_data.get_data('RGB', self.color_data.width * 3)
+    def __init__(self, filename):
+        self.color_data = G.texture_pack_list.selected_texture_pack.load_texture(['misc', filename])
+        # if the texture is not available, don't colorize it
+        if self.color_data is None:
+            return
+        self.color_data = self.color_data.get_data('RGB', self.color_data.width * 3)
 
-        def get_color(self, temperature, humidity):
-            temperature = 1 - temperature
-            if temperature + humidity > 1:
-                delta = (temperature + humidity - 1) / 2
-                temperature -= delta
-                humidity -= delta
-            if self.color_data is None:
-                return 1, 1, 1
-            pos = int(floor(humidity * 255) * BYTE_PER_LINE + 3 * floor((temperature) * 255))
-            return float(self.color_data[pos]) / 255, float(self.color_data[pos + 1]) / 255, float(self.color_data[pos + 2]) / 255
+    def get_color(self, temperature, humidity):
+        temperature = 1 - temperature
+        if temperature + humidity > 1:
+            delta = (temperature + humidity - 1) / 2
+            temperature -= delta
+            humidity -= delta
+        if self.color_data is None:
+            return 1, 1, 1
+        pos = int(floor(humidity * 255) * BYTE_PER_LINE + 3 * floor(temperature * 255))
+        return float(self.color_data[pos]) / 255, \
+            float(self.color_data[pos + 1]) / 255, float(self.color_data[pos + 2]) / 255
 
 
 class AirBlock(Block):
@@ -519,12 +522,14 @@ class IronOreBlock(HardBlock):
     name = "Iron Ore"
     smelting_time = 10
 
+
 class DiamondOreBlock(HardBlock):
     texture_name = "oreDiamond",
     icon_name = "oreDiamond"
     hardness = 3
     id = 56
     digging_tool = G.PICKAXE
+
     def __init__(self):
         super(DiamondOreBlock, self).__init__()
         self.drop_id = BlockID(264)
@@ -537,9 +542,11 @@ class CoalOreBlock(HardBlock):
     hardness = 3
     id = 16
     digging_tool = G.PICKAXE
+
     def __init__(self):
         super(CoalOreBlock, self).__init__()
         self.drop_id = BlockID(263)
+
     name = "Coal Ore"
 
 
@@ -596,6 +603,7 @@ class GravelBlock(Block):
     def drop_id(self, value):
         self._drop_id = value
 
+
 class BedrockBlock(HardBlock):
     texture_name = "bedrock",
     icon_name = "bedrock"
@@ -623,7 +631,7 @@ class WaterBlock(Block):
 
 
 class CraftTableBlock(WoodBlock):
-    texture_name = "workbench_top","wood","workbench_front","workbench_side",
+    texture_name = "workbench_top", "wood", "workbench_front", "workbench_side",
     icon_name = "workbench_front"
     hardness = 2.5
     id = 58
@@ -638,19 +646,21 @@ class MetaBlock(WoodBlock):  # this is a experimental block.
 
 
 class SandstoneBlock(HardBlock):
-    texture_name = "sandstone_top","sandstone_bottom","sandstone_side"
+    texture_name = "sandstone_top", "sandstone_bottom", "sandstone_side"
     icon_name = "sandstone_side"
     amount_label_color = 0, 0, 0, 255
     hardness = 0.8
     id = 24
     name = "Sandstone"
 
+
 class EmeraldOreBlock(HardBlock):
     texture_name = "oreEmerald",
     icon_name = "oreEmerald"
     hardness = 2
-    id = 129,0
+    id = 129, 0
     name = "Emerald Ore"
+
 
 class LapisOreBlock(HardBlock):
     texture_name = "oreLapis",
@@ -659,27 +669,29 @@ class LapisOreBlock(HardBlock):
     id = 21
     name = "Lapis Ore"
 
+
 class RubyOreBlock(HardBlock):
     top_texture = 12, 0
     bottom_texture = 12, 0
     side_texture = 12, 0
     hardness = 2
-    id = 129,1 # not in MC
+    id = 129, 1
     name = "Ruby Ore"
+
 
 class SapphireOreBlock(HardBlock):
     top_texture = 12, 2
     bottom_texture = 12, 2
     side_texture = 12, 2
     hardness = 2
-    id = 129,2
+    id = 129, 2
     name = "Sapphire Ore"
 
 
 class QuartzBlock(HardBlock):
-    texture_name = "quartzblock_top","quartzblock_bottom","quartzblock_side"
+    texture_name = "quartzblock_top", "quartzblock_bottom", "quartzblock_side"
     icon_name = "quartzblock_side"
-    id = 155,0
+    id = 155, 0
     hardness = 2
     name = "Quartz"
     amount_label_color = 0, 0, 0, 255
@@ -687,9 +699,9 @@ class QuartzBlock(HardBlock):
 
 
 class ChiseledQuartzBlock(HardBlock):
-    texture_name = "quartzblock_chiseled_top","quartzblock_chiseled_top","quartzblock_chiseled"
+    texture_name = "quartzblock_chiseled_top", "quartzblock_chiseled_top", "quartzblock_chiseled"
     icon_name = "quartzblock_chiseled"
-    id = 155,1
+    id = 155, 1
     hardness = 2
     name = "Chiseled Quartz"
     amount_label_color = 0, 0, 0, 255
@@ -697,9 +709,9 @@ class ChiseledQuartzBlock(HardBlock):
 
 
 class ColumnQuartzBlock(HardBlock):
-    texture_name = "quartzblock_lines_top","quartzblock_lines_top","quartzblock_lines"
+    texture_name = "quartzblock_lines_top", "quartzblock_lines_top", "quartzblock_lines"
     icon_name = "quartzblock_lines"
-    id = 155,2
+    id = 155, 2
     hardness = 2
     name = "Column Quartz"
     amount_label_color = 0, 0, 0, 255
@@ -710,7 +722,7 @@ class QuartzBrickBlock(HardBlock):
     top_texture = 9, 7
     bottom_texture = 9, 7
     side_texture = 9, 7
-    id = 155,3
+    id = 155, 3
     hardness = 2
     name = "Quartz Brick"
     amount_label_color = 0, 0, 0, 255
@@ -721,7 +733,7 @@ class BirchWoodPlankBlock(WoodBlock):
     texture_name = "wood_birch",
     icon_name = "wood_birch"
     hardness = 2
-    id = 5,0
+    id = 5, 0
     burning_time = 15
     name = "Birch Wood Planks"
 
@@ -730,7 +742,7 @@ class OakWoodPlankBlock(WoodBlock):
     texture_name = "wood",
     icon_name = "wood"
     hardness = 2
-    id = 5,1
+    id = 5, 1
     burning_time = 15
     name = "Oak Wood Planks"
 
@@ -739,17 +751,17 @@ class JungleWoodPlankBlock(WoodBlock):
     texture_name = "wood_jungle",
     icon_name = "wood_jungle"
     hardness = 2
-    id = 5,3
+    id = 5, 3
     burning_time = 15
     name = "Jungle Wood Planks"
 
 
 class SnowGrassBlock(Block):
-    texture_name = "snow","dirt","snow_side"
+    texture_name = "snow", "dirt", "snow_side"
     icon_name = "snow_side"
     hardness = 0.6
     id = 80
-    break_sound_options = sounds.dirt
+    break_sound_options = (sounds.dirt,)
 
     def __init__(self):
         super(SnowGrassBlock, self).__init__()
@@ -757,10 +769,10 @@ class SnowGrassBlock(Block):
 
 
 class OakWoodBlock(WoodBlock):
-    texture_name = "tree_top","tree_top","tree_side"
+    texture_name = "tree_top", "tree_top", "tree_side"
     icon_name = "tree_side"
     hardness = 2
-    id = 17,0
+    id = 17, 0
     name = "Oak wood"
     burning_time = 15
 
@@ -770,7 +782,7 @@ class OakBranchBlock(WoodBlock):
     bottom_texture = 7, 0
     side_texture = 7, 0
     hardness = 2
-    id = 17,1
+    id = 17, 1
     name = "Oak wood"
 
     def __init__(self):
@@ -779,19 +791,19 @@ class OakBranchBlock(WoodBlock):
 
 
 class JungleWoodBlock(WoodBlock):
-    texture_name = "tree_top","tree_top","tree_jungle"
+    texture_name = "tree_top", "tree_top", "tree_jungle"
     icon_name = "tree_jungle"
     hardness = 2
-    id = 17,1
+    id = 17, 1
     name = "Jungle wood"
     burning_time = 15
 
 
 class BirchWoodBlock(WoodBlock):
-    texture_name = "tree_top","tree_top","tree_birch"
+    texture_name = "tree_top", "tree_top", "tree_birch"
     icon_name = "tree_birch"
     hardness = 2
-    id = 17,2
+    id = 17, 2
     amount_label_color = 0, 0, 0, 255
     name = "Birch wood"
     burning_time = 15
@@ -800,27 +812,23 @@ class BirchWoodBlock(WoodBlock):
 class CactusBlock(Block):
     width = 0.8
     transparent = True
-    texture_name = "cactus_top","cactus_bottom","cactus_side"
+    texture_name = "cactus_top", "cactus_bottom", "cactus_side"
     icon_name = "cactus_side"
     hardness = 2
     player_damage = 1
-    id = 81,0
+    id = 81, 0
     name = "Cactus"
 
 
-class TallCactusBlock(Block):
+class TallCactusBlock(CactusBlock):
     width = 0.3
-    texture_name = "cactus_top","cactus_bottom","cactus_side"
-    icon_name = "cactus_side"
-    transparent = True
     hardness = 1
-    player_damage = 1
-    id = 81,1
+    id = 81, 1
     name = "Thin Cactus"
 
 
 class LeafBlock(Block):
-    break_sound_options = sounds.leaves
+    break_sound_options = (sounds.leaves,)
     colorizer = BlockColorizer('foliagecolor.png')
 
     def __init__(self):
@@ -837,7 +845,7 @@ class OakLeafBlock(LeafBlock):
     texture_name = "leaves",
     icon_name = "leaves"
     hardness = 0.3
-    id = 18,0
+    id = 18, 0
     name = "Oak Leaves"
 
 
@@ -845,7 +853,7 @@ class JungleLeafBlock(LeafBlock):
     texture_name = "leaves_jungle",
     icon_name = "leaves_jungle"
     hardness = 0.3
-    id = 18,1
+    id = 18, 1
     name = "Jungle Leaves"
 
 
@@ -853,7 +861,7 @@ class BirchLeafBlock(LeafBlock):
     texture_name = "leaves",
     icon_name = "leaves"
     hardness = 0.3
-    id = 18,2
+    id = 18, 2
     name = "Birch Leaves"
 
     def __init__(self):
@@ -864,26 +872,26 @@ class BirchLeafBlock(LeafBlock):
 class MelonBlock(Block):
     width = 0.8
     height = 0.8
-    texture_name = "melon_top","melon_top","melon_side"
+    texture_name = "melon_top", "melon_top", "melon_side"
     icon_name = "melon_side"
     transparent = True
     hardness = 1
     id = 103
     name = "Melon"
     regenerated_health = 3
-    break_sound_options = (sounds.melon_break,)
+    break_sound_options = (sounds.melon,)
 
 
 class PumpkinBlock(MelonBlock):
     width = 0.8
     height = 0.8
-    texture_name = "pumpkin_top","pumpkin_top","pumpkin_side"
+    texture_name = "pumpkin_top", "pumpkin_top", "pumpkin_side"
     icon_name = "pumpkin_side"
     transparent = True
     hardness = 1
     id = 86
     name = "Pumpkin"
-    regenerated_health = 3 # pumpkin pie
+    regenerated_health = 3  # pumpkin pie
 
 
 class TorchBlock(WoodBlock):
@@ -921,15 +929,15 @@ class YFlowersBlock(Block):
 
     def on_neighbor_change(self, world, neighbor_pos, self_pos):
         if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
-            world.remove_block(None,self_pos)
+            world.remove_block(None, self_pos)
 
 
 class StoneSlabBlock(HardBlock):
-    texture_name = "stoneslab_top","stoneslab_top","stoneslab_side",
+    texture_name = "stoneslab_top", "stoneslab_top", "stoneslab_side",
     icon_name = "stoneslab_side"
     hardness = 2
     id = 43
-    name = "Full Stone Slab"
+    name = "Stone Slab"
 
 
 class ClayBlock(HardBlock):
@@ -944,7 +952,7 @@ class CobbleBlock(HardBlock):
     texture_name = "stonebrick",
     icon_name = "stonebrick"
     hardness = 2
-    id = 4,0
+    id = 4, 0
     name = "Cobblestone"
 
 
@@ -954,12 +962,12 @@ class CobbleFenceBlock(HardBlock):
     icon_name = "stonebrick"
     transparent = True
     hardness = 2
-    id = 4,1
+    id = 4, 1
     name = "Cobblestone Fence Post"
 
 
 class BookshelfBlock(WoodBlock):
-    texture_name = "wood","wood","bookshelf"
+    texture_name = "wood", "wood", "bookshelf"
     icon_name = "bookshelf"
     hardness = 1.5
     id = 47
@@ -968,7 +976,7 @@ class BookshelfBlock(WoodBlock):
 
 
 class FurnaceBlock(HardBlock):
-    texture_name = "furnace_top","stonebrick","furnace_front","furnace_side"
+    texture_name = "furnace_top", "stonebrick", "furnace_front", "furnace_side"
     icon_name = "furnace_front"
     hardness = 3.5
     id = 61
@@ -1018,7 +1026,6 @@ class FurnaceBlock(HardBlock):
         if self.entity.smelt_stack is not None:
             if self.entity.smelt_stack.amount == 0:
                 self.entity.smelt_stack = None
-
 
     def set_smelting_item(self, item):
         if item is None:
@@ -1081,277 +1088,274 @@ class ChestBlock(Block):
 
 
 # Wool blocks
-class BlackWoolBlock(Block):
+class WoolBlock(Block):
+    break_sound_options = (sounds.cloth, sounds.cloth1, sounds.cloth2, sounds.cloth3)
+
+
+class BlackWoolBlock(WoolBlock):
     texture_name = "cloth_15",
     icon_name = "cloth_15"
     hardness = 1
-    id = 35,15
+    id = 35, 15
     name = "Black Wool"
 
 
-class RedWoolBlock(Block):
+class RedWoolBlock(WoolBlock):
     texture_name = "cloth_14",
     icon_name = "cloth_14"
     hardness = 1
-    id = 35,14
+    id = 35, 14
     name = "Red Wool"
 
 
-class GreenWoolBlock(Block):
+class GreenWoolBlock(WoolBlock):
     texture_name = "cloth_13",
     icon_name = "cloth_13"
     hardness = 1
-    id = 35,13
+    id = 35, 13
     name = "Green Wool"
 
 
-class BrownWoolBlock(Block):
+class BrownWoolBlock(WoolBlock):
     texture_name = "cloth_12",
     icon_name = "cloth_12"
     hardness = 1
-    id = 35,12
+    id = 35, 12
     name = "Brown Wool"
 
 
-class BlueWoolBlock(Block):
+class BlueWoolBlock(WoolBlock):
     texture_name = "cloth_11",
     icon_name = "cloth_11"
     hardness = 1
-    id = 35,11
+    id = 35, 11
     name = "Blue Wool"
 
 
-class PurpleWoolBlock(Block):
+class PurpleWoolBlock(WoolBlock):
     texture_name = "cloth_10",
     icon_name = "cloth_10"
     hardness = 1
-    id = 35,10
+    id = 35, 10
     name = "Purple Wool"
 
 
-class CyanWoolBlock(Block):
+class CyanWoolBlock(WoolBlock):
     texture_name = "cloth_9",
     icon_name = "cloth_9"
     hardness = 1
-    id = 35,9
+    id = 35, 9
     name = "Cyan Wool"
 
 
-class LightGreyWoolBlock(Block):
+class LightGreyWoolBlock(WoolBlock):
     texture_name = "cloth_8",
     icon_name = "cloth_8"
     hardness = 1
-    id = 35,8
+    id = 35, 8
     name = "Light Grey Wool"
 
 
-class GreyWoolBlock(Block):
+class GreyWoolBlock(WoolBlock):
     texture_name = "cloth_7",
     icon_name = "cloth_7"
     hardness = 1
-    id = 35,7
+    id = 35, 7
     name = "Grey Wool"
 
 
-class PinkWoolBlock(Block):
+class PinkWoolBlock(WoolBlock):
     texture_name = "cloth_6",
     icon_name = "cloth_6"
     hardness = 1
-    id = 35,6
+    id = 35, 6
     name = "Pink Wool"
 
 
-class LimeWoolBlock(Block):
+class LimeWoolBlock(WoolBlock):
     texture_name = "cloth_5",
     icon_name = "cloth_5"
     hardness = 1
-    id = 35,5
+    id = 35, 5
     name = "Lime Wool"
 
 
-class YellowWoolBlock(Block):
+class YellowWoolBlock(WoolBlock):
     texture_name = "cloth_4",
     icon_name = "cloth_4"
     hardness = 1
-    id = 35,4
+    id = 35, 4
     name = "Yellow Wool"
 
 
-class LightBlueWoolBlock(Block):
+class LightBlueWoolBlock(WoolBlock):
     texture_name = "cloth_3",
     icon_name = "cloth_3"
     hardness = 1
-    id = 35,3
+    id = 35, 3
     name = "Light Blue Wool"
 
 
-class MagentaWoolBlock(Block):
+class MagentaWoolBlock(WoolBlock):
     texture_name = "cloth_2",
     icon_name = "cloth_2"
     hardness = 1
-    id = 35,2
+    id = 35, 2
     name = "Magenta Wool"
 
 
-class OrangeWoolBlock(Block):
+class OrangeWoolBlock(WoolBlock):
     texture_name = "cloth_1",
     icon_name = "cloth_1"
     hardness = 1
-    id = 35,1
+    id = 35, 1
     name = "Orange Wool"
 
 
-class WhiteWoolBlock(Block):
+class WhiteWoolBlock(WoolBlock):
     texture_name = "cloth_0",
     icon_name = "cloth_0"
     hardness = 1
-    id = 35,0
+    id = 35, 0
     name = "White Wool"
     amount_label_color = 0, 0, 0, 255
 
 
 # Carpet blocks
-class BlackCarpetBlock(Block):
+class CarpetBlock(WoolBlock):
     height = 0.05
+
+
+class BlackCarpetBlock(CarpetBlock):
     texture_name = "cloth_15",
     icon_name = "cloth_15"
     hardness = 1
-    id = 171,15
+    id = 171, 15
     name = "Black Carpet"
 
 
-class RedCarpetBlock(Block):
-    height = 0.05
+class RedCarpetBlock(CarpetBlock):
     texture_name = "cloth_14",
     icon_name = "cloth_14"
     hardness = 1
-    id = 171,14
+    id = 171, 14
     name = "Red Carpet"
 
 
-class GreenCarpetBlock(Block):
-    height = 0.05
+class GreenCarpetBlock(CarpetBlock):
     texture_name = "cloth_13",
     icon_name = "cloth_13"
     hardness = 1
-    id = 171,13
+    id = 171, 13
     name = "Green Carpet"
 
 
-class BrownCarpetBlock(Block):
-    height = 0.05
+class BrownCarpetBlock(CarpetBlock):
     texture_name = "cloth_12",
     icon_name = "cloth_12"
     hardness = 1
-    id = 171,12
+    id = 171, 12
     name = "Brown Carpet"
 
 
-class BlueCarpetBlock(Block):
-    height = 0.05
+class BlueCarpetBlock(CarpetBlock):
     texture_name = "cloth_11",
     icon_name = "cloth_11"
     hardness = 1
-    id = 171,11
+    id = 171, 11
     name = "Blue Carpet"
 
 
-class PurpleCarpetBlock(Block):
-    height = 0.05
+class PurpleCarpetBlock(CarpetBlock):
     texture_name = "cloth_10",
     icon_name = "cloth_10"
     hardness = 1
-    id = 171,10
+    id = 171, 10
     name = "Purple Carpet"
 
 
-class CyanCarpetBlock(Block):
-    height = 0.05
+class CyanCarpetBlock(CarpetBlock):
     texture_name = "cloth_9",
     icon_name = "cloth_9"
     hardness = 1
-    id = 171,9
+    id = 171, 9
     name = "Cyan Carpet"
 
 
-class LightGreyCarpetBlock(Block):
-    height = 0.05
+class LightGreyCarpetBlock(CarpetBlock):
     texture_name = "cloth_8",
     icon_name = "cloth_8"
     hardness = 1
-    id = 171,8
+    id = 171, 8
     name = "Light Grey Carpet"
 
 
-class GreyCarpetBlock(Block):
-    height = 0.05
+class GreyCarpetBlock(CarpetBlock):
     texture_name = "cloth_7",
     icon_name = "cloth_7"
     hardness = 1
-    id = 171,7
+    id = 171, 7
     name = "Grey Carpet"
 
 
-class PinkCarpetBlock(Block):
-    height = 0.05
+class PinkCarpetBlock(CarpetBlock):
     texture_name = "cloth_6",
     icon_name = "cloth_6"
     hardness = 1
-    id = 171,6
+    id = 171, 6
     name = "Pink Carpet"
 
 
-class LimeCarpetBlock(Block):
-    height = 0.05
+class LimeCarpetBlock(CarpetBlock):
     texture_name = "cloth_5",
     icon_name = "cloth_5"
     hardness = 1
-    id = 171,5
+    id = 171, 5
     name = "Lime Carpet"
 
 
-class YellowCarpetBlock(Block):
-    height = 0.05
+class YellowCarpetBlock(CarpetBlock):
     texture_name = "cloth_4",
     icon_name = "cloth_4"
     hardness = 1
-    id = 171,4
+    id = 171, 4
     name = "Yellow Carpet"
 
-class LightBlueCarpetBlock(Block):
-    height = 0.05
+
+class LightBlueCarpetBlock(CarpetBlock):
     texture_name = "cloth_3",
     icon_name = "cloth_3"
     hardness = 1
-    id = 171,3
+    id = 171, 3
     name = "Light Blue Carpet"
 
-class MagentaCarpetBlock(Block):
-    height = 0.05
+
+class MagentaCarpetBlock(CarpetBlock):
     texture_name = "cloth_2",
     icon_name = "cloth_2"
     hardness = 1
-    id = 171,2
+    id = 171, 2
     name = "Magenta Carpet"
 
-class OrangeCarpetBlock(Block):
-    height = 0.05
+
+class OrangeCarpetBlock(CarpetBlock):
     texture_name = "cloth_1",
     icon_name = "cloth_1"
     hardness = 1
-    id = 171,1
+    id = 171, 1
     name = "Orange Carpet"
 
-class WhiteCarpetBlock(Block):
-    height = 0.05
+
+class WhiteCarpetBlock(CarpetBlock):
     texture_name = "cloth_0",
     icon_name = "cloth_0"
     hardness = 1
-    id = 171,0
+    id = 171, 0
     name = "White Carpet"
     amount_label_color = 0, 0, 0, 255
 
-# moreplants
+
+# more plants
 class RoseBlock(Block):
     vertex_mode = G.VERTEX_CROSS
     side_texture = 0, 0
@@ -1362,7 +1366,7 @@ class RoseBlock(Block):
     texture_name = "rose", "rose", "rose"
     icon_name = "rose"
     name = "Rose"
-    break_sound_options = sounds.leaves
+    break_sound_options = (sounds.leaves,)
     amount_label_color = 0, 0, 0, 255
 
     def __init__(self):
@@ -1372,6 +1376,7 @@ class RoseBlock(Block):
     def on_neighbor_change(self, world, neighbor_pos, self_pos):
         if (self_pos[0], self_pos[1] - 1, self_pos[-1]) not in world:
             world.remove_block(None, self_pos)
+
 
 class ReedBlock(Block):
     texture_name = "reeds"
@@ -1398,7 +1403,7 @@ class CropBlock(Block):
     vertex_mode = G.VERTEX_GRID
     hardness = 0.0
     transparent = True
-    break_sound_options = sounds.leaves
+    break_sound_options = (sounds.leaves,)
 
     sub_id_as_metadata = True
     growth_stage = 0
@@ -1409,6 +1414,7 @@ class CropBlock(Block):
 
     def __init__(self):
         super(CropBlock, self).__init__()
+        self.max_growth_stage = None
         self.top_texture = get_texture_coordinates(-1, -1)
         self.bottom_texture = get_texture_coordinates(-1, -1)
 
@@ -1427,9 +1433,9 @@ class CropBlock(Block):
     @property
     def drop_id(self):
         if self.growth_stage == self.max_growth_stage:
-            return BlockID(296) # wheat
+            return BlockID(296)  # wheat
         else:
-            return BlockID(295) #seed
+            return BlockID(295)  # seed
 
     @drop_id.setter
     def drop_id(self, value):
@@ -1532,9 +1538,9 @@ class WheatCropBlock(CropBlock):
     @property
     def drop_id(self):
         if self.growth_stage == self.max_growth_stage:
-            return BlockID(296) # wheat
+            return BlockID(296)  # wheat
         else:
-            return BlockID(295) #seed
+            return BlockID(295)  # seed
 
     @drop_id.setter
     def drop_id(self, value):
@@ -1553,10 +1559,10 @@ class TallGrassBlock(Block):
     density = 0.3
     id = 31
     name = "Tall grass"
-    break_sound_options = sounds.leaves
+    break_sound_options = (sounds.leaves,)
     amount_label_color = 0, 0, 0, 255
 
-   # def __init__(self):
+    # def __init__(self):
     #    super(TallGrassBlock, self).__init__()
     #    self.drop_id = BlockID(295) ## seed
     @property
@@ -1629,7 +1635,7 @@ class Grass7Block(TallGrassBlock):
 
 class DesertGrassBlock(TallGrassBlock):
     density = 0.3
-    id = 31,1
+    id = 31, 1
     name = "Desert Grass"
     texture_name = 'wg_red_bush'
 
@@ -1640,7 +1646,7 @@ class DesertGrassBlock(TallGrassBlock):
 
 class DeadBushBlock(TallGrassBlock):
     density = 0.3
-    id = 31,0
+    id = 31, 0
     name = "Dead bush"
     texture_name = 'deadbush'
 
@@ -1657,6 +1663,7 @@ class DiamondBlock(HardBlock):
     digging_tool = G.PICKAXE
     name = "Diamond Block"
 
+
 class GoldBlock(HardBlock):
     texture_name = "blockGold",
     icon_name = "blockGold"
@@ -1664,6 +1671,7 @@ class GoldBlock(HardBlock):
     id = 41
     digging_tool = G.PICKAXE
     name = "Gold Block"
+
 
 class IronBlock(HardBlock):
     texture_name = "blockIron",
@@ -1673,29 +1681,33 @@ class IronBlock(HardBlock):
     digging_tool = G.PICKAXE
     name = "Iron Block"
 
+
 class StonebrickBlock(HardBlock):
     texture_name = "stonebricksmooth",
     icon_name = "stonebricksmooth"
     hardness = 1.5
-    id = 98,0
+    id = 98, 0
     digging_tool = G.PICKAXE
     name = "Stone Bricks"
+
 
 class CrackedStonebrickBlock(HardBlock):
     texture_name = "stonebricksmooth_cracked",
     icon_name = "stonebricksmooth_cracked"
     hardness = 1.5
-    id = 98,1
+    id = 98, 1
     digging_tool = G.PICKAXE
     name = "Cracked Stone Bricks"
+
 
 class MossyStonebrickBlock(HardBlock):
     texture_name = "stonebricksmooth_mossy",
     icon_name = "stonebricksmooth_mossy"
     hardness = 1.5
-    id = 98,2
+    id = 98, 2
     digging_tool = G.PICKAXE
     name = "Mossy Stone Bricks"
+
 
 class IceBlock(Block):
     texture_name = "ice",
@@ -1705,6 +1717,7 @@ class IceBlock(Block):
     transparent = True
     name = "Ice"
     amount_label_color = 0, 0, 0, 255
+
 
 class MossyCobbleBlock(HardBlock):
     texture_name = "stoneMoss",
@@ -1717,15 +1730,15 @@ class MossyCobbleBlock(HardBlock):
 
 
 #  nether items
-
 class NetherrackBlock(Block):
     texture_name = "dirt",
     hardness = 0.5
     id = 87
     name = "Netherrack"
     digging_tool = G.SHOVEL
-    break_sound_options = sounds.dirt
+    break_sound_options = (sounds.dirt,)
     max_stack_size = 64
+
 
 class NetherOreBlock(Block):
     texture_name = "dirt",
@@ -1733,8 +1746,9 @@ class NetherOreBlock(Block):
     id = 153
     name = "Nether Quartz Ore"
     digging_tool = G.SHOVEL
-    break_sound_options = sounds.dirt
+    break_sound_options = (sounds.dirt,)
     max_stack_size = 64
+
 
 class SoulsandBlock(Block):
     texture_name = "dirt",
@@ -1742,8 +1756,9 @@ class SoulsandBlock(Block):
     id = 88
     name = "Soul Sand"
     digging_tool = G.SHOVEL
-    break_sound_options = sounds.dirt
+    break_sound_options = (sounds.dirt,)
     max_stack_size = 64
+
 
 class CakeBlock(Block):
     height = 0.5
@@ -1755,10 +1770,11 @@ class CakeBlock(Block):
     name = "Cake"
     max_stack_size = 64
 
+
 class BedBlock(Block):
     height = 0.5
     texture_name = "bed_head_top", "bed_head_top", "bed_head_end", "bed_head_side", "bed_head_side", "bed_head_side", \
-                        "bed_feet_top", "bed_feet_top", "bed_feet_end", "bed_feet_side", "bed_feet_side", "bed_feet_side",
+                   "bed_feet_top", "bed_feet_top", "bed_feet_end", "bed_feet_side", "bed_feet_side", "bed_feet_side",
     id = 26
 
     # bed metadata
@@ -1793,6 +1809,7 @@ class CrackTextureBlock:
 
         for i in range(self.crack_level):
             self.texture_data.append(self.group.texture_data[i * 8:(i + 1) * 8] * 6)
+
 
 crack_textures = CrackTextureBlock()
 
@@ -1906,7 +1923,8 @@ rubyore_block = RubyOreBlock()
 sapphireore_block = SapphireOreBlock()
 fern_block = TallGrassBlock()
 wheat_crop_block = WheatCropBlock()
-#wild grass of different heights
+
+# wild grass of different heights
 wildgrass0_block = Grass0Block()
 wildgrass1_block = Grass1Block()
 wildgrass2_block = Grass2Block()

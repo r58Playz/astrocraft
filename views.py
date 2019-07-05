@@ -651,7 +651,7 @@ class MultiplayerView(MenuView):
             subprocess.Popen([sys.executable, "server.py"], creationflags=subprocess.CREATE_NEW_CONSOLE)
         else:
             subprocess.Popen([sys.executable, "server.py"])
-        localip = socket.gethostbyname(socket.getfqdn()) # Works on Linux and Windows.
+        localip = socket.gethostbyname(socket.gethostname())
         self.text_input.text = localip
         G.IP_ADDRESS = localip
 

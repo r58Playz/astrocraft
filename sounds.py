@@ -15,10 +15,10 @@ import custom_types
 
 __all__ = (
     'wood', 'wood1', 'wood2', 'wood3', 'splash', 'leaves', 'glass', 'dirt',
-    'gravel', 'stone', 'melon_break', 'sand', 'play_sound',
+    'gravel', 'stone', 'melon', 'sand', 'play_sound',
 )
 
-pyglet.options['audio'] = ('openal', 'directsound', 'pulse', 'silent')
+pyglet.options['audio'] = ('directsound', 'pulse', 'openal','silent')
 
 # Note: Pyglet uses /'s regardless of OS
 pyglet.resource.path = [".", "resources/sounds"]
@@ -50,7 +50,7 @@ stone3 = pyglet.resource.media("stone3.wav", streaming=False)
 stone4 = pyglet.resource.media("stone4.wav", streaming=False)
 stone5 = pyglet.resource.media("stone5.wav", streaming=False)
 stone6 = pyglet.resource.media("stone6.wav", streaming=False)
-melon_break = pyglet.resource.media("melon_break.wav", streaming=False)
+melon = pyglet.resource.media("melon.wav", streaming=False)
 sand = pyglet.resource.media("sand.wav", streaming=False)
 sand1 = pyglet.resource.media("sand1.wav", streaming=False)
 sand2 = pyglet.resource.media("sand2.wav", streaming=False)
@@ -61,6 +61,8 @@ cloth = pyglet.resource.media("cloth.wav", streaming=False)
 cloth1 = pyglet.resource.media("cloth1.wav", streaming=False)
 cloth2 = pyglet.resource.media("cloth2.wav", streaming=False)
 cloth3 = pyglet.resource.media("cloth3.wav", streaming=False)
+chestopen = pyglet.resource.media("chestopen.wav", streaming=False)
+chestclose = pyglet.resource.media("chestclose.wav", streaming=False)
 
 
 def play_sound(sound, player: custom_types.Player, position=None):
