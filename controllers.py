@@ -22,7 +22,7 @@ from client import PacketReceiver
 import globals as G
 from gui import ItemSelector, InventorySelector, TextWidget
 from items import Tool
-from player import Player
+from mobs import Player
 from skydome import Skydome
 import utils
 from utils import vec, sectorize, normalize, load_image, image_sprite

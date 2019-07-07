@@ -187,7 +187,7 @@ class BlockID:
         return ["textures", "icons", '%d.%d.png' % (self.main, self.sub)]
 
 
-class Block:
+class Block: # Base block class.
     id = None
 
     _drop_id = None

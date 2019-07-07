@@ -103,11 +103,13 @@ LEG_HEIGHT = BODY_HEIGHT
 LEG_LENGTH = BODY_WIDTH
 LEG_WIDTH = BODY_WIDTH
 
+
 # very good for rendering players... and mobs!
 class PlayerModel:
     def __init__(self, position, ismob=False):
         self.position = None
-        image = load_image('resources', 'player', 'char.png') if not ismob else load_image('resources', 'mob', 'herobrine.png')
+        image = load_image('resources', 'player', 'char.png') if not ismob else load_image('resources', 'mob',
+                                                                                           'herobrine.png')
         # head
         self.head = BoxModel(HEAD_LENGTH, HEAD_WIDTH, HEAD_HEIGHT, image, 32, 32, 32)
         self.head.update_texture_data([(32, 96), (64, 96), (0, 64), (64, 64), (32, 64), (96, 64)])

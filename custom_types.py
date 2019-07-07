@@ -5,7 +5,7 @@ if TYPE_CHECKING:
     from blocks import Block, BlockID
     from items import Item, ItemStack
 
-    from player import Player
+    from mobs import Player
     from world import World
 
     from server import Server, ServerPlayer
