@@ -18,6 +18,8 @@ import os
 # Third-party packages
 import pyglet
 from pyglet.resource import get_settings_path
+from plyer import notification as noti
+import platform
 
 # Modules from this project
 # Nothing for now...
@@ -34,19 +36,23 @@ MULTISAMPLING = True
 
 CLIENT = None  # Becomes the instance of PacketReceiver if running the client
 SERVER = None  # Becomes the instance of Server if running the server
-NOTIFICATIONS = None  # Becomes the instance of ToastNotifier in all cases.
 PENDING_NOTIFICATIONS = ()
+
 
 def update_notifications():
     def r():
+        global PENDING_NOTIFICATIONS
         for notification in PENDING_NOTIFICATIONS:
-            NOTIFICATIONS.show_toast(notification)
+            ico = "resources\\astrocraft_1.ico" if "Windows" in platform.platform() else "resources/astrocraft.png"
+            noti.notify(APP_NAME, notification, APP_NAME, ico)
             import time
-            time.sleep(5)
+            time.sleep(10)
+        PENDING_NOTIFICATIONS = ()
         return
 
     import threading
     threading.Thread(target=r, name="notifications").start()
+
 
 # Game modes
 SURVIVAL_MODE = 'survival'

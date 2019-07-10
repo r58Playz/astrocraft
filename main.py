@@ -19,11 +19,8 @@ from pyglet.window import key
 # Modules from this project
 from controllers import MainMenuController
 import globals as G
-from debug import log_info
 from mod import load_modules
 from savingsystem import save_world
-import sounds
-import notifications
 
 
 class Window(pyglet.window.Window):

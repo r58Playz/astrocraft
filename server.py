@@ -261,6 +261,7 @@ if __name__ == '__main__':
     G.PENDING_NOTIFICATIONS += ("Listening on" + ip + port)
 
     G.update_notifications()
+    print("listening on")
 
     helptext = "Available commands: " + ", ".join(["say", "stop", "save"])
     while 1:

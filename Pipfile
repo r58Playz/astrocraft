@@ -9,7 +9,7 @@ verify_ssl = true
 pyglet = "*"
 cython = "*"
 msgpack = "*"
-pypiwin32 = "*"
+plyer = "*"
 
 [requires]
 python_version = "3.7"

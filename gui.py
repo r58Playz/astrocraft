@@ -1216,15 +1216,15 @@ def resize_button_image(image, old_width, new_width):
         return image
     new_width = int(image.width * new_width // old_width)
     atlas = TextureAtlas(new_width, image.height)
-    atlas.add(image.get_region(0, 0, new_width // 2, image.height).image_data)
-    atlas.add(image.get_region(image.width - new_width // 2, 0, new_width // 2, image.height).image_data)
-    return atlas.texture.image_data
+    atlas.add(image.get_region(0, 0, new_width // 2, image.height).get_image_data())
+    atlas.add(image.get_region(image.width-new_width // 2, 0, new_width // 2, image.height).get_image_data())
+    return atlas.texture.get_image_data()
 
 button_image, button_highlighted, button_disabled = init_button_image()
 background_image = load_image('resources', 'textures', 'main_menu_background.png')
 backdrop_images = []
 rnd_backdrops = ('main_menu_background.png', 'main_menu_background_2.png', 'main_menu_background_3.png',
-'main_menu_background_4.png', 'main_menu_background_5.png', 'main_menu_background_6.png')
+                 'main_menu_background_4.png', 'main_menu_background_5.png', 'main_menu_background_6.png')
 
 for backdrop in rnd_backdrops:
     backdrop_images.append(load_image('resources', 'textures', backdrop))

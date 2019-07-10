@@ -22,7 +22,7 @@ from client import PacketReceiver
 import globals as G
 from gui import ItemSelector, InventorySelector, TextWidget
 from items import Tool
-from mobs import Player
+from characters import Player
 from skydome import Skydome
 import utils
 from utils import vec, sectorize, normalize, load_image, image_sprite
@@ -30,6 +30,7 @@ from views import MainMenuView, OptionsView, ControlsView, TexturesView, Multipl
 from world import World
 from biome import BiomeGenerator
 from server import start_server
+from mobs import Herobrine
 
 __all__ = (
     'Controller', 'MainMenuController', 'GameController',
@@ -287,6 +288,7 @@ class GameController(Controller):
         self.world.packetreceiver = self.packetreceiver
         G.CLIENT = self.packetreceiver
         self.packetreceiver.start()
+        self.mob = Herobrine()
 
         #Get our position from the server
         self.packetreceiver.request_spawnpos()

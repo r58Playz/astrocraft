@@ -22,10 +22,10 @@ SUN_RADIUS: float = pi / 6
 class Skydome:
     def __init__(self, filename, brightness=1.0, size=1.0, direction=0):
         self.direction = direction
-        self.image = pyglet.image.load(filename)
+        self.image = pyglet.image.load(filename).get_texture()
         self.color = [brightness] * 3
 
-        self.sun_image = G.texture_pack_list.selected_texture_pack.load_texture(['environment', 'sun.png'])
+        self.sun_image = G.texture_pack_list.selected_texture_pack.load_texture(['environment', 'sun.png']).get_texture()
         self.size = size
 
         self.time_of_day = 0.0
@@ -132,19 +132,19 @@ class Skydome:
     def draw(self):
         glPushMatrix()
         # draw skydome
-        glBindTexture(self.image.texture.target, self.image.texture.id)
-        glEnable(self.image.texture.target)
+        glBindTexture(self.image.get_texture().target, self.image.get_texture().id)
+        glEnable(self.image.get_texture().target)
         glColor3f(*self.color)
         glRotatef(-self.direction, 0, 0, 1)
         self.display.draw(GL_TRIANGLES)
-        glDisable(self.image.texture.target)
+        glDisable(self.image.get_texture().target)
         # draw the sun
         glEnable(GL_BLEND)
         glBlendFunc(GL_SRC_ALPHA, GL_DST_ALPHA)
-        glBindTexture(self.sun_image.texture.target, self.sun_image.texture.id)
-        glEnable(self.sun_image.texture.target)
+        glBindTexture(self.sun_image.get_texture().target, self.sun_image.get_texture().id)
+        glEnable(self.sun_image.get_texture().target)
         self.sun_vertex(self.sun_angle).draw(GL_TRIANGLES)
-        glDisable(self.sun_image.texture.target)
+        glDisable(self.sun_image.get_texture().target)
         glDisable(GL_BLEND)
         glPopMatrix()
 

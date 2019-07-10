@@ -12,7 +12,7 @@ from blocks import BlockID
 import globals as G
 from globals import BLOCKS_DIR
 from items import ItemStack
-from mobs import Player
+from characters import Player
 from savingsystem import null2, structuchar2, sector_to_blockpos
 from utils import extract_string_packet
 from biome import BiomeGenerator

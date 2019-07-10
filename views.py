@@ -332,8 +332,8 @@ class MainMenuView(MenuView):
             elif i == 5:
                 glRotatef(-90.0, 1.0, 0.0, 0.0)
 
-            glBindTexture(self.panorama[i].texture.target, self.panorama[i].texture.id)
-            glEnable(self.panorama[i].texture.target)
+            glBindTexture(self.panorama[i].get_texture().target, self.panorama[i].get_texture().id)
+            glEnable(self.panorama[i].get_texture().target)
             vert_list = [-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0]
             uv_list = [0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0]
             l = pyglet.graphics.vertex_list(4,
@@ -341,7 +341,7 @@ class MainMenuView(MenuView):
                 ('t2f/static', uv_list),
             )
             l.draw(GL_QUADS)
-            glDisable(self.panorama[i].texture.target)
+            glDisable(self.panorama[i].get_texture().target)
             glPopMatrix()
 
         glPopMatrix()
