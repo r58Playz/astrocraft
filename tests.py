@@ -16,7 +16,7 @@ import sounds
 import os
 
 __all__ = (
-    'InventoryTests', 'SoundTests',
+    'InventoryTests',
 )
 
 
