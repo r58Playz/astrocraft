@@ -81,8 +81,8 @@ class BoxModel:
 
     def draw(self):
         glPushMatrix()
-        glBindTexture(self.image.texture.target, self.image.texture.id)
-        glEnable(self.image.texture.target)
+        glBindTexture(self.image.get_texture().target, self.image.get_texture().id)
+        glEnable(self.image.get_texture().target)
         glTranslatef(*self.position)
         glRotatef(self.rotate_angle[0] * (180 / float(pi)), 1.0, 0.0, 0.0)
         glRotatef(self.rotate_angle[1] * (180 / float(pi)), 0.0, 1.0, 0.0)

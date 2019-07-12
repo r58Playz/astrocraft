@@ -288,7 +288,6 @@ class GameController(Controller):
         self.world.packetreceiver = self.packetreceiver
         G.CLIENT = self.packetreceiver
         self.packetreceiver.start()
-        self.mob = Herobrine()
 
         #Get our position from the server
         self.packetreceiver.request_spawnpos()
@@ -501,7 +500,6 @@ class GameController(Controller):
         self.clear()
         #self.window.clear()
         self.set_3d()
-        #glColor3d(1, 1, 1)
         self.world.batch.draw()
         self.world.transparency_batch.draw()
         glEnable(GL_BLEND)
