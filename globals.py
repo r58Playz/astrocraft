@@ -45,8 +45,6 @@ def update_notifications():
         for noti in PENDING_NOTIFICATIONS:
             ico = "resources\\astrocraft_1.ico" if "Windows" in platform.platform() else "resources/astrocraft.png"
             plyer.notification.notify(APP_NAME, noti, APP_NAME, ico)
-            import time
-            time.sleep(10)
         PENDING_NOTIFICATIONS = ()
         return
 
