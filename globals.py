@@ -18,7 +18,7 @@ import os
 # Third-party packages
 import pyglet
 from pyglet.resource import get_settings_path
-from plyer import notification as noti
+import plyer
 import platform
 
 # Modules from this project
@@ -42,9 +42,9 @@ PENDING_NOTIFICATIONS = ()
 def update_notifications():
     def r():
         global PENDING_NOTIFICATIONS
-        for notification in PENDING_NOTIFICATIONS:
+        for noti in PENDING_NOTIFICATIONS:
             ico = "resources\\astrocraft_1.ico" if "Windows" in platform.platform() else "resources/astrocraft.png"
-            noti.notify(APP_NAME, notification, APP_NAME, ico)
+            plyer.notification.notify(APP_NAME, noti, APP_NAME, ico)
             import time
             time.sleep(10)
         PENDING_NOTIFICATIONS = ()
