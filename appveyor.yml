@@ -12,10 +12,9 @@ install:
 
     C:/Python37/python.exe -m pip install plyer
 
-
-    # Install codecov
-
     C:/Python37/python.exe -m pip install codecov
+
+    set PATH=%PATH%;C:/Python37/Scripts
 build_script:
 - cmd: C:/Python37/python.exe setup.py build_exe
 test_script:
@@ -33,7 +32,4 @@ deploy:
     APPVEYOR_REPO_TAG_NAME: release
 on_success:
 - cmd: >-
-    # Give the test results to codecov
-
-
     codecov -t 8518720e-a044-4d08-a489-874328a4ba04
