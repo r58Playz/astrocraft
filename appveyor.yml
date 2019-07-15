@@ -1,0 +1,39 @@
+version: build{build}
+image: Visual Studio 2019
+install:
+- cmd: >-
+    C:/Python37/python.exe -m pip install cython
+
+    C:/Python37/python.exe -m pip install pyglet
+
+    C:/Python37/python.exe -m pip install msgpack
+
+    C:/Python37/python.exe -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
+
+    C:/Python37/python.exe -m pip install plyer
+
+
+    # Install codecov
+
+    C:/Python37/python.exe -m pip install codecov
+build_script:
+- cmd: C:/Python37/python.exe setup.py build_exe
+test_script:
+- cmd: coverage run tests.py
+artifacts:
+- path: build
+  name: win
+deploy:
+- provider: GitHub
+  auth_token:
+    secure: EUjNWRY9A/u08SfrYD9rqPmC8Ob3uy+1A5g0s6NOanIfn4EwFjDTc+TaC+qzVz8V
+  repository: r58Playz/astrocraft-python
+  artifact: win
+  on:
+    APPVEYOR_REPO_TAG_NAME: release
+on_success:
+- cmd: >-
+    # Give the test results to codecov
+
+
+    codecov -t 8518720e-a044-4d08-a489-874328a4ba04

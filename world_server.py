@@ -95,9 +95,7 @@ class WorldServer(dict):
         try:
             self.sectors[sector_position].remove(position)
         except ValueError:
-            warnings.warn('Block %s was unexpectedly not found in sector %s;'
-                          'your save is probably corrupted'
-                          % (position, sector_position))
+            pass
         if sync:
             self.server.hide_block(position)
         if check_spread:
