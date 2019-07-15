@@ -41,17 +41,15 @@ class Entity:
         self.entity_id = None
 
     def can_handle(self, msg_type):
-        return False
+        return True
 
     def handle_message(self, msg_type, *args, **kwargs):
         pass
 
-#
-# Message type
-#
-MSG_PICKUP, \
-MSG_REDSTONE_ACTIVATE, MSG_REDSTONE_DEACTIVATE, \
-    = list(range(3))
+
+# msg types
+MSG_PICKUP, MSG_REDSTONE_ACTIVATE, MSG_REDSTONE_DEACTIVATE = list(range(3))
+
 
 class EntityManager:
     def __init__(self):
@@ -62,28 +60,36 @@ class EntityManager:
         self.last_id = self.last_id + 1
         self.entities[self.last_id] = entity
         self.entities[self.last_id].entity_id = self.last_id
+        return True
 
     def remove_entity(self, entity_id):
         del self.entities[entity_id]
+        return True
 
     def broadcast(self, msg_type, *args, **kwargs):
-        for entity in self.entities:
+        for entity in self.entities.values():
             if entity.can_handle(msg_type):
                 entity.handle_message(msg_type, *args, **kwargs)
+        return True
 
     def send_message(self, receiver, msg_type, *args, **kwargs):
         if self.entities[receiver].can_handle(msg_type):
-                self.entities[receiver].handle_message(msg_type, *args, **kwargs)
+            self.entities[receiver].handle_message(msg_type, *args, **kwargs)
+            return True
+        return True
+
 
 entity_manager = EntityManager()
+
 
 class TileEntity(Entity):
     """
     A Tile entity is extra data associated with a block
     """
     def __init__(self, world, position):
-        super(TileEntity, self).__init__(position, rotation=(0,0))
+        super(TileEntity, self).__init__(position, rotation=(0, 0))
         self.world = world
+
 
 # server-side only
 class CropEntity(TileEntity):

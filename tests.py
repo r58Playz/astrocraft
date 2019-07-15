@@ -8,12 +8,10 @@ import unittest
 # Nothing for now...
 
 # Modules from this project
-from crafting import Recipes
 import globals as G
 from inventory import Inventory
 from items import ItemStack
-import sounds
-import os
+import entity
 
 __all__ = (
     'InventoryTests',
@@ -98,6 +96,48 @@ class InventoryTests(unittest.TestCase):
             inv.slots[i].change_amount(-1)
         inv.remove_unnecessary_stacks()
         self.assertEqual(inv.slots, [None] * 20)
+
+
+class EntityTests(unittest.TestCase):
+    def __init__(self,  *args, **kwargs):
+        super(EntityTests, self).__init__(*args, **kwargs)
+        self.entity_manager = entity.EntityManager()
+        self.entity_manager.add_entity(entity.Entity((0, 0, 0), (0, 0)))
+
+    def test_entity(self):
+        """
+        Creates an entity
+        :return: None
+        """
+        ent = entity.Entity((0, 0, 0), (0, 0))
+        self.assertTrue(isinstance(ent, entity.Entity))
+
+    def test_entity_manager(self):
+        """
+        Creates a entity manager
+        :return: None
+        """
+        entity_manager = entity.EntityManager()
+        self.assertTrue(isinstance(entity_manager, entity.EntityManager))
+
+    def test_add_entity(self):
+        """
+        Adds an entity to the entity manager
+        :return:
+        """
+        ent = entity.Entity((0, 0, 0), (0, 0))
+        result = self.entity_manager.add_entity(ent)
+        self.assertTrue(result)
+
+    def test_broadcast(self):
+        result = self.entity_manager.broadcast(entity.MSG_PICKUP)
+        self.assertTrue(result)
+
+    def test_send_message(self):
+        result = self.entity_manager.send_message(1, entity.MSG_PICKUP)
+
+        self.assertTrue(result)
+
 
 
 if __name__ == '__main__':
