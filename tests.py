@@ -12,6 +12,7 @@ import globals as G
 from inventory import Inventory
 from items import ItemStack
 import entity
+from . import *
 
 __all__ = (
     'InventoryTests',
