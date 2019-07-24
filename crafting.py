@@ -140,6 +140,7 @@ class SmeltingRecipes:
 
 G.recipes = Recipes()
 G.smelting_recipes = SmeltingRecipes()
+
 # stone items
 G.recipes.add_recipe(["##", "##"], {'#': stone_block},
                    ItemStack(stonebrick_block.id, amount=4))
@@ -154,7 +155,7 @@ G.recipes.add_recipe(["#", "#", "#"], {'#': quartz_block},
 G.recipes.add_recipe(["   ", "   ", "###"], {'#': quartz_block},
                    ItemStack(quartzchiseled_block.id, amount=3))
 
-#9 ores to blocks
+# 9 ores to blocks
 
 G.recipes.add_recipe(["###", "###", "###"], {'#': iron_ingot_item},
                    ItemStack(iron_block.id, amount=1))
@@ -227,7 +228,7 @@ for material, armors in [(iron_ingot_item, [iron_helmet, iron_chestplate, iron_l
     G.recipes.add_recipe(["# #", "# #"], {'#': material},
                     ItemStack(armors[-1].id, amount=1))
 
-#sand items
+# sand items
 
 
 for wood in (birchwoodplank_block, junglewoodplank_block, oakwoodplank_block):
