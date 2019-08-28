@@ -226,7 +226,7 @@ class GameController(Controller):
                 start_server(internal=True)
                 sock = socket.socket()
                 time.sleep(2)
-                sock.connect(("localhost", 1486))
+                sock.connect(("localhost", 1))
             except socket.error as e:
                 #Otherwise back to the main menu we go
                 return False
@@ -238,7 +238,7 @@ class GameController(Controller):
             try:
                 #Make sure the address they want to connect to works
                 ipport = G.IP_ADDRESS.split(":")
-                if len(ipport) == 1: ipport.append(1486)
+                if len(ipport) == 1: ipport.append(150496) # normal ipport
                 sock = socket.socket()
                 sock.connect((tuple(ipport)))
             except socket.error as e:
