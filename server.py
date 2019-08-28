@@ -228,7 +228,7 @@ def start_server(internal=False):
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         s.connect(('8.8.8.8', 1))  # connect() for UDP doesn't send packets
         localip = s.getsockname()[0]
-    server = Server((localip, 1486), ServerPlayer)
+    server = Server((localip, 150496), ServerPlayer) #min 100000 max 1000000 
     G.SERVER = server
     server_thread = threading.Thread(target=server.serve_forever)
     server_thread.start()
@@ -258,7 +258,7 @@ if __name__ == '__main__':
 
     ip, port = server.server_address
 
-    G.PENDING_NOTIFICATIONS += ("Listening on" + ip + port)
+    print("Listening on" + ip + port)
 
     G.update_notifications()
     print("listening on")
