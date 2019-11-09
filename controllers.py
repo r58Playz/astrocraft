@@ -238,7 +238,7 @@ class GameController(Controller):
             try:
                 #Make sure the address they want to connect to works
                 ipport = G.IP_ADDRESS.split(":")
-                if len(ipport) == 1: ipport.append(150496) # normal ipport
+                if len(ipport) == 1: ipport.append(6000) # normal ipport
                 sock = socket.socket()
                 sock.connect((tuple(ipport)))
             except socket.error as e:
