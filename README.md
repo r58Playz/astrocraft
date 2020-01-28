@@ -19,3 +19,7 @@ pip install typing
 pip install cython
 ```
 * For Linux users: Install with `pip` **only** if the package manager does not support it. In some cases, you may not get support by them if installed with `pip`.
+
+## Installation for Arch Linux
+
+Use the PKGBUILD provided.
