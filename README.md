@@ -23,3 +23,34 @@ pip install cython
 ## Installation for Arch Linux
 
 Use the PKGBUILD provided.
+
+## Installation for Debian and other Debian based distros such as Ubuntu
+Debian installation is difficult, as it involves enabling testing repositories.
+Enable the testing repositories and update to Python 3.8.
+Then download the latest version of AstroCraft:
+```
+git clone https://github.com/r58Playz/astrocraft-python.git astrocraft
+```
+
+Install pipenv:
+```
+sudo pip install pipenv
+```
+or install via ```apt```.
+
+Now install dependencies:
+```
+cd astrocraft
+pipenv shell
+pipenv sync
+```
+Then run AstroCraft:
+```
+exit
+pipenv run python main.py
+```
+
+Optionally, create a binary build of AstroCraft:
+```
+pipenv run python setup.py build
+```
