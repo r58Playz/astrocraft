@@ -63,6 +63,13 @@ cloth2 = pyglet.resource.media("cloth2.wav", streaming=False)
 cloth3 = pyglet.resource.media("cloth3.wav", streaming=False)
 chestopen = pyglet.resource.media("chestopen.wav", streaming=False)
 chestclose = pyglet.resource.media("chestclosed.wav", streaming=False)
+# Background music
+bkg1 = pyglet.resource.media("background/1.wav", streaming=False)
+bkg2 = pyglet.resource.media("background/2.wav", streaming=False)
+bkg3 = pyglet.resource.media("background/3.wav", streaming=False)
+bkg4 = pyglet.resource.media("background/4.wav", streaming=False)
+# Taco mode!!
+tacos = pyglet.resource.media("background/rainingtacos.wav", streaming=False)
 
 
 def play_sound(sound, player: custom_types.Player, position=None):
@@ -88,3 +95,19 @@ def play_sound(sound, player: custom_types.Player, position=None):
 
     return sound_player
 
+def backgroundsound():
+    def loader():
+        global bkg1, bkg2, bkg3, bkg4, rainingtacos
+        player = pyglet.media.Player()
+        G.BACKGROUND_PLAYER = player
+        if G.TACOMODE == True:
+            G.BACKGROUND_PLAYER.queue(rainingtacos)
+        else:
+            G.BACKGROUND_PLAYER.queue(bkg2)
+        G.BACKGROUND_PLAYER.play()
+        while True:
+            if G.TACOMODE == True:
+                G.BACKGROUND_PLAYER.queue(rainingtacos)
+            else:
+                G.BACKGROUND_PLAYER.queue(bkg2)
+    threading.Thread(target=loader, daemon=True)

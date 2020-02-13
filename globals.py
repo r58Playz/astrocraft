@@ -43,7 +43,7 @@ def update_notifications():
     def r():
         global PENDING_NOTIFICATIONS
         for noti in PENDING_NOTIFICATIONS:
-            ico = "resources\\astrocraft_1.ico" if "Windows" in platform.platform() else "resources/astrocraft.png"
+            ico = "resources\\astrocraft_1.ico" if "Windows" in platform.platform() else "resources\\astrocraft.png"
             plyer.notification.notify(APP_NAME, noti, APP_NAME, ico)
         PENDING_NOTIFICATIONS = ()
         return
@@ -177,10 +177,10 @@ FULLSCREEN = False
 WINDOW_WIDTH = 850  # Screen width (in pixels)
 WINDOW_HEIGHT = 480  # Screen height (in pixels)
 
-MAX_FPS = 60  # Maximum frames per second.
+MAX_FPS = 100  # Maximum frames per second.
 
 #Maximum time to process the queue
-QUEUE_PROCESS_SPEED = 0.5 / MAX_FPS #Try shrinking this if chunk loading is laggy, higher loads chunks faster
+QUEUE_PROCESS_SPEED = 0.1 / MAX_FPS #Try shrinking this if chunk loading is laggy, higher loads chunks faster
 
 VISIBLE_SECTORS_RADIUS = 8
 DELOAD_SECTORS_RADIUS = 12
@@ -213,6 +213,7 @@ EFFECT_VOLUME = 1.0
 BACKGROUND_VOLUME = 0.3
 BACKGROUND_PLAYER = None
 STOP = False
+TACOMODE=True
 
 # Tool types
 WOODEN_TOOL, STONE_TOOL, IRON_TOOL, DIAMOND_TOOL, GOLDEN_TOOL = list(range(5))
