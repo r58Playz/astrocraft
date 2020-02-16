@@ -23,6 +23,7 @@ pip install cython
 ## Installation for Arch Linux
 
 Use the PKGBUILD provided.
+Note that plyer, a dependency, is not in the official repositories.
 
 ## Installation for Debian and other Debian based distros such as Ubuntu
 Debian installation is difficult, as it involves enabling testing repositories.
