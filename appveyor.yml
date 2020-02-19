@@ -2,23 +2,21 @@ version: build{build}
 image: Visual Studio 2019
 install:
 - cmd: >-
-    C:/Python37/python.exe -m pip install cython
+    C:/Python38/python.exe -m pip install cython
 
-    C:/Python37/python.exe -m pip install pyglet
+    C:/Python38/python.exe -m pip install pyglet
 
-    C:/Python37/python.exe -m pip install msgpack
+    C:/Python38/python.exe -m pip install msgpack
 
-    C:/Python37/python.exe -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
+    C:/Python38/python.exe -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
 
-    C:/Python37/python.exe -m pip install plyer
+    C:/Python38/python.exe -m pip install plyer
 
-    C:/Python37/python.exe -m pip install codecov
+    C:/Python38/python.exe -m pip install codecov
 
     set PATH=%PATH%;C:/Python37/Scripts
 build_script:
-- cmd: C:/Python37/python.exe setup.py build_exe
-test_script:
-- cmd: coverage run tests.py
+- cmd: C:/Python38/python.exe setup.py build_exe
 artifacts:
 - path: build
   name: win
@@ -30,6 +28,3 @@ deploy:
   artifact: win
   on:
     APPVEYOR_REPO_TAG_NAME: release
-on_success:
-- cmd: >-
-    codecov -t 8518720e-a044-4d08-a489-874328a4ba04
