@@ -38,3 +38,7 @@
 
 # Misc
 - write more unit tests (tests.py)
+
+
+#Mobs
+add mobs

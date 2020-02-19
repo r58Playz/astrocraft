@@ -21,6 +21,7 @@ from controllers import MainMenuController
 import globals as G
 from mod import load_modules
 from savingsystem import save_world
+import sounds
 
 
 class Window(pyglet.window.Window):
@@ -112,6 +113,7 @@ def main(options):
     G.DISABLE_SAVE = options.disable_save_all
     G.PENDING_NOTIFICATIONS += ("Starting " + G.APP_NAME,)
     G.update_notifications()
+    sounds.backgroundsound()
 
     for name, val in options._get_kwargs():
         setattr(G.LAUNCH_OPTIONS, name, val)
@@ -165,7 +167,6 @@ if __name__ == '__main__':
                             help="Do not save world on exit.")
     save_group.add_argument("--save", default=G.SAVE_FILENAME, help="Type a name for the world to be saved as.")
     save_group.add_argument("--disable-save-all", action="store_false", default=False, help="Disables saving.")
-
 
     parser.add_argument("--seed", default=None)
 

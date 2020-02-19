@@ -12,13 +12,12 @@ import pyglet.media
 import globals as G
 import custom_types
 
-
 __all__ = (
     'wood', 'wood1', 'wood2', 'wood3', 'splash', 'leaves', 'glass', 'dirt',
     'gravel', 'stone', 'melon', 'sand', 'play_sound',
 )
 
-pyglet.options['audio'] = ('directsound', 'pulse', 'openal','silent')
+pyglet.options['audio'] = ('directsound', 'pulse', 'openal', 'silent')
 
 # Note: Pyglet uses /'s regardless of OS
 pyglet.resource.path = [".", "resources/sounds"]
@@ -95,19 +94,21 @@ def play_sound(sound, player: custom_types.Player, position=None):
 
     return sound_player
 
+
 def backgroundsound():
     def loader():
         global bkg1, bkg2, bkg3, bkg4, rainingtacos
         player = pyglet.media.Player()
         G.BACKGROUND_PLAYER = player
-        if G.TACOMODE == True:
+        if G.TACOMODE:
             G.BACKGROUND_PLAYER.queue(rainingtacos)
         else:
             G.BACKGROUND_PLAYER.queue(bkg2)
         G.BACKGROUND_PLAYER.play()
         while True:
-            if G.TACOMODE == True:
+            if G.TACOMODE:
                 G.BACKGROUND_PLAYER.queue(rainingtacos)
             else:
                 G.BACKGROUND_PLAYER.queue(bkg2)
+
     threading.Thread(target=loader, daemon=True)
