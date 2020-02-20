@@ -37,7 +37,8 @@ for:
     - matrix:
         only:
            - image: Ubuntu
-    install: pip3.8 install cython pyglet msgpack plyer codecov
+    install:
+      - cmd: pip3.8 install cython pyglet msgpack plyer codecov
              pip3.8 install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
     build_script: python3.8 setup.py build
     artifacts:
