@@ -34,9 +34,9 @@ for:
           artifact: win
           on:
            APPVEYOR_REPO_TAG_NAME: release
-    matrix:
-      only:
-        - image: Ubuntu
+    - matrix:
+        only:
+           - image: Ubuntu
     install: pip3.8 install cython pyglet msgpack plyer codecov
              pip3.8 install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
     build_script: python3.8 setup.py build
