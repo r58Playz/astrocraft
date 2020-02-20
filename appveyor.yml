@@ -28,9 +28,9 @@ for:
         - image: Ubuntu
     install:
       - sh: >-
-          pip3.8 install cython pyglet msgpack plyer
+          python3.8 -m pip install cython pyglet msgpack plyer
 
-          pip3.8 install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
+          python3.8 -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
     build_script:
       - sh: >-
           python3.8 setup.py build

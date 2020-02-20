@@ -107,7 +107,8 @@ if len(sys.argv) > 1 and sys.argv[1] in ("build", "build_exe"):
         'include_files': ['resources/'],
         "path": [cython_output_dir] + sys.path,
     }
-    executables = [Executable("main.py", targetName=G.APP_NAME + (".exe" if sys.platform == 'win32' else '')), Executable("server.py")]
+    executables = [Executable("main.py", targetName=G.APP_NAME + (".exe" if sys.platform == 'win32' else '')),
+                   Executable("server.py"), Executable("update.py")]
 
 else:
     from distutils.core import setup

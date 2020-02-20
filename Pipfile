@@ -11,6 +11,8 @@ Cython = "*"
 msgpack = "*"
 plyer = "*"
 django = "*"
+cx_Freeze = "*"
+
 
 [requires]
 python_version = "3.8"
