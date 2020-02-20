@@ -22,8 +22,7 @@ for:
             C:/Python38/python.exe -m pip install codecov
 
             set PATH=%PATH%;C:/Python37/Scripts
-       build_script:
-         - cmd: C:/Python38/python.exe setup.py build_exe
+       build_script: C:/Python38/python.exe setup.py build_exe
        artifacts:
          - path: build
            name: win
@@ -42,8 +41,7 @@ for:
         - image: Ubuntu
     install: pip3.8 install cython pyglet msgpack plyer codecov
              pip3.8 install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
-    build_script: 
-        - cmd: python3.8 setup.py build
+    build_script: python3.8 setup.py build
     artifacts:
       - path: build
         name: linux
