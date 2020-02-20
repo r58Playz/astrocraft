@@ -6,37 +6,36 @@ image:
 
 - Ubuntu
 
-install:
+for:
+  -
+    matrix:
+      only:
+        - image: Visual Studio 2019
+    install:
+      - cmd: >-
+          C:/Python38/python.exe -m pip install cython pyglet msgpack plyer
+          C:/Python38/python.exe -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
+    build_script:
+      - cmd: >-
+          C:/Python38/python.exe setup.py build
+    artifacts:
+      - path: build
+        name: windows
+  -
+    matrix:
+      only:
+        - image: Ubuntu
+    install:
+      - sh: >-
+          pip3.8 install cython pyglet msgpack plyer
+          pip3.8 install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
+    build_script:
+      - sh: >-
+          python3.8 setup.py build
+    artifacts:
+      - path: build
+        name: linux
 
-- cmd: >-
-
-    pip3.8 install cython
-
-
-
-    pip3.8 install pyglet
-
-
-
-    pip3.8 install msgpack
-
-
-
-    pip3.8 install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
-
-
-
-    pip3.8 install plyer
-
-build_script:
-
-- cmd: python3.8 setup.py build_exe
-
-artifacts:
-
-- path: build
-
-  name: build
 
 deploy:
 
@@ -48,7 +47,7 @@ deploy:
 
   repository: r58Playz/astrocraft-python
 
-  artifact: build
+  artifact: linux, windows
 
   on:
 
