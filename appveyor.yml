@@ -1,30 +1,57 @@
 version: build{build}
-image: Visual Studio 2019
-install:
-- cmd: >-
-    C:/Python38/python.exe -m pip install cython
+environment:
+    image: 
+        - Visual Studio 2019
+        - Ubuntu
+for:
+    - matrix:
+        only:
+            - image: Visual Studio 2019
+      install:
+        - cmd: >-
+            C:/Python38/python.exe -m pip install cython
 
-    C:/Python38/python.exe -m pip install pyglet
+            C:/Python38/python.exe -m pip install pyglet
 
-    C:/Python38/python.exe -m pip install msgpack
+            C:/Python38/python.exe -m pip install msgpack
 
-    C:/Python38/python.exe -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
+            C:/Python38/python.exe -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
 
-    C:/Python38/python.exe -m pip install plyer
+            C:/Python38/python.exe -m pip install plyer
 
-    C:/Python38/python.exe -m pip install codecov
+            C:/Python38/python.exe -m pip install codecov
 
-    set PATH=%PATH%;C:/Python37/Scripts
-build_script:
-- cmd: C:/Python38/python.exe setup.py build_exe
-artifacts:
-- path: build
-  name: win
-deploy:
-- provider: GitHub
-  auth_token:
-    secure: EUjNWRY9A/u08SfrYD9rqPmC8Ob3uy+1A5g0s6NOanIfn4EwFjDTc+TaC+qzVz8V
-  repository: r58Playz/astrocraft-python
-  artifact: win
-  on:
-    APPVEYOR_REPO_TAG_NAME: release
+            set PATH=%PATH%;C:/Python37/Scripts
+       build_script:
+         - cmd: C:/Python38/python.exe setup.py build_exe
+       artifacts:
+         - path: build
+           name: win
+       deploy:
+         - provider: GitHub
+           auth_token:
+               secure: EUjNWRY9A/u08SfrYD9rqPmC8Ob3uy+1A5g0s6NOanIfn4EwFjDTc+TaC+qzVz8V
+           repository: r58Playz/astrocraft-python
+           artifact: win
+           on:
+            APPVEYOR_REPO_TAG_NAME: release
+
+for:
+    matrix:
+      only:
+        - image: Ubuntu
+    install: pip3.8 install cython pyglet msgpack plyer codecov
+             pip3.8 install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
+    build_script: 
+        - cmd: python3.8 setup.py build
+    artifacts:
+      - path: build
+        name: linux
+       deploy:
+         - provider: GitHub
+           auth_token:
+               secure: EUjNWRY9A/u08SfrYD9rqPmC8Ob3uy+1A5g0s6NOanIfn4EwFjDTc+TaC+qzVz8V
+           repository: r58Playz/astrocraft-python
+           artifact: win
+           on:
+            APPVEYOR_REPO_TAG_NAME: release
