@@ -1,5 +1,4 @@
 version: build{build}
-build: false
 environment:
     image: >-
           Visual Studio 2019
