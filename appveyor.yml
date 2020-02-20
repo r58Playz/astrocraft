@@ -14,6 +14,7 @@ for:
     install:
       - cmd: >-
           C:/Python38/python.exe -m pip install cython pyglet msgpack plyer
+
           C:/Python38/python.exe -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
     build_script:
       - cmd: >-
