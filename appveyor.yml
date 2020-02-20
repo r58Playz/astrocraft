@@ -1,8 +1,8 @@
 version: build{build}
 environment:
     image: 
-        - Visual Studio 2019
-        - Ubuntu
+         - Visual Studio 2019
+         - Ubuntu
 for:
     - matrix:
         only:
