@@ -41,18 +41,21 @@ for:
 deploy:
 
 - provider: GitHub
-
   auth_token:
-
     secure: EUjNWRY9A/u08SfrYD9rqPmC8Ob3uy+1A5g0s6NOanIfn4EwFjDTc+TaC+qzVz8V
-
   repository: r58Playz/astrocraft-python
+  artifact: linux, windows
+  on:
+    APPVEYOR_REPO_TAG_NAME: release
 
+- provider: FTP
+  host: ftp.httpandssl.com:21
+  protocol: ftp
+  username: toshit@httpandssl.com
+  password:
+    secure: m/QN7sRRzi/pyycDTXKVr7GRfvJKDpCHDoREPdxzkdk=
   artifact: linux, windows
 
-  on:
-
-    APPVEYOR_REPO_TAG_NAME: release
 
 on_success:
 
