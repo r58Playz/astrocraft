@@ -3,7 +3,7 @@
 
 This is the Python version of AstroCraft, a game like Minecraft.
 
-Py3 support just started! Py2 has been dropped, as it reaches the end of its life on January 1, 2020.
+NOTE: On built/precompiled versions, the server does not work ingame, so please start it manually using the executable `server`/`server.exe`
 
 A new formal website and download is going to be coming soon.
 
@@ -26,6 +26,9 @@ Use the PKGBUILD provided.
 Note that plyer, a dependency, is not in the official repositories.
 
 ## Installation for Debian and other Debian based distros such as Ubuntu
+Ubuntu has a precompiled artifact, check AppVeyor.
+
+
 Debian installation is difficult, as it involves enabling testing repositories.
 Enable the testing repositories and update to Python 3.8.
 Then download the latest version of AstroCraft:
