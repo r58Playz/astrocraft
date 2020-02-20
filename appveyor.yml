@@ -35,7 +35,7 @@ for:
           on:
            APPVEYOR_REPO_TAG_NAME: release
 
-
+for:
     matrix:
       only:
         - image: Ubuntu
