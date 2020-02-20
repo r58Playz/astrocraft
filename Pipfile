@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 pyglet = "*"
-cython = "*"
+Cython = "*"
 msgpack = "*"
 plyer = "*"
 django = "*"
