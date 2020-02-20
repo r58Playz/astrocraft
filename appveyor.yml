@@ -29,6 +29,7 @@ for:
     install:
       - sh: >-
           pip3.8 install cython pyglet msgpack plyer
+
           pip3.8 install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
     build_script:
       - sh: >-
