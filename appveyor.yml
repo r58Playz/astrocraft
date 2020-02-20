@@ -22,7 +22,8 @@ for:
             C:/Python38/python.exe -m pip install codecov
 
             set PATH=%PATH%;C:/Python37/Scripts
-      build_script: C:/Python38/python.exe setup.py build_exe
+      build_script: >-
+              C:/Python38/python.exe setup.py build_exe
       artifacts:
         - path: build
           name: win
