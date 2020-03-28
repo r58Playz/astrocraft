@@ -28,12 +28,12 @@ for:
         - image: Ubuntu
     install:
       - sh: >-
-          python3.8 -m pip install cython pyglet msgpack plyer
+          ~/venv3.8.2 -m pip install cython pyglet msgpack plyer
 
-          python3.8 -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
+          ~/venv3.8.2 -m pip install --upgrade git+https://github.com/anthony-tuininga/cx_Freeze.git@master
     build_script:
       - sh: >-
-          python3.8 setup.py build
+          ~/venv3.8.2 setup.py build
     artifacts:
       - path: build
         name: linux
