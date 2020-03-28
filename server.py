@@ -225,9 +225,8 @@ def start_server(internal=False):
     if internal:
         localip = "localhost"
     else:
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(('localhost', 1))  # connect() for UDP doesn't send packets
-        localip = s.getsockname()[0]
+        hostname = socket.gethostname()
+        localip = socket.gethostbyname(hostname)
         print(localip)
     server = Server((localip, 6000), ServerPlayer) #Astrocraft uses range 6000 to 6500
     G.SERVER = server
