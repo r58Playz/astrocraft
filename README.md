@@ -53,8 +53,3 @@ Then run AstroCraft:
 exit
 pipenv run python main.py
 ```
-
-Optionally, create a binary build of AstroCraft:
-```
-pipenv run python setup.py build
-```
