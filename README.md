@@ -3,7 +3,7 @@
 
 This is the Python version of AstroCraft, a game like Minecraft.
 
-NOTE: On built/precompiled versions, the server does not work ingame, so please start it manually using the executable `server`/`server.exe`
+## We are now not supporting frozen versions of the game because of singleplayer issues.
 
 A new formal website and download is going to be coming soon.
 
