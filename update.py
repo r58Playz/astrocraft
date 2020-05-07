@@ -51,11 +51,8 @@ def startupdate():
     ans = os.popen("pipenv run pip list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1  | xargs -n1 pip install -U").read()
     text.insert(END, "\n" + str(ans))
     prgbar["value"] = 30
-    text.insert(END, "\nStarting to compile...\n")
-    ans = os.popen("pipenv run python setup.py build").read()
-    text.insert(END, str(ans))
-    prgbar["value"] = 60
     text.insert(END, "\nStarting to copy files...")
+    prgbar["value"] = 60
     import shutil
     for subdir, dirs, files in os.walk(os.path.dirname(sys.argv[0])):
         for file in files:
