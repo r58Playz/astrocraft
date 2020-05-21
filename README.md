@@ -26,7 +26,6 @@ Use the PKGBUILD provided.
 Note that plyer, a dependency, is not in the official repositories.
 
 ## Installation for Debian and other Debian based distros such as Ubuntu
-Ubuntu has a precompiled artifact, check AppVeyor.
 
 
 Debian installation is difficult, as it involves enabling testing repositories.
